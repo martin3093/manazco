@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/api/service/auth_service.dart';
+import 'package:manazco/views/welcome_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,8 +31,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final success = await _authService.login(username, password);
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Inicio de sesión exitoso.')),
+      // Navegar a la pantalla de bienvenida
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
