@@ -27,19 +27,24 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Iniciando sesión...')));
+    try {
+      final success = await _authService.login(username, password);
 
-    final success = await _authService.login(username, password);
-
-    if (success) {
-      // Navegar a la pantalla de bienvenida
-      Navigator.push(
+      if (success) {
+        // Navegar a la pantalla de bienvenida
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error en el inicio de sesión.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error en el inicio de sesión.')),
-      );
+      ).showSnackBar(const SnackBar(content: Text('Error de conexión.')));
     }
   }
 
