@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'package:manazco/views/pantalla_principal.dart';
+import 'package:manazco/views/pantallacambiocolor.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +20,10 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Martin Home Page'),
+      // home: const MyHomePage(title: 'Flutter Demo Martin Home Page'),
+      home: PantallaCambioColor(), // Cambia a PantallaPrincipal
+      // home: const LoginScreen(), // Cambia a LoginScreen si es necesario
+      // home: const MyHomePage(title: 'Flutter Demo Home Page'), // Cambia a MyHomePage si es necesario
     );
   }
 }
