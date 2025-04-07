@@ -30,7 +30,77 @@ class _TareasScreenState extends State<TareasScreen> {
       fecha: fecha,
     ); // Crea una nueva tarea
     setState(() {
-      tasks.add(nuevaTarea); // Agrega la tarea a la lista local
+      taskService.addTask(nuevaTarea); // Usa el servicio para agregar la tarea
+      tasks = taskService.getTasks(); // Actualiza la lista local
+    });
+  }
+
+  void _eliminarTarea(int index) {
+    setState(() {
+      taskService.deleteTask(index); // Usa el servicio para eliminar la tarea
+      tasks = taskService.getTasks(); // Actualiza la lista local
+    });
+  }
+
+  /*
+  void _modificarTarea(
+    int index,
+    String titulo,
+    String detalle,
+    DateTime fecha,
+  ) {
+    final tareaModificada = Task(
+      title: titulo,
+      type: detalle,
+      fecha: fecha,
+    ); // Crea la tarea modificada
+    setState(() {
+      taskService.updateTask(
+        index,
+        tareaModificada,
+      ); // Usa el servicio para modificar la tarea
+      tasks = taskService.getTasks(); // Actualiza la lista local
+    });
+  }
+*/
+  // Método para mostrar el modal de agregar o editar tarea
+  // Este método se encarga de mostrar un modal para agregar o editar una tarea.
+  // Si se pasa un índice, se asume que se está editando una tarea existente.
+  // Si no se pasa un índice, se asume que se está agregando una nueva tarea.
+  // El modal contiene campos de texto para el título, detalle y fecha de la tarea.
+  // Al presionar el botón "Guardar", se valida que todos los campos estén completos
+  // y se agrega o edita la tarea en la lista de tareas.
+  void addTask(String titulo, String detalle, DateTime fecha) {
+    final nuevaTarea = Task(
+      title: titulo,
+      type: 'normal',
+      fecha: fecha,
+    ); // Crea una nueva tarea
+    setState(() {
+      taskService.addTask(nuevaTarea); // Usa el servicio para agregar la tarea
+      tasks = taskService.getTasks(); // Actualiza la lista local
+    });
+  }
+
+  void deleteTask(int index) {
+    setState(() {
+      taskService.deleteTask(index); // Usa el servicio para eliminar la tarea
+      tasks = taskService.getTasks(); // Actualiza la lista local
+    });
+  }
+
+  void updateTask(int index, String titulo, String detalle, DateTime fecha) {
+    final tareaModificada = Task(
+      title: titulo,
+      type: detalle,
+      fecha: fecha,
+    ); // Crea la tarea modificada
+    setState(() {
+      taskService.updateTask(
+        index,
+        tareaModificada,
+      ); // Usa el servicio para modificar la tarea
+      tasks = taskService.getTasks(); // Actualiza la lista local
     });
   }
 
@@ -161,24 +231,48 @@ class _TareasScreenState extends State<TareasScreen> {
                 itemBuilder: (context, index) {
                   final task = tasks[index];
                   return ListTile(
+                    leading: Icon(
+                      task.type == 'normal'
+                          ? Icons.task
+                          : Icons.warning, // Icono según el tipo
+                      color:
+                          task.type == 'normal'
+                              ? Colors.blue
+                              : Colors.red, // Color según el tipo
+                    ),
                     title: Text(task.title),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '$TASK_TYPE_LABEL${task.type}',
-                        ), // Usa la constante para el tipo
+                          '$TASK_TYPE_LABEL${task.type}', // Usa la constante para el tipo
+                        ),
                         Text(
-                          task.fecha.toLocal().toString().split(' ')[0],
+                          task.fecha.toLocal().toString().split(
+                            ' ',
+                          )[0], // Muestra la fecha
                           style: const TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        _mostrarModalAgregarTarea(index: index); // Editar tarea
-                      },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            _mostrarModalAgregarTarea(
+                              index: index,
+                            ); // Editar tarea
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            _eliminarTarea(index); // Eliminar tarea
+                          },
+                        ),
+                      ],
                     ),
                   );
                 },

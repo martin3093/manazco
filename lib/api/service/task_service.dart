@@ -9,13 +9,19 @@ class TaskService {
     return _repository.getTasks();
   }
 
-  // Función para filtrar tareas por tipo
-  List<Task> getTasksByType(String type) {
-    return _repository.getTasks().where((task) => task.type == type).toList();
+  // Función para agregar una nueva tarea
+  void addTask(Task task) {
+    _repository.getTasks().add(task);
+    print('Tarea agregada: ${task.title}');
   }
 
-  // Función para filtrar tareas por fecha
-  List<Task> getTasksByDate(DateTime date) {
-    return _repository.getTasks().where((task) => task.fecha == date).toList();
+  // Función para eliminar una tarea
+  void deleteTask(int index) {
+    _repository.getTasks().removeAt(index);
+  }
+
+  // Función para modificar una tarea existente
+  void updateTask(int index, Task updatedTask) {
+    _repository.getTasks()[index] = updatedTask;
   }
 }
