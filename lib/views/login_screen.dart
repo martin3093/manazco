@@ -1,57 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/api/service/auth_service.dart';
-import 'package:manazco/views/welcome_screen.dart';
+import 'package:manazco/views/welcome_screen.dart'; // Importa la pantalla de bienvenida
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final MockAuthService _authService = MockAuthService();
+class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-
-  void _login() async {
-    if (!_formKey.currentState!.validate()) {
-      // Si el formulario no es válido, no continúa
-      return;
-    }
-
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Iniciando sesión...')));
-    try {
-      final success = await _authService.login(username, password);
-
-      if (success) {
-        // Navegar a la pantalla de bienvenida
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error en el inicio de sesión.')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Error de conexión.')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final TextEditingController usernameController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+    final MockAuthService authService = MockAuthService();
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('Inicio de Sesión')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -60,36 +19,79 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextFormField(
-                controller: _usernameController,
+                controller: usernameController,
                 decoration: const InputDecoration(
-                  labelText: 'Usuario',
+                  labelText: 'Usuario *',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'El usuario es obligatorio.';
+                    return 'El usuario es obligatorio';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _passwordController,
+                controller: passwordController,
                 decoration: const InputDecoration(
-                  labelText: 'Contraseña',
+                  labelText: 'Contraseña *',
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'La contraseña es obligatoria.';
+                    return 'La contraseña es obligatoria';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _login,
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final username = usernameController.text.trim();
+                    final password = passwordController.text.trim();
+
+                    // Muestra un indicador de carga mientras se realiza la autenticación
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                    );
+
+                    try {
+                      final success = await authService.login(
+                        username,
+                        password,
+                      );
+
+                      Navigator.pop(context); // Cierra el indicador de carga
+
+                      if (success) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WelcomeScreen(),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Inicio de sesión fallido'),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      Navigator.pop(context); // Cierra el indicador de carga
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                    }
+                  }
+                },
                 child: const Text('Iniciar Sesión'),
               ),
             ],
@@ -97,12 +99,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }
