@@ -4,6 +4,7 @@ import 'package:manazco/views/welcome_screen.dart';
 import '../api/service/task_service.dart'; // Importa el servicio de tareas
 import '../constants.dart'; // Importa las constantes
 import '../domain/task.dart'; // Importa la clase Task
+import '../helpers/task_card_helper.dart'; // Importa el helper para los Cards
 
 class TareasScreen extends StatefulWidget {
   const TareasScreen({super.key});
@@ -14,6 +15,8 @@ class TareasScreen extends StatefulWidget {
 
 class _TareasScreenState extends State<TareasScreen> {
   final TaskService taskService = TaskService(); // Instancia del servicio
+  final ScrollController _scrollController =
+      ScrollController(); // Controlador de scroll
   late List<Task> tasks; // Lista de tareas obtenida del servicio
   int _selectedIndex = 0; // Índice del elemento seleccionado en el navbar
 
@@ -23,46 +26,6 @@ class _TareasScreenState extends State<TareasScreen> {
     tasks = taskService.getTasks(); // Obtiene las tareas al iniciar
   }
 
-  void _agregarTarea(String titulo, String detalle, DateTime fecha) {
-    final nuevaTarea = Task(
-      title: titulo,
-      type: 'normal',
-      fecha: fecha,
-    ); // Crea una nueva tarea
-    setState(() {
-      taskService.addTask(nuevaTarea); // Usa el servicio para agregar la tarea
-      tasks = taskService.getTasks(); // Actualiza la lista local
-    });
-  }
-
-  void _eliminarTarea(int index) {
-    setState(() {
-      taskService.deleteTask(index); // Usa el servicio para eliminar la tarea
-      tasks = taskService.getTasks(); // Actualiza la lista local
-    });
-  }
-
-  /*
-  void _modificarTarea(
-    int index,
-    String titulo,
-    String detalle,
-    DateTime fecha,
-  ) {
-    final tareaModificada = Task(
-      title: titulo,
-      type: detalle,
-      fecha: fecha,
-    ); // Crea la tarea modificada
-    setState(() {
-      taskService.updateTask(
-        index,
-        tareaModificada,
-      ); // Usa el servicio para modificar la tarea
-      tasks = taskService.getTasks(); // Actualiza la lista local
-    });
-  }
-*/
   // Método para mostrar el modal de agregar o editar tarea
   // Este método se encarga de mostrar un modal para agregar o editar una tarea.
   // Si se pasa un índice, se asume que se está editando una tarea existente.
@@ -185,15 +148,18 @@ class _TareasScreenState extends State<TareasScreen> {
                     detalle.isNotEmpty &&
                     fechaSeleccionada != null) {
                   if (index == null) {
-                    _agregarTarea(titulo, detalle, fechaSeleccionada!);
+                    addTask(
+                      titulo,
+                      detalle,
+                      fechaSeleccionada!,
+                    ); // Llama a la función correcta
                   } else {
-                    setState(() {
-                      tasks[index] = Task(
-                        title: titulo,
-                        type: detalle,
-                        fecha: fechaSeleccionada!,
-                      );
-                    });
+                    updateTask(
+                      index,
+                      titulo,
+                      detalle,
+                      fechaSeleccionada!,
+                    ); // Edita la tarea
                   }
                   Navigator.pop(context); // Cierra el modal y guarda la tarea
                 } else {
@@ -218,6 +184,7 @@ class _TareasScreenState extends State<TareasScreen> {
       appBar: AppBar(
         title: const Text(TITLE_APPBAR),
       ), // Usa la constante para el título
+      backgroundColor: Colors.grey[200], // Cambia el fondo a gris claro
       body:
           tasks.isEmpty
               ? const Center(
@@ -226,57 +193,20 @@ class _TareasScreenState extends State<TareasScreen> {
                   style: TextStyle(fontSize: 18),
                 ),
               )
+              //ajuste card helper
               : ListView.builder(
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
-                  return ListTile(
-                    leading: Icon(
-                      task.type == 'normal'
-                          ? Icons.task
-                          : Icons.warning, // Icono según el tipo
-                      color:
-                          task.type == 'normal'
-                              ? Colors.blue
-                              : Colors.red, // Color según el tipo
-                    ),
-                    title: Text(task.title),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$TASK_TYPE_LABEL${task.type}', // Usa la constante para el tipo
-                        ),
-                        Text(
-                          task.fecha.toLocal().toString().split(
-                            ' ',
-                          )[0], // Muestra la fecha
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            _mostrarModalAgregarTarea(
-                              index: index,
-                            ); // Editar tarea
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            _eliminarTarea(index); // Eliminar tarea
-                          },
-                        ),
-                      ],
-                    ),
+                  return buildTaskCard(
+                    task,
+                    () =>
+                        _mostrarModalAgregarTarea(index: index), // Editar tarea
+                    () => deleteTask(index), // Eliminar tarea
                   );
                 },
               ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => _mostrarModalAgregarTarea(),
         tooltip: 'Agregar Tarea',
