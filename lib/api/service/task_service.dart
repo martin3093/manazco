@@ -65,11 +65,11 @@ class TaskService {
   }
 
   // Método para obtener pasos según el título de la tarea
-  List<String> obtenerPasos(String titulo) {
+  List<String> obtenerPasos(String titulo, DateTime fechaLimite) {
     return [
-      'Paso 1: Planificar $titulo',
-      'Paso 2: Ejecutar $titulo',
-      'Paso 3: Revisar $titulo',
+      'Paso 1: Planificar antes del ${fechaLimite.toLocal()}',
+      'Paso 2: Ejecutar antes del ${fechaLimite.toLocal()}',
+      'Paso 3: Revisar antes del ${fechaLimite.toLocal()}',
     ];
   }
 }
