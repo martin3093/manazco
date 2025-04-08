@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/views/login_screen.dart';
 import 'package:manazco/views/welcome_screen.dart';
+import '../api/service/task_service.dart'; // Importa el servicio de tareas
+import '../constants.dart'; // Importa las constantes
+import '../domain/task.dart'; // Importa la clase Task
+import '../helpers/task_card_helper.dart'; // Importa el helper para los Cards
 
 class TareasScreen extends StatefulWidget {
   const TareasScreen({super.key});
@@ -10,76 +14,111 @@ class TareasScreen extends StatefulWidget {
 }
 
 class _TareasScreenState extends State<TareasScreen> {
-  final List<Map<String, dynamic>> tareas = [];
-
+  final TaskService taskService = TaskService(); // Instancia del servicio
+  final ScrollController _scrollController =
+      ScrollController(); // Controlador de scroll
+  late List<Task> tasks; // Lista de tareas obtenida del servicio
   int _selectedIndex = 0; // Índice del elemento seleccionado en el navbar
+  bool _isLoading = false; // Indica si se están cargando más tareas
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    // Lógica para manejar la navegación según el índice seleccionado
-    switch (index) {
-      case 0: // Inicio
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-        );
-        break;
-      case 1: // Añadir Tarea
-        // Ya estás en TareasScreen, no necesitas navegar
-        break;
-      case 2: // Salir
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
-        break;
-    }
-  }
-  //final List<Map<String, String>> tareas = []; // Lista de tareas
-
-  /*void _agregarTarea(String titulo, String detalle) {
-    setState(() {
-      tareas.add({'titulo': titulo, 'detalle': detalle});
+  @override
+  @override
+  void initState() {
+    super.initState();
+    tasks = taskService.getTasks(page: 0); // Carga la primera página de tareas
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent &&
+          !_isLoading) {
+        _loadMoreTasks(); // Carga más tareas al llegar al final
+      }
     });
   }
 
-  void _editarTarea(int index, String titulo, String detalle) {
+  int _currentPage = 0; // Página actual
+
+  void _loadMoreTasks() async {
+    if (_isLoading) return; // Evita cargar más si ya está cargando
     setState(() {
-      tareas[index] = {'titulo': titulo, 'detalle': detalle};
+      _isLoading = true;
     });
-  }
-*/
-  void _agregarTarea(String titulo, String detalle, DateTime fecha) {
+
+    await Future.delayed(
+      const Duration(seconds: 1),
+    ); // Simula un retraso de carga
+
     setState(() {
-      tareas.add({'titulo': titulo, 'detalle': detalle, 'fecha': fecha});
+      final nextTasks = taskService.getTasks(
+        page: _currentPage,
+      ); // Obtén la página actual
+      if (nextTasks.isNotEmpty) {
+        tasks.addAll(nextTasks); // Agrega las nuevas tareas a la lista actual
+        _currentPage++; // Incrementa la página actual
+      }
+      _isLoading = false; // Finaliza el estado de carga
     });
   }
 
-  void _editarTarea(int index, String titulo, String detalle, DateTime fecha) {
+  // Método para mostrar el modal de agregar o editar tarea
+  // Este método se encarga de mostrar un modal para agregar o editar una tarea.
+  // Si se pasa un índice, se asume que se está editando una tarea existente.
+  // Si no se pasa un índice, se asume que se está agregando una nueva tarea.
+  // El modal contiene campos de texto para el título, detalle y fecha de la tarea.
+  // Al presionar el botón "Guardar", se valida que todos los campos estén completos
+  // y se agrega o edita la tarea en la lista de tareas.
+  void addTask(String titulo, String detalle, DateTime fecha) {
+    final nuevaTarea = Task(
+      title: titulo,
+      type: 'normal',
+      fecha: fecha,
+    ); // Crea una nueva tarea
     setState(() {
-      tareas[index] = {'titulo': titulo, 'detalle': detalle, 'fecha': fecha};
+      taskService.addTask(nuevaTarea); // Usa el servicio para agregar la tarea
+      tasks.insert(
+        0,
+        nuevaTarea,
+      ); // Agrega la nueva tarea al inicio de la lista local
+    });
+  }
+
+  void deleteTask(int index) {
+    setState(() {
+      final taskToDelete = tasks[index]; // Obtén la tarea a eliminar
+      taskService.deleteTask(index); // Usa el servicio para eliminar la tarea
+      tasks.remove(taskToDelete); // Elimina la tarea de la lista local
+    });
+  }
+
+  void updateTask(int index, String titulo, String detalle, DateTime fecha) {
+    final tareaModificada = Task(
+      title: titulo,
+      type: detalle,
+      fecha: fecha,
+    ); // Crea la tarea modificada
+    setState(() {
+      taskService.updateTask(
+        index,
+        tareaModificada,
+      ); // Actualiza la tarea en el servicio
+      tasks[index] = tareaModificada; // Actualiza la tarea en la lista local
     });
   }
 
   void _mostrarModalAgregarTarea({int? index}) {
     final TextEditingController tituloController = TextEditingController(
-      text: index != null ? tareas[index]['titulo'] : '',
+      text: index != null ? tasks[index].title : '',
     );
     final TextEditingController detalleController = TextEditingController(
-      text: index != null ? tareas[index]['detalle'] : '',
+      text: index != null ? tasks[index].type : '',
     );
     final TextEditingController fechaController = TextEditingController(
       text:
           index != null
-              ? (tareas[index]['fecha'] as DateTime).toLocal().toString().split(
-                ' ',
-              )[0]
+              ? tasks[index].fecha.toLocal().toString().split(' ')[0]
               : '',
     );
-    DateTime? fechaSeleccionada = index != null ? tareas[index]['fecha'] : null;
+    DateTime? fechaSeleccionada = index != null ? tasks[index].fecha : null;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -142,13 +181,30 @@ class _TareasScreenState extends State<TareasScreen> {
                 final titulo = tituloController.text.trim();
                 final detalle = detalleController.text.trim();
 
-                if (titulo.isNotEmpty && detalle.isNotEmpty) {
+                if (titulo.isNotEmpty &&
+                    detalle.isNotEmpty &&
+                    fechaSeleccionada != null) {
                   if (index == null) {
-                    _agregarTarea(titulo, detalle, fechaSeleccionada!);
+                    addTask(
+                      titulo,
+                      detalle,
+                      fechaSeleccionada!,
+                    ); // Llama a la función correcta
                   } else {
-                    _editarTarea(index, titulo, detalle, fechaSeleccionada!);
+                    updateTask(
+                      index,
+                      titulo,
+                      detalle,
+                      fechaSeleccionada!,
+                    ); // Edita la tarea
                   }
                   Navigator.pop(context); // Cierra el modal y guarda la tarea
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Por favor, completa todos los campos.'),
+                    ),
+                  );
                 }
               },
               child: const Text('Guardar'),
@@ -162,51 +218,54 @@ class _TareasScreenState extends State<TareasScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tareas')),
+      appBar: AppBar(title: const Text(TITLE_APPBAR)),
+      backgroundColor: Colors.grey[200], // Cambia el fondo a gris claro
       body:
-          tareas.isEmpty
+          tasks.isEmpty
               ? const Center(
                 child: Text(
-                  'No hay tareas. Agrega una nueva tarea.',
+                  EMPTY_LIST, // Usa la constante para el mensaje de lista vacía
                   style: TextStyle(fontSize: 18),
                 ),
               )
               : ListView.builder(
-                itemCount: tareas.length,
+                controller:
+                    _scrollController, // Asigna el controlador de scroll
+                itemCount:
+                    tasks.length + 1, // Añade 1 para el indicador de carga
                 itemBuilder: (context, index) {
-                  final tarea = tareas[index];
-                  return ListTile(
-                    title: Text(tarea['titulo']!),
-                    /*
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(tarea['detalle']),
-                        Text(
-                          tarea['fecha'] != null
-                              ? (tarea['fecha'] as DateTime)
-                                  .toLocal()
-                                  .toString()
-                                  .split(' ')[0]
-                              : 'Sin fecha',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                          ), // Estilo para la fecha
-                        ),
-                      ],
-                    ),*/
-                    onTap: () {
-                      _mostrarModalAgregarTarea(
-                        index: index,
-                      ); // Editar tarea al tocar
-                    },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        _mostrarModalAgregarTarea(index: index); // Editar tarea
+                  if (index < tasks.length) {
+                    final task = tasks[index];
+                    return Dismissible(
+                      key: Key(task.title), // Identificador único
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      onDismissed: (direction) {
+                        deleteTask(index); // Elimina la tarea al deslizar
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${task.title} eliminada')),
+                        );
                       },
-                    ),
-                  );
+                      child: buildTaskCard(
+                        task,
+                        () => _mostrarModalAgregarTarea(
+                          index: index,
+                        ), // Editar tarea
+                        () => deleteTask(index), // Eliminar tarea
+                      ),
+                    );
+                  } else {
+                    return _isLoading
+                        ? const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink(); // Indicador de carga
+                  }
                 },
               ),
       floatingActionButton: FloatingActionButton(
@@ -216,11 +275,11 @@ class _TareasScreenState extends State<TareasScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex, // Índice del elemento seleccionado
-        onTap: _onItemTapped, // Maneja el evento de selección
+        onTap: (index) => setState(() => _selectedIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Añadir Tarea'),
-          BottomNavigationBarItem(icon: Icon(Icons.close), label: "Salirr"),
+          BottomNavigationBarItem(icon: Icon(Icons.close), label: "Salir"),
         ],
       ),
     );
