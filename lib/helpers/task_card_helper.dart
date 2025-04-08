@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/api/service/task_service.dart';
+import 'package:manazco/components/deportiva_card.dart';
 import '../domain/task.dart'; // Importa la clase Task
 import '../components/custom_card.dart'; // Importa el componente CustomCard
 import '../constants.dart'; // Importa las constantes
@@ -17,10 +18,33 @@ Widget buildTaskCard(Task task, VoidCallback onEdit, VoidCallback onDelete) {
     'title': task.title,
     'type': '$TASK_TYPE_LABEL${task.type}',
     'date': task.fecha.toLocal().toString().split(' ')[0],
-    //'steps': task.pasos, // Incluye los pasos de la tarea
     'steps': steps,
   };
 
   // Pasa los datos procesados al CustomCard
   return CustomCard(data: taskData, onEdit: onEdit, onDelete: onDelete);
+}
+
+Widget construirTarjetaDeportiva(
+  Task task,
+  int index,
+  VoidCallback onEdit,
+  VoidCallback onDelete,
+) {
+  // Procesa los pasos de la tarea
+  final List<String> steps = _taskService.obtenerPasos(
+    task.title,
+    task.fechaLimite,
+  );
+
+  // Construye una tarjeta con formato deportivo
+  return DeportivaCard(
+    imageUrl:
+        'https://picsum.photos/200/300?random=$index', // Imagen aleatoria basada en el índice
+    title: task.title,
+    steps: steps,
+    deadline: task.fechaLimite.toLocal().toString().split(' ')[0],
+    onEdit: onEdit, // Callback para editar
+    onDelete: onDelete, // Callback para eliminar
+  );
 }

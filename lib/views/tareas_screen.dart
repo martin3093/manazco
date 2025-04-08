@@ -93,6 +93,24 @@ class _TareasScreenState extends State<TareasScreen> {
 
   void updateTask(int index, String titulo, String detalle, DateTime fecha) {
     final tareaModificada = Task(
+      title: titulo,
+      type: detalle,
+      fecha: fecha,
+      fechaLimite: fecha,
+      pasos: tasks[index].pasos, // Mantén los pasos existentes
+    );
+
+    setState(() {
+      taskService.updateTask(
+        index,
+        tareaModificada,
+      ); // Actualiza en el servicio
+      tasks[index] = tareaModificada; // Actualiza en la lista local
+    });
+  }
+  /*
+  void updateTask(int index, String titulo, String detalle, DateTime fecha) {
+    final tareaModificada = Task(
       // Campos adicionales
       title: titulo,
       type: detalle,
@@ -107,7 +125,7 @@ class _TareasScreenState extends State<TareasScreen> {
       ); // Actualiza la tarea en el servicio
       tasks[index] = tareaModificada; // Actualiza la tarea en la lista local
     });
-  }
+  }*/
 
   void _mostrarModalAgregarTarea({int? index}) {
     final TextEditingController tituloController = TextEditingController(
@@ -255,14 +273,34 @@ class _TareasScreenState extends State<TareasScreen> {
                           SnackBar(content: Text('${task.title} eliminada')),
                         );
                       },
-                      child: buildTaskCard(
+                      child: construirTarjetaDeportiva(
                         task,
+                        index,
                         () => _mostrarModalAgregarTarea(
                           index: index,
                         ), // Editar tarea
-                        () => deleteTask(index), // Eliminar tarea
+                        () => deleteTask(index),
                       ),
                     );
+                    /* child:
+                          index % 2 ==
+                                  0 // Alterna entre los dos métodos
+                              ? construirTarjetaDeportiva(
+                                task,
+                                index,
+                                () => _mostrarModalAgregarTarea(
+                                  index: index,
+                                ), // Editar tarea
+                                () => deleteTask(index),
+                              )
+                              : buildTaskCard(
+                                task,
+                                () => _mostrarModalAgregarTarea(
+                                  index: index,
+                                ), // Editar tarea
+                                () => deleteTask(index), // Eliminar tarea
+                              ),
+                    );*/
                   } else {
                     return _isLoading
                         ? const Padding(
