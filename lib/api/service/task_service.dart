@@ -63,4 +63,13 @@ class TaskService {
   void updateTask(int index, Task updatedTask) {
     _repository.getTasks()[index] = updatedTask;
   }
+
+  // Método para obtener pasos según el título de la tarea
+  List<String> obtenerPasos(String titulo) {
+    return [
+      'Paso 1: Planificar $titulo',
+      'Paso 2: Ejecutar $titulo',
+      'Paso 3: Revisar $titulo',
+    ];
+  }
 }

@@ -71,6 +71,8 @@ class _TareasScreenState extends State<TareasScreen> {
       title: titulo,
       type: 'normal',
       fecha: fecha,
+      fechaLimite: fecha,
+      pasos: [],
     ); // Crea una nueva tarea
     setState(() {
       taskService.addTask(nuevaTarea); // Usa el servicio para agregar la tarea
@@ -91,9 +93,12 @@ class _TareasScreenState extends State<TareasScreen> {
 
   void updateTask(int index, String titulo, String detalle, DateTime fecha) {
     final tareaModificada = Task(
+      // Campos adicionales
       title: titulo,
       type: detalle,
       fecha: fecha,
+      fechaLimite: fecha,
+      pasos: [],
     ); // Crea la tarea modificada
     setState(() {
       taskService.updateTask(
