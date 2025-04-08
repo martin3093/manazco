@@ -45,6 +45,7 @@ Widget construirTarjetaDeportiva(
     steps: steps,
     deadline: task.fechaLimite.toLocal().toString().split(' ')[0],
     onEdit: onEdit, // Callback para editar
-    onDelete: onDelete, // Callback para eliminar
+    onDelete: onDelete,
+    task: task, // Callback para eliminar
   );
 }

@@ -3,8 +3,13 @@ import '../domain/task.dart'; // Importa la clase Task
 
 class DetalleTareaScreen extends StatelessWidget {
   final Task task;
+  final String imageUrl; // URL de la imagen
 
-  const DetalleTareaScreen({super.key, required this.task});
+  const DetalleTareaScreen({
+    super.key,
+    required this.task,
+    required this.imageUrl, // Recibe la URL de la imagen
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +24,7 @@ class DetalleTareaScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
-                'https://picsum.photos/400/300?random=${task.title.hashCode}',
+                imageUrl, // Usa la URL pasada como parámetro
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
