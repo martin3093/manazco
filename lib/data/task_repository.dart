@@ -23,6 +23,51 @@ class TaskRepository {
       type: 'normal',
       fecha: DateTime.now().subtract(const Duration(days: 4)),
     ),
+    Task(
+      title: 'Tarea 3',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 2)),
+    ),
+    Task(
+      title: 'Tarea 4',
+      type: 'urgente',
+      fecha: DateTime.now().subtract(const Duration(days: 3)),
+    ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+    ),
+    Task(
+      title: 'Tarea 3',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 2)),
+    ),
+    Task(
+      title: 'Tarea 4',
+      type: 'urgente',
+      fecha: DateTime.now().subtract(const Duration(days: 3)),
+    ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+    ),
+    Task(
+      title: 'Tarea 3',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 2)),
+    ),
+    Task(
+      title: 'Tarea 4',
+      type: 'urgente',
+      fecha: DateTime.now().subtract(const Duration(days: 3)),
+    ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+    ),
   ];
 
   int _taskCounter = _tasks.length; // Contador para generar nuevas tareas
