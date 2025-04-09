@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/views/tareasscreen.dart';
+import 'package:manazco/views/tareas_screen.dart';
 import 'package:manazco/views/login_screen.dart';
 import 'package:manazco/views/welcome_screen.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/views/login_screen.dart';
-import 'package:manazco/views/welcome_screen.dart';
+import 'package:manazco/views/detalle_tarea_screen.dart';
+
 import '../api/service/task_service.dart'; // Importa el servicio de tareas
 import '../constants.dart'; // Importa las constantes
 import '../domain/task.dart'; // Importa la clase Task
@@ -67,10 +67,13 @@ class _TareasScreenState extends State<TareasScreen> {
   // Al presionar el botón "Guardar", se valida que todos los campos estén completos
   // y se agrega o edita la tarea en la lista de tareas.
   void addTask(String titulo, String detalle, DateTime fecha) {
+    final pasos = taskService.obtenerPasos(titulo, fecha);
     final nuevaTarea = Task(
       title: titulo,
       type: 'normal',
       fecha: fecha,
+      fechaLimite: fecha,
+      pasos: pasos,
     ); // Crea una nueva tarea
     setState(() {
       taskService.addTask(nuevaTarea); // Usa el servicio para agregar la tarea
@@ -94,13 +97,16 @@ class _TareasScreenState extends State<TareasScreen> {
       title: titulo,
       type: detalle,
       fecha: fecha,
-    ); // Crea la tarea modificada
+      fechaLimite: fecha,
+      pasos: tasks[index].pasos, // Mantén los pasos existentes
+    );
+
     setState(() {
       taskService.updateTask(
         index,
         tareaModificada,
-      ); // Actualiza la tarea en el servicio
-      tasks[index] = tareaModificada; // Actualiza la tarea en la lista local
+      ); // Actualiza en el servicio
+      tasks[index] = tareaModificada; // Actualiza en la lista local
     });
   }
 
@@ -250,12 +256,13 @@ class _TareasScreenState extends State<TareasScreen> {
                           SnackBar(content: Text('${task.title} eliminada')),
                         );
                       },
-                      child: buildTaskCard(
+                      child: construirTarjetaDeportiva(
                         task,
+                        index,
                         () => _mostrarModalAgregarTarea(
                           index: index,
                         ), // Editar tarea
-                        () => deleteTask(index), // Eliminar tarea
+                        () => deleteTask(index),
                       ),
                     );
                   } else {

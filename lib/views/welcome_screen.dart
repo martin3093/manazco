@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 //import 'package:kgaona/views/tareasscreen.dart';
 import 'package:manazco/views/login_screen.dart';
-import 'package:manazco/views/base_screen.dart';
-
-import 'package:manazco/views/login_screen.dart';
 import 'package:manazco/views/tareas_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -221,8 +218,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         onTap: _onItemTapped, // Maneja el evento de selección
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Añadir Tarea'),
-          BottomNavigationBarItem(icon: Icon(Icons.close), label: "Salirr"),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Tareas'),
+          BottomNavigationBarItem(icon: Icon(Icons.close), label: "Salir"),
         ],
       ),
     );

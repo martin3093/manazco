@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manazco/constants.dart' as AppConstants;
 
 class CustomCard extends StatelessWidget {
   final Map<String, dynamic> data; // Datos procesados del helper
@@ -37,6 +38,10 @@ class CustomCard extends StatelessWidget {
               data['date'], // Fecha procesada
               style: const TextStyle(color: Colors.grey),
             ),
+            const SizedBox(height: 4), // Espacio entre la fecha y los pasos
+            Text(
+              '${AppConstants.PASOS_TITULO} ${data['steps'] != null && data['steps'].isNotEmpty ? data['steps'][0] : 'Sin pasos'}',
+            ), // Muestra solo el primer paso o "Sin pasos"
           ],
         ),
         trailing: Row(
