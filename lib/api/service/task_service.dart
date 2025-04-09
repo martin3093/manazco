@@ -73,10 +73,6 @@ class TaskService {
       'Paso 1: Planificar antes del $fechaStr',
       'Paso 2: Ejecutar antes del $fechaStr',
       'Paso 3: Revisar antes del $fechaStr',
-
-      /*'Paso 1: Planificar antes del ${fechaLimite.toLocal()}',
-      'Paso 2: Ejecutar antes del ${fechaLimite.toLocal()}',
-      'Paso 3: Revisar antes del ${fechaLimite.toLocal()}',*/
     ];
   }
 }
