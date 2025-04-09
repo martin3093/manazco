@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/views/login_screen.dart';
-import 'package:manazco/views/welcome_screen.dart';
+
 import '../api/service/task_service.dart'; // Importa el servicio de tareas
 import '../constants.dart'; // Importa las constantes
 import '../domain/task.dart'; // Importa la clase Task
@@ -108,24 +107,6 @@ class _TareasScreenState extends State<TareasScreen> {
       tasks[index] = tareaModificada; // Actualiza en la lista local
     });
   }
-  /*
-  void updateTask(int index, String titulo, String detalle, DateTime fecha) {
-    final tareaModificada = Task(
-      // Campos adicionales
-      title: titulo,
-      type: detalle,
-      fecha: fecha,
-      fechaLimite: fecha,
-      pasos: [],
-    ); // Crea la tarea modificada
-    setState(() {
-      taskService.updateTask(
-        index,
-        tareaModificada,
-      ); // Actualiza la tarea en el servicio
-      tasks[index] = tareaModificada; // Actualiza la tarea en la lista local
-    });
-  }*/
 
   void _mostrarModalAgregarTarea({int? index}) {
     final TextEditingController tituloController = TextEditingController(

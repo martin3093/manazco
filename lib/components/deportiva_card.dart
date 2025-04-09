@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter/material.dart';
 import '../views/detalle_tarea_screen.dart'; // Importa la pantalla de detalle
 import '../domain/task.dart'; // Importa la clase Task
 

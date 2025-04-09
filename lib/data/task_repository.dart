@@ -67,6 +67,71 @@ class TaskRepository {
         'Paso 3: Revisar Tarea 5',
       ],
     ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+      fechaLimite: DateTime.now().add(
+        const Duration(days: 5),
+      ), // Fecha límite: 5 días desde hoy
+      pasos: [
+        'Paso 1: Planificar Tarea 5',
+        'Paso 2: Ejecutar Tarea 5',
+        'Paso 3: Revisar Tarea 5',
+      ],
+    ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+      fechaLimite: DateTime.now().add(
+        const Duration(days: 5),
+      ), // Fecha límite: 5 días desde hoy
+      pasos: [
+        'Paso 1: Planificar Tarea 5',
+        'Paso 2: Ejecutar Tarea 5',
+        'Paso 3: Revisar Tarea 5',
+      ],
+    ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+      fechaLimite: DateTime.now().add(
+        const Duration(days: 5),
+      ), // Fecha límite: 5 días desde hoy
+      pasos: [
+        'Paso 1: Planificar Tarea 5',
+        'Paso 2: Ejecutar Tarea 5',
+        'Paso 3: Revisar Tarea 5',
+      ],
+    ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+      fechaLimite: DateTime.now().add(
+        const Duration(days: 5),
+      ), // Fecha límite: 5 días desde hoy
+      pasos: [
+        'Paso 1: Planificar Tarea 5',
+        'Paso 2: Ejecutar Tarea 5',
+        'Paso 3: Revisar Tarea 5',
+      ],
+    ),
+    Task(
+      title: 'Tarea 5',
+      type: 'normal',
+      fecha: DateTime.now().subtract(const Duration(days: 4)),
+      fechaLimite: DateTime.now().add(
+        const Duration(days: 5),
+      ), // Fecha límite: 5 días desde hoy
+      pasos: [
+        'Paso 1: Planificar Tarea 5',
+        'Paso 2: Ejecutar Tarea 5',
+        'Paso 3: Revisar Tarea 5',
+      ],
+    ),
   ];
 
   int _taskCounter = _tasks.length; // Contador para generar nuevas tareas
