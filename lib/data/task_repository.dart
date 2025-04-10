@@ -5,10 +5,10 @@ class TaskRepository {
     Task(
       title: 'Tarea 1',
       type: 'normal',
+
       fecha: DateTime.now(),
-      fechaLimite: DateTime.now().add(
-        const Duration(days: 1),
-      ), // Fecha límite: 1 día desde hoy
+      fechaLimite: DateTime.now().add(const Duration(days: 1)),
+      description: 'hola', // Fecha límite: 1 día desde hoy
       pasos: [
         'Paso 1: Planificar Tarea 1',
         'Paso 2: Ejecutar Tarea 1',
@@ -18,6 +18,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 2',
       type: 'urgente',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 1)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 2),
@@ -31,6 +32,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 3',
       type: 'normal',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 2)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 3),
@@ -44,6 +46,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 4',
       type: 'urgente',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 3)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 4),
@@ -57,6 +60,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 5',
       type: 'normal',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 4)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 5),
@@ -70,6 +74,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 5',
       type: 'normal',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 4)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 5),
@@ -83,6 +88,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 5',
       type: 'normal',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 4)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 5),
@@ -96,6 +102,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 5',
       type: 'normal',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 4)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 5),
@@ -109,6 +116,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 5',
       type: 'normal',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 4)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 5),
@@ -122,6 +130,7 @@ class TaskRepository {
     Task(
       title: 'Tarea 5',
       type: 'normal',
+      description: 'hola',
       fecha: DateTime.now().subtract(const Duration(days: 4)),
       fechaLimite: DateTime.now().add(
         const Duration(days: 5),
@@ -147,10 +156,8 @@ class TaskRepository {
       _taskCounter++;
       return Task(
         title: 'Tarea $_taskCounter',
-        type:
-            _taskCounter % 2 == 0
-                ? 'normal'
-                : 'urgente', // Alterna entre 'normal' y 'urgente'
+        type: _taskCounter % 2 == 0 ? 'normal' : 'urgente',
+        description: 'hola', // Alterna entre 'normal' y 'urgente'
         fecha: DateTime.now().subtract(Duration(days: _taskCounter)),
         fechaLimite: DateTime.now().add(
           Duration(days: _taskCounter % 5 + 1),

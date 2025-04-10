@@ -60,23 +60,13 @@ class _TareasScreenState extends State<TareasScreen> {
   }
 
   // Método para mostrar el modal de agregar o editar tarea
-  // Este método se encarga de mostrar un modal para agregar o editar una tarea.
-  // Si se pasa un índice, se asume que se está editando una tarea existente.
-  // Si no se pasa un índice, se asume que se está agregando una nueva tarea.
-  // El modal contiene campos de texto para el título, detalle y fecha de la tarea.
-  // Al presionar el botón "Guardar", se valida que todos los campos estén completos
-  // y se agrega o edita la tarea en la lista de tareas.
-  void addTask(String titulo, String detalle, DateTime fecha) {
-    final pasos = taskService.obtenerPasos(titulo, fecha);
-    final nuevaTarea = Task(
-      title: titulo,
-      type: 'normal',
-      fecha: fecha,
-      fechaLimite: fecha,
-      pasos: pasos,
-    ); // Crea una nueva tarea
+
+  void addnewTask(String titulo, String detalle, DateTime fecha) async {
+    Task nuevaTarea = await taskService.addNewTask(titulo, detalle, fecha);
+
+    // Crea una nueva tarea
     setState(() {
-      taskService.addTask(nuevaTarea); // Usa el servicio para agregar la tarea
+      // Usa el servicio para agregar la tarea
       tasks.insert(
         0,
         nuevaTarea,
@@ -96,6 +86,7 @@ class _TareasScreenState extends State<TareasScreen> {
     final tareaModificada = Task(
       title: titulo,
       type: detalle,
+      description: detalle,
       fecha: fecha,
       fechaLimite: fecha,
       pasos: tasks[index].pasos, // Mantén los pasos existentes
@@ -191,7 +182,7 @@ class _TareasScreenState extends State<TareasScreen> {
                     detalle.isNotEmpty &&
                     fechaSeleccionada != null) {
                   if (index == null) {
-                    addTask(
+                    addnewTask(
                       titulo,
                       detalle,
                       fechaSeleccionada!,

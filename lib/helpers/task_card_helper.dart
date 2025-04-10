@@ -31,7 +31,7 @@ Widget construirTarjetaDeportiva(
   VoidCallback onEdit,
   VoidCallback onDelete,
 ) {
-  // Procesa los pasos de la tarea
+  // Procesa los pasos de la tarea/*
   final List<String> steps = _taskService.obtenerPasos(
     task.title,
     task.fechaLimite,
