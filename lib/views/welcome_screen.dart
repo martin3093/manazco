@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:manazco/main.dart' show MyApp, main;
+import 'package:manazco/views/contador.dart';
 
 //import 'package:kgaona/views/tareasscreen.dart';
 import 'package:manazco/views/login_screen.dart';
 import 'package:manazco/views/tareas_screen.dart';
+import 'package:manazco/views/pantalla_principal.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -125,6 +128,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               },
             ),
             ListTile(
+              leading: Icon(Icons.task),
+              title: Text('Contador'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyHomePage(title: 'contador'),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text('Salir'),
               onTap: () {
@@ -178,15 +193,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                // Acción para listar cotizaciones
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Listando cotizaciones...')),
-                );
-              },
-              child: const Text('Listar Cotizaciones PS'),
-            ),
+
             ElevatedButton(
               onPressed: fetchQuotes,
               child: const Text('Listar Cotizaciones'),
@@ -201,15 +208,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               child: Text("Cotizaciones"),
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                // Aquí puedes agregar la lógica para listar cotizaciones
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Listando cotizaciones...')),
-                );
-              },
-              child: const Text('Listar Cotizaciones'),
-            ),
           ],
         ),
       ),
