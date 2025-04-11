@@ -11,6 +11,8 @@ class DeportivaCard extends StatelessWidget {
   final VoidCallback onEdit; // Callback para editar
   final VoidCallback onDelete; // Callback para eliminar
   final Task task; // Objeto Task para pasar a la pantalla de detalle
+  final List<Task> tasks; // Lista completa de tareas
+  final int index; // Índice actual de la tarea
 
   const DeportivaCard({
     super.key,
@@ -21,20 +23,23 @@ class DeportivaCard extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.task,
+    required this.tasks,
+    required this.index,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navega a la pantalla de detalle y pasa la URL de la imagen
         Navigator.push(
           context,
           MaterialPageRoute(
             builder:
                 (context) => DetalleTareaScreen(
                   task: task,
-                  imageUrl: imageUrl, // Pasa la URL de la imagen
+                  imageUrl: imageUrl,
+                  tasks: tasks,
+                  index: index,
                 ),
           ),
         );
@@ -86,6 +91,15 @@ class DeportivaCard extends StatelessWidget {
                   Text(
                     'Fecha límite: $deadline',
                     style: const TextStyle(color: Colors.grey),
+                  ),
+                  Icon(
+                    task.type == 'normal' ? Icons.task : Icons.warning,
+                    color: task.type == 'normal' ? Colors.blue : Colors.red,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Estado: ${task.type}',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),

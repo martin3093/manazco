@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manazco/components/task_modal.dart';
 import 'package:manazco/views/detalle_tarea_screen.dart';
 
 import '../api/service/task_service.dart'; // Importa el servicio de tareas
@@ -20,8 +21,8 @@ class _TareasScreenState extends State<TareasScreen> {
   late List<Task> tasks; // Lista de tareas obtenida del servicio
   int _selectedIndex = 0; // Índice del elemento seleccionado en el navbar
   bool _isLoading = false; // Indica si se están cargando más tareas
+  int _currentPage = 0; // Página actual
 
-  @override
   @override
   void initState() {
     super.initState();
@@ -34,8 +35,6 @@ class _TareasScreenState extends State<TareasScreen> {
       }
     });
   }
-
-  int _currentPage = 0; // Página actual
 
   void _loadMoreTasks() async {
     if (_isLoading) return; // Evita cargar más si ya está cargando
@@ -53,6 +52,7 @@ class _TareasScreenState extends State<TareasScreen> {
       ); // Obtén la página actual
       if (nextTasks.isNotEmpty) {
         tasks.addAll(nextTasks); // Agrega las nuevas tareas a la lista actual
+        print('Tareas cargadas: ${tasks.length}'); // Depuración
         _currentPage++; // Incrementa la página actual
       }
       _isLoading = false; // Finaliza el estado de carga
@@ -77,7 +77,9 @@ class _TareasScreenState extends State<TareasScreen> {
   void deleteTask(int index) {
     setState(() {
       final taskToDelete = tasks[index]; // Obtén la tarea a eliminar
-      taskService.deleteTask(index); // Usa el servicio para eliminar la tarea
+      taskService.deleteTasktest(
+        index,
+      ); // Usa el servicio para eliminar la tarea
       tasks.remove(taskToDelete); // Elimina la tarea de la lista local
     });
   }
@@ -102,111 +104,20 @@ class _TareasScreenState extends State<TareasScreen> {
   }
 
   void _mostrarModalAgregarTarea({int? index}) {
-    final TextEditingController tituloController = TextEditingController(
-      text: index != null ? tasks[index].title : '',
-    );
-    final TextEditingController detalleController = TextEditingController(
-      text: index != null ? tasks[index].type : '',
-    );
-    final TextEditingController fechaController = TextEditingController(
-      text:
-          index != null
-              ? tasks[index].fecha.toLocal().toString().split(' ')[0]
-              : '',
-    );
-    DateTime? fechaSeleccionada = index != null ? tasks[index].fecha : null;
+    final Task? tarea = index != null ? tasks[index] : null;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(index == null ? 'Agregar Tarea' : 'Editar Tarea'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: tituloController,
-                decoration: const InputDecoration(
-                  labelText: 'Título',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: detalleController,
-                decoration: const InputDecoration(
-                  labelText: 'Detalle',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: fechaController,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Fecha',
-                  border: OutlineInputBorder(),
-                  hintText: 'Seleccionar Fecha',
-                ),
-                onTap: () async {
-                  DateTime? nuevaFecha = await showDatePicker(
-                    context: context,
-                    initialDate: fechaSeleccionada ?? DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (nuevaFecha != null) {
-                    setState(() {
-                      fechaSeleccionada = nuevaFecha;
-                      fechaController.text =
-                          nuevaFecha.toLocal().toString().split(' ')[0];
-                    });
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Cierra el modal sin guardar
-              },
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final titulo = tituloController.text.trim();
-                final detalle = detalleController.text.trim();
-
-                if (titulo.isNotEmpty &&
-                    detalle.isNotEmpty &&
-                    fechaSeleccionada != null) {
-                  if (index == null) {
-                    addnewTask(
-                      titulo,
-                      detalle,
-                      fechaSeleccionada!,
-                    ); // Llama a la función correcta
-                  } else {
-                    updateTask(
-                      index,
-                      titulo,
-                      detalle,
-                      fechaSeleccionada!,
-                    ); // Edita la tarea
-                  }
-                  Navigator.pop(context); // Cierra el modal y guarda la tarea
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Por favor, completa todos los campos.'),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
+        return TaskModal(
+          task: tarea,
+          onSave: (String title, String type, DateTime fecha) {
+            if (index == null) {
+              addnewTask(title, type, fecha); // Agregar nueva tarea
+            } else {
+              updateTask(index, title, type, fecha); // Editar tarea existente
+            }
+          },
         );
       },
     );
@@ -254,6 +165,7 @@ class _TareasScreenState extends State<TareasScreen> {
                           index: index,
                         ), // Editar tarea
                         () => deleteTask(index),
+                        tasks,
                       ),
                     );
                   } else {

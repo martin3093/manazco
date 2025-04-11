@@ -1,12 +1,3 @@
-/*class Task {
-  final String title;
-  final String type;
-  final DateTime fecha;
-
-  Task({required this.title, this.type = 'normal', required this.fecha});
-}
-
-*/
 class Task {
   final String title;
   final String type;

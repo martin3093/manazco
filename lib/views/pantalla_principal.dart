@@ -34,10 +34,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
                 style: TextStyle(fontSize: 24),
               ), // const agregado al Text
             ),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Presionar'), // const agregado al Text
-            ),
+
             Text(
               'Veces presionado: $_contador', // Modificación 1
               style: TextStyle(color: Colors.blue), // Modificación 3

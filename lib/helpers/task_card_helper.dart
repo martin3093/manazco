@@ -8,7 +8,7 @@ import '../constants.dart'; // Importa las constantes
 final TaskService _taskService = TaskService();
 Widget buildTaskCard(Task task, VoidCallback onEdit, VoidCallback onDelete) {
   // Procesa los datos de la tarea
-  final List<String> steps = _taskService.obtenerPasos(
+  final List<String> steps = _taskService.obtenerPasosRepo(
     task.title,
     task.fechaLimite,
   );
@@ -30,22 +30,19 @@ Widget construirTarjetaDeportiva(
   int index,
   VoidCallback onEdit,
   VoidCallback onDelete,
+  List<Task> tasks,
 ) {
-  // Procesa los pasos de la tarea/*
-  final List<String> steps = _taskService.obtenerPasos(
-    task.title,
-    task.fechaLimite,
-  );
-
   // Construye una tarjeta con formato deportivo
   return DeportivaCard(
     imageUrl:
         'https://picsum.photos/200/300?random=$index', // Imagen aleatoria basada en el índice
     title: task.title,
-    steps: steps,
+    steps: task.pasos,
     deadline: task.fechaLimite.toLocal().toString().split(' ')[0],
     onEdit: onEdit, // Callback para editar
     onDelete: onDelete,
     task: task, // Callback para eliminar
+    tasks: tasks, // Lista completa de tareas
+    index: index, // Índice actual de la tarea
   );
 }

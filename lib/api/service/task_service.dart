@@ -1,31 +1,3 @@
-/*import '../../data/task_repository.dart';
-import '../../domain/task.dart';
-
-class TaskService {
-  final TaskRepository _repository = TaskRepository();
-
-  // Función para obtener las tareas desde el repositorio
-  List<Task> getTasks() {
-    return _repository.getTasks();
-  }
-
-  // Función para agregar una nueva tarea
-  void addTask(Task task) {
-    _repository.getTasks().add(task);
-    print('Tarea agregada: ${task.title}');
-  }
-
-  // Función para eliminar una tarea
-  void deleteTask(int index) {
-    _repository.getTasks().removeAt(index);
-  }
-
-  // Función para modificar una tarea existente
-  void updateTask(int index, Task updatedTask) {
-    _repository.getTasks()[index] = updatedTask;
-  }
-}
-*/
 import '../../data/task_repository.dart';
 import '../../data/assistant_repository.dart';
 import '../../domain/task.dart';
@@ -57,7 +29,11 @@ class TaskService {
   Future<Task> addNewTask(String titulo, String detalle, DateTime fecha) async {
     // Simula un retraso para imitar una llamada a una API
     await Future.delayed(const Duration(milliseconds: 500));
-    final pasos = _assistantRepository.obtenerPasosRepository(titulo, fecha);
+    final pasos =
+        await _assistantRepository
+            .obtenerPasosRepository(titulo, fecha)
+            .take(2)
+            .toList();
 
     // Crear la nueva tarea
     final nuevaTarea = Task(
@@ -72,9 +48,16 @@ class TaskService {
     return nuevaTarea;
   }
 
-  // Función para eliminar una tarea
-  void deleteTask(int index) {
-    _repository.getTasks().removeAt(index);
+  void deleteTasktest(int index) {
+    final tasks = _repository.getTasks();
+    if (index >= 0 && index < tasks.length) {
+      print('SE ELIMINO: Índice $index .');
+      tasks.removeAt(index);
+    } else {
+      print(
+        'Error: Índice $index fuera de rango. No se puede eliminar la tarea.',
+      );
+    }
   }
 
   // Función para modificar una tarea existente
@@ -82,46 +65,48 @@ class TaskService {
     _repository.getTasks()[index] = updatedTask;
   }
 
-  /*
-  // Función para modificar una tarea existente
-  void updateTask(int index, Task updatedTask) {
-    _repository.getTasks()[index] = updatedTask;
-  }
-*/
-  // Método para obtener pasos según el título de la tarea
   List<String> obtenerPasosRepo(String titulo, DateTime fechaLimite) {
-    final pasos = _assistantRepository.obtenerPasosRepository(
-      titulo,
-      fechaLimite,
-    );
+    final pasos =
+        _assistantRepository
+            .obtenerPasosRepository(titulo, fechaLimite)
+            .take(2)
+            .toList();
     print(
       'Pasos generados por AssistantRepository: $pasos',
     ); // Imprime los pasos en consola
-    return pasos;
-  }
-  /*
-Para probar si se conecta a AssistantRepository, puedes usar el siguiente código:
-  void testAssistantRepository() {
-    final taskService = TaskService();
-    final titulo = 'Tarea de prueba';
-    final fechaLimite = DateTime.now().add(const Duration(days: 7));
-
-    // Llama al método y verifica la consola
-    final pasos = taskService.obtenerPasosRepo(titulo, fechaLimite);
-    print('Resultado de obtenerPasosRepo: $pasos');
+    return pasos.take(2).toList();
   }
 
+  Future<List<Task>> obtenerTareas({int inicio = 0, int limite = 4}) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
 
-*/
+      final tareas = _repository.getTasks().skip(inicio).take(limite).toList();
 
-  List<String> obtenerPasos(String titulo, DateTime fechaLimite) {
-    final fechaStr =
-        '${fechaLimite.day}/${fechaLimite.month}/${fechaLimite.year}';
+      final tareasConPasos = await Future.wait(
+        tareas.map((tarea) async {
+          if (tarea.pasos == null || tarea.pasos!.isEmpty) {
+            final pasos = await obtenerPasosRepo(
+              tarea.title,
+              tarea.fechaLimite,
+            );
+            return Task(
+              title: tarea.title,
+              type: tarea.type,
+              description: tarea.description,
+              fecha: tarea.fecha,
+              fechaLimite: tarea.fechaLimite,
+              pasos: pasos,
+            );
+          }
+          return tarea;
+        }),
+      );
 
-    return [
-      'Paso 1: Planificar antes del $fechaStr',
-      'Paso 2: Ejecutar antes del $fechaStr',
-      'Paso 3: Revisar antes del $fechaStr',
-    ];
+      return tareasConPasos;
+    } catch (e) {
+      print('Error al obtener tareas: $e');
+      return [];
+    }
   }
 }
