@@ -18,7 +18,7 @@ class _TareasScreenState extends State<TareasScreen> {
   final TaskService taskService = TaskService(); // Instancia del servicio
   final ScrollController _scrollController =
       ScrollController(); // Controlador de scroll
-  late List<Task> tasks; // Lista de tareas obtenida del servicio
+  late List<Task> tasks = []; // Lista de tareas obtenida del servicio
   int _selectedIndex = 0; // Índice del elemento seleccionado en el navbar
   bool _isLoading = false; // Indica si se están cargando más tareas
   int _currentPage = 0; // Página actual
@@ -26,7 +26,7 @@ class _TareasScreenState extends State<TareasScreen> {
   @override
   void initState() {
     super.initState();
-    tasks = taskService.getTasks(page: 0); // Carga la primera página de tareas
+    _loadInitialTasks(); // Carga las tareas iniciales
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent &&
@@ -36,26 +36,31 @@ class _TareasScreenState extends State<TareasScreen> {
     });
   }
 
+  // Método para cargar las tareas iniciales
+  void _loadInitialTasks() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final initialTasks = await taskService.getTasksWithSteps();
+    setState(() {
+      tasks = initialTasks;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  // Método para cargar más tareas
   void _loadMoreTasks() async {
     if (_isLoading) return; // Evita cargar más si ya está cargando
     setState(() {
       _isLoading = true;
     });
 
-    await Future.delayed(
-      const Duration(seconds: 1),
-    ); // Simula un retraso de carga
-
+    final moreTasks = await taskService.getMoreTasksWithSteps();
     setState(() {
-      final nextTasks = taskService.getTasks(
-        page: _currentPage,
-      ); // Obtén la página actual
-      if (nextTasks.isNotEmpty) {
-        tasks.addAll(nextTasks); // Agrega las nuevas tareas a la lista actual
-        print('Tareas cargadas: ${tasks.length}'); // Depuración
-        _currentPage++; // Incrementa la página actual
-      }
-      _isLoading = false; // Finaliza el estado de carga
+      tasks.addAll(moreTasks); // Agrega las nuevas tareas a la lista actual
+      _isLoading = false;
     });
   }
 
@@ -126,7 +131,7 @@ class _TareasScreenState extends State<TareasScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(TITLE_APPBAR)),
+      appBar: AppBar(title: Text('Mis Tareas - Total: ${tasks.length}')),
       backgroundColor: Colors.grey[200], // Cambia el fondo a gris claro
       body:
           tasks.isEmpty

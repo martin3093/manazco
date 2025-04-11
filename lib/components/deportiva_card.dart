@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manazco/helpers/task_card_helper.dart';
 
 import '../views/detalle_tarea_screen.dart'; // Importa la pantalla de detalle
 import '../domain/task.dart'; // Importa la clase Task
@@ -71,22 +72,17 @@ class DeportivaCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Título
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold, // Negrita
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  CommonWidgetsHelper.buildBoldTitle(task.title),
+                  CommonWidgetsHelper.buildSpacing(),
                   // Pasos (hasta 3 líneas)
-                  Text(
-                    steps.isNotEmpty
-                        ? steps.take(3).join('\n')
-                        : 'Sin pasos disponibles',
-                    style: const TextStyle(fontSize: 14),
+                  CommonWidgetsHelper.buildInfoLines(
+                    'Tipo: ${task.type}',
+                    'Fecha límite: ${task.fechaLimite.toLocal().toString().split(' ')[0]}',
+                    task.pasos.isNotEmpty
+                        ? 'Primer paso: ${task.pasos[0]}'
+                        : 'Sin pasos',
                   ),
-                  const SizedBox(height: 8),
+                  CommonWidgetsHelper.buildSpacing(),
                   // Descripción con la fecha límite
                   Text(
                     'Fecha límite: $deadline',
@@ -96,7 +92,7 @@ class DeportivaCard extends StatelessWidget {
                     task.type == 'normal' ? Icons.task : Icons.warning,
                     color: task.type == 'normal' ? Colors.blue : Colors.red,
                   ),
-                  const SizedBox(width: 8),
+                  CommonWidgetsHelper.buildSpacing(),
                   Text(
                     'Estado: ${task.type}',
                     style: const TextStyle(fontSize: 16),

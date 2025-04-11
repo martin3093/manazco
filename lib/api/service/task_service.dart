@@ -8,22 +8,7 @@ class TaskService {
 
   final TaskRepository _repository = TaskRepository();
 
-  static const int pageSize = 7; // Tamaño de cada página
-
-  // Función para obtener las tareas desde el repositorio
-  List<Task> getTasks({required int page}) {
-    final allTasks =
-        _repository.getTasks(); // Obtén todas las tareas del repositorio
-    final startIndex = page * pageSize; // Índice inicial de la página
-    final endIndex = startIndex + pageSize; // Índice final de la página
-    if (startIndex >= allTasks.length) {
-      return []; // Si no hay más tareas, devuelve una lista vacía
-    }
-    return allTasks.sublist(
-      startIndex,
-      endIndex > allTasks.length ? allTasks.length : endIndex,
-    );
-  }
+  static const int pageSize = 5; // Tamaño de cada página
 
   //clase que se conecta a una API para obtener los pasos de una tarea
   Future<Task> addNewTask(String titulo, String detalle, DateTime fecha) async {
@@ -77,15 +62,20 @@ class TaskService {
     return pasos.take(2).toList();
   }
 
-  Future<List<Task>> obtenerTareas({int inicio = 0, int limite = 4}) async {
-    try {
-      await Future.delayed(const Duration(milliseconds: 500));
+  int _currentPage = 0; // Página actual para la carga incremental
 
-      final tareas = _repository.getTasks().skip(inicio).take(limite).toList();
+  // Método para obtener las tareas iniciales con pasos
+  Future<List<Task>> getTasksWithSteps() async {
+    try {
+      await Future.delayed(
+        const Duration(milliseconds: 500),
+      ); // Simula un retraso
+
+      final tareas = _repository.getTasks().take(pageSize).toList();
 
       final tareasConPasos = await Future.wait(
         tareas.map((tarea) async {
-          if (tarea.pasos == null || tarea.pasos!.isEmpty) {
+          if (tarea.pasos.isEmpty) {
             final pasos = await obtenerPasosRepo(
               tarea.title,
               tarea.fechaLimite,
@@ -105,7 +95,50 @@ class TaskService {
 
       return tareasConPasos;
     } catch (e) {
-      print('Error al obtener tareas: $e');
+      print('Error al obtener tareas iniciales: $e');
+      return [];
+    }
+  }
+
+  // Método para cargar más tareas con pasos
+  Future<List<Task>> getMoreTasksWithSteps() async {
+    try {
+      await Future.delayed(
+        const Duration(milliseconds: 500),
+      ); // Simula un retraso
+
+      final startIndex = _currentPage * pageSize;
+      final tareas =
+          _repository.getTasks().skip(startIndex).take(pageSize).toList();
+
+      if (tareas.isEmpty) {
+        return []; // No hay más tareas para cargar
+      }
+
+      final tareasConPasos = await Future.wait(
+        tareas.map((tarea) async {
+          if (tarea.pasos.isEmpty) {
+            final pasos = await obtenerPasosRepo(
+              tarea.title,
+              tarea.fechaLimite,
+            );
+            return Task(
+              title: tarea.title,
+              type: tarea.type,
+              description: tarea.description,
+              fecha: tarea.fecha,
+              fechaLimite: tarea.fechaLimite,
+              pasos: pasos,
+            );
+          }
+          return tarea;
+        }),
+      );
+
+      _currentPage++; // Incrementa la página actual
+      return tareasConPasos;
+    } catch (e) {
+      print('Error al cargar más tareas: $e');
       return [];
     }
   }
