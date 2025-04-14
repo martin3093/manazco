@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/constants_new.dart';
-import '../constants.dart';
 import 'start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
-  final int score;
+  final int finalScore;
+  final int totalQuestions;
 
-  const ResultScreen({super.key, required this.score});
+  const ResultScreen({
+    super.key,
+    required this.finalScore,
+    required this.totalQuestions,
+  });
+  // final int score;
+
+  // const ResultScreen(String finalScore, {super.key, required this.score});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +24,7 @@ class ResultScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '$AppConstants.finalScore $score',
+              '$AppConstants.finalScore $finalScore',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
