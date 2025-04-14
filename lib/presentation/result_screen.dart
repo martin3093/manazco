@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/constants_new.dart';
+import '../constants_new.dart';
 import 'start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
@@ -11,33 +11,66 @@ class ResultScreen extends StatelessWidget {
     required this.finalScore,
     required this.totalQuestions,
   });
-  // final int score;
-
-  // const ResultScreen(String finalScore, {super.key, required this.score});
 
   @override
   Widget build(BuildContext context) {
+    final String scoreText = 'Puntuación Final: $finalScore/$totalQuestions';
+    final String feedbackMessage =
+        finalScore > (totalQuestions / 2)
+            ? '¡Buen trabajo!'
+            : '¡Sigue practicando!';
+    const double spacingHeight = 20.0; // Espaciado entre elementos
+    final Color buttonColor =
+        finalScore > (totalQuestions / 2) ? Colors.blue : Colors.green;
+
     return Scaffold(
-      appBar: AppBar(title: const Text(AppConstants.titleApp)),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text(AppConstants.titleApp),
+        backgroundColor: Colors.blue,
+      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '$AppConstants.finalScore $finalScore',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const StartScreen()),
-                );
-              },
-              child: const Text('Volver al inicio'),
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                scoreText,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(
+                height: spacingHeight,
+              ), // Espaciado entre puntaje y mensaje
+              Text(
+                feedbackMessage,
+                style: const TextStyle(fontSize: 18, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: buttonColor, // Cambia el color del botón
+                ),
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const StartScreen(),
+                    ),
+                    (route) => false, // Elimina todas las pantallas anteriores
+                  );
+                },
+                child: const Text(
+                  AppConstants.playAgain,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
