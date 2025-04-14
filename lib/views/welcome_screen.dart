@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/main.dart' show MyApp, main;
+import 'package:manazco/presentation/start_screen.dart';
 import 'package:manazco/views/contador.dart';
 
 //import 'package:kgaona/views/tareasscreen.dart';
@@ -136,6 +137,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   MaterialPageRoute(
                     builder: (context) => MyHomePage(title: 'contador'),
                   ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.videogame_asset),
+              title: const Text('Juego de preguntas'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const StartScreen()),
                 );
               },
             ),
