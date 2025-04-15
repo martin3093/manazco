@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:manazco/components/quote_card.dart';
 import '../api/service/quote_service.dart';
 import '../domain/quote.dart';
 import '../constants_new.dart';
-import 'package:intl/intl.dart';
+import '../helpers/quote_card_helper.dart';
+import 'package:manazco/components/quote_card.dart'; // Importa la lógica
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
@@ -84,44 +86,16 @@ class _QuoteScreenState extends State<QuoteScreen> {
                 itemBuilder: (context, index) {
                   if (index < quotesList.length) {
                     final quote = quotesList[index];
-                    final formattedDate = DateFormat(
-                      AppConstants.date_format,
-                    ).format(quote.lastUpdated);
+                    final quoteData = QuoteCardHelper.buildQuoteData(quote);
 
                     return Column(
                       children: [
-                        Card(
-                          elevation: 4,
-                          margin: EdgeInsets.zero,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  quote.companyName,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Precio: \$${quote.stockPrice.toStringAsFixed(2)}',
-                                ),
-                                Text(
-                                  'Cambio: ${quote.changePercentage.toStringAsFixed(2)}%',
-                                  style: TextStyle(
-                                    color:
-                                        quote.changePercentage >= 0
-                                            ? Colors.green
-                                            : Colors.red,
-                                  ),
-                                ),
-                                Text('Actualizado: $formattedDate'),
-                              ],
-                            ),
-                          ),
+                        QuoteCard(
+                          companyName: quoteData['companyName'],
+                          stockPrice: quoteData['stockPrice'],
+                          changePercentage: quoteData['changePercentage'],
+                          formattedDate: quoteData['formattedDate'],
+                          isPositiveChange: quoteData['isPositiveChange'],
                         ),
                         SizedBox(
                           height: spacingHeight,
