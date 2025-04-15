@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/components/task_modal.dart';
-import 'package:manazco/views/detalle_tarea_screen.dart';
+import 'package:manazco/views/task/detalle_tarea_screen.dart';
 
-import '../api/service/task_service.dart'; // Importa el servicio de tareas
-import '../constants.dart'; // Importa las constantes
-import '../domain/task.dart'; // Importa la clase Task
-import '../helpers/task_card_helper.dart'; // Importa el helper para los Cards
+import '../../api/service/task_service.dart'; // Importa el servicio de tareas
+import '../../constants.dart'; // Importa las constantes
+import '../../domain/task.dart'; // Importa la clase Task
+import '../../helpers/task_card_helper.dart'; // Importa el helper para los Cards
 
 class TareasScreen extends StatefulWidget {
   const TareasScreen({super.key});

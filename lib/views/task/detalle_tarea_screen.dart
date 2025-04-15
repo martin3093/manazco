@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
+import '../../domain/task.dart';
 
 class DetalleTareaScreen extends StatelessWidget {
   final Task task;

@@ -153,7 +153,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.videogame_asset),
+              leading: const Icon(Icons.money),
               title: const Text('Cotizaciones'),
               onTap: () {
                 Navigator.pop(context);

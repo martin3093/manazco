@@ -13,4 +13,6 @@ class AppConstants {
   static const String empty_list = 'No hay cotizaciones';
   static const String error_message = 'Error al cargar cotizaciones';
   static const int page_size = 5; // Tamaño de la página
+
+  static const String date_format = 'dd/MM/yyyy HH:mm'; // Formato de fecha
 }
