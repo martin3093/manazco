@@ -1,0 +1,7 @@
+organization=martin3093
+projectKey=martin3093_manazco
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.62008
+dashboardUrl=https://sonarcloud.io/dashboard?id=martin3093_manazco
+ceTaskId=AZY5InTB5ku6K8Po2lSD
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZY5InTB5ku6K8Po2lSD
