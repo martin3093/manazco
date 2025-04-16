@@ -1,7 +1,6 @@
-import '../domain/task.dart';
+import 'package:manazco/domain/task.dart';
 
 class TaskRepository {
-  int _taskCounte1r = 0;
   static final List<Task> _tasks = [
     Task(
       title: 'Tarea 1',

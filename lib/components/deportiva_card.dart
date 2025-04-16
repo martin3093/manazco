@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/helpers/task_card_helper.dart';
 
-import '../views/detalle_tarea_screen.dart'; // Importa la pantalla de detalle
+import '../views/task/detalle_tarea_screen.dart'; // Importa la pantalla de detalle
 import '../domain/task.dart'; // Importa la clase Task
 
 class DeportivaCard extends StatelessWidget {

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/main.dart' show MyApp, main;
-import 'package:manazco/presentation/start_screen.dart';
-import 'package:manazco/views/contador.dart';
-
-//import 'package:kgaona/views/tareasscreen.dart';
-import 'package:manazco/views/login_screen.dart';
-import 'package:manazco/views/tareas_screen.dart';
-import 'package:manazco/views/pantalla_principal.dart';
+import 'package:manazco/views/game/start_screen.dart';
+import 'package:manazco/views/utiles/contador.dart';
+import 'package:manazco/views/auth/login_screen.dart';
+import 'package:manazco/views/quote/quote_screen.dart';
+import 'package:manazco/views/task/tareas_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -148,6 +145,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const StartScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.money),
+              title: const Text('Cotizaciones'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const QuoteScreen()),
                 );
               },
             ),

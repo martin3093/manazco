@@ -6,7 +6,7 @@ class QuestionService {
 
   Future<List<Question>> getQuestions() async {
     final QuestionRepository repository = QuestionRepository();
-    final questions = await repository.getQuestions();
+    final questions = repository.getQuestions();
     return questions;
   }
 }
