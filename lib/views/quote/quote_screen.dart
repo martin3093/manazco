@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/components/quote_card.dart';
-import '../api/service/quote_service.dart';
-import '../domain/quote.dart';
-import '../constants_new.dart';
-import '../helpers/quote_card_helper.dart';
-import 'package:manazco/components/quote_card.dart'; // Importa la lógica
+import 'package:manazco/api/service/quote_service.dart';
+import 'package:manazco/domain/quote.dart';
+import 'package:manazco/constants/constants_new.dart';
+import 'package:manazco/helpers/quote_card_helper.dart';
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});

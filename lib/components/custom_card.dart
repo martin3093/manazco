@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/constants.dart' as AppConstants;
+import 'package:manazco/constants/constants.dart' as AppConstants;
 
 class CustomCard extends StatelessWidget {
   final Map<String, dynamic> data; // Datos procesados del helper

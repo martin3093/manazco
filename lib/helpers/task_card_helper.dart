@@ -3,7 +3,7 @@ import 'package:manazco/api/service/task_service.dart';
 import 'package:manazco/components/deportiva_card.dart';
 import '../domain/task.dart'; // Importa la clase Task
 import '../components/custom_card.dart'; // Importa el componente CustomCard
-import '../constants.dart'; // Importa las constantes
+import '../constants/constants.dart'; // Importa las constantes
 
 final TaskService _taskService = TaskService();
 Widget buildTaskCard(Task task, VoidCallback onEdit, VoidCallback onDelete) {

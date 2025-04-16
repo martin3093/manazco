@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
-import '../domain/quote.dart';
-import '../constants/constants_new.dart';
+import 'package:manazco/domain/quote.dart';
+import 'package:manazco/constants/constants_new.dart';
 
 class QuoteCardHelper {
   /// Construye los datos necesarios para mostrar una tarjeta de cotización

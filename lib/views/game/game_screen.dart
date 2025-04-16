@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../api/service/question_service.dart';
 import '../../domain/question.dart';
 import 'result_screen.dart';
-import '../../constants_new.dart';
+import '../../constants/constants_new.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
