@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'views/auth/login_screen.dart'; // Importa la pantalla de login
+import 'views/auth/login_screen.dart';
+import 'package:manazco/views/noticia_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,8 +18,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
       ),
 
-      home: LoginScreen(), // Establece LoginScreen como la pantalla inicial
+      // home: LoginScreen(), // Establece LoginScreen como la pantalla inicial
       //home: const MyHomePage(title: 'Flutter Demo Katteryne Home Page'),
+      home: NoticiaScreen(),
     );
   }
 }

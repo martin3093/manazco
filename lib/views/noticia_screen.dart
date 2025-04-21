@@ -81,28 +81,47 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       body:
           noticiasList.isEmpty && isLoading
               ? const Center(child: Text(Constantes.mensajeCargando))
+              // : ListView.builder(
+              //   controller: _scrollController,
+              //   itemCount: noticiasList.length + (isLoading ? 1 : 0),
+              //   itemBuilder: (context, index) {
+              //     if (index < noticiasList.length) {
+              //       final noticia = noticiasList[index];
+              //       // Llama al helper para construir la tarjeta
+              //       return NoticiaCardHelper.buildNoticiaCard(
+              //         noticia,
+              //         'https://picsum.photos/100/100?random=$index', // URL de la imagen
+              //       );
+              //     } else {
+              //       return const Center(
+              //         child: Padding(
+              //           padding: EdgeInsets.all(16.0),
+              //           child: CircularProgressIndicator(),
+              //         ),
+              //       );
+              //     }
+              //   },
+              // ),
               : ListView.builder(
                 controller: _scrollController,
                 itemCount: noticiasList.length + (isLoading ? 1 : 0),
-                padding: const EdgeInsets.all(16.0),
                 itemBuilder: (context, index) {
                   if (index < noticiasList.length) {
                     final noticia = noticiasList[index];
-                    final noticiaData = NoticiaCardHelper.buildNoticiaData(
-                      noticia,
-                    );
 
                     return Column(
                       children: [
-                        NoticiaCard(
-                          titulo: noticiaData['titulo'],
-                          descripcion: noticiaData['descripcion'],
-                          fuente: noticiaData['fuente'],
-                          publicadaEl: noticiaData['publicadaEl'],
+                        // Tarjeta de noticia
+                        NoticiaCardHelper.buildNoticiaCard(
+                          noticia,
+                          'https://picsum.photos/100/100?random=$index', // URL de la imagen
                         ),
-                        SizedBox(
-                          height: spacingHeight,
-                        ), // Espaciado entre tarjetas
+                        // Línea divisoria
+                        Divider(
+                          color: Colors.grey[500], // Color negro
+                          thickness: 0.5, // Grosor de la línea
+                          height: 1, // Espaciado vertical
+                        ),
                       ],
                     );
                   } else {
