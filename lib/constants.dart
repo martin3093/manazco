@@ -4,6 +4,13 @@ class Constantes {
   static const String listaVacia = 'No hay noticias disponibles';
   static const String mensajeError = 'Error al cargar noticias';
   static const String formatoFecha = 'dd/MM/yyyy HH:mm';
-  static const int tamanoPaginaConst = 10;
+  static const int tamanoPaginaConst = 5;
   static const double espaciadoAlto = 10;
+
+  static const String baseUrlNew = 'https://crudcrud.com/api/';
+  static const String apiKeyNew = '3433f12af2af47739e2cf483b83922ec';
+
+  static const String crudCrudUrl =
+      'https://crudcrud.com/api/3433f12af2af47739e2cf483b83922ec/noticias';
+  static const String tooltipOrden = 'Cambiar orden';
 }

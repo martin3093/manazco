@@ -6,7 +6,7 @@ class QuoteCardHelper {
   /// Construye los datos necesarios para mostrar una tarjeta de cotización
   static Map<String, dynamic> buildQuoteData(Quote quote) {
     final formattedDate = DateFormat(
-      AppConstants.date_format,
+      AppConstants.dateFormat,
     ).format(quote.lastUpdated);
 
     return {

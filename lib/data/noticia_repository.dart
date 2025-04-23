@@ -1,139 +1,223 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:manazco/domain/noticia.dart'; // Para generar valores aleatorios
+import 'package:dio/dio.dart';
+import 'package:manazco/constants.dart'; // Para la clase Constantes
 
 class NoticiaRepository {
-  // Lista inicial de noticias predefinidas
-  final List<Noticia> _allNoticias = [
-    Noticia(
-      titulo: 'Nueva tecnología revolucionaria',
-      descripcion:
-          'Se ha presentado una nueva tecnología que cambiará el mundo.',
-      fuente: 'Tech News',
-      publicadaEl: DateTime.now(),
-    ),
-    Noticia(
-      titulo: 'Avances en inteligencia artificial',
-      descripcion: 'La IA está transformando industrias a un ritmo acelerado.',
-      fuente: 'AI Today',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    Noticia(
-      titulo: 'Exploración espacial',
-      descripcion: 'Nuevas misiones a Marte están en desarrollo.',
-      fuente: 'Space News',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    Noticia(
-      titulo: 'Cambio climático',
-      descripcion: 'Expertos advierten sobre los efectos del cambio climático.',
-      fuente: 'Global News',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 3)),
-    ),
-    Noticia(
-      titulo: 'Innovaciones en salud',
-      descripcion: 'Nuevas tecnologías están mejorando la atención médica.',
-      fuente: 'Health Weekly',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 4)),
-    ),
-    Noticia(
-      titulo: 'Economía global',
-      descripcion: 'Los mercados financieros enfrentan desafíos importantes.',
-      fuente: 'Finance Daily',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-    Noticia(
-      titulo: 'Deportes internacionales',
-      descripcion: 'Grandes eventos deportivos están en marcha.',
-      fuente: 'Sports World',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 6)),
-    ),
-  ];
+  final Dio _dioNew = Dio();
+  // final String _baseUrlNew = 'https://newsapi.org/v2/everything';
+  // final String _apiKeyNew = '6578a9258e4448a8b908d094ea7f4351';
 
-  /// Genera una noticia aleatoria
-  Noticia _generateRandomNoticia(int index) {
-    final random = Random();
-    final titulos = [
-      'Descubrimiento científico',
-      'Avances en tecnología',
-      'Noticias de última hora',
-      'Tendencias globales',
-      'Innovaciones en transporte',
-      'Nuevas políticas públicas',
-      'Eventos culturales destacados',
-      'Progreso en energías renovables',
-      'Impacto de la economía digital',
-      'Exploración de nuevos mercados',
-    ];
-
-    final descripciones = [
-      'Un avance significativo ha sido reportado.',
-      'Se han presentado nuevas soluciones tecnológicas.',
-      'Un evento importante está ocurriendo en este momento.',
-      'Se destacan nuevas tendencias en el ámbito global.',
-      'Nuevas formas de transporte están revolucionando el sector.',
-      'Se implementan políticas que buscan mejorar la calidad de vida.',
-      'Eventos culturales están captando la atención mundial.',
-      'Las energías renovables están ganando terreno.',
-      'La economía digital está transformando industrias.',
-      'Nuevas oportunidades están surgiendo en mercados emergentes.',
-    ];
-
-    final fuentes = [
-      'Tech News',
-      'Global Times',
-      'Daily Report',
-      'World Insights',
-      'Innovation Weekly',
-      'Economic Review',
-      'Cultural Digest',
-      'Energy Today',
-      'Digital Trends',
-      'Market Watch',
-    ];
-
-    return Noticia(
-      titulo: titulos[random.nextInt(titulos.length)], // Título aleatorio
-      descripcion:
-          descripciones[random.nextInt(
-            descripciones.length,
-          )], // Descripción aleatoria
-      fuente: fuentes[random.nextInt(fuentes.length)], // Fuente aleatoria
-      publicadaEl: DateTime.now().subtract(
-        Duration(
-          minutes: random.nextInt(1440), // Publicada en las últimas 24 horas
+  /// Obtiene noticias relacionadas con "papa" desde la API de NewsAPI
+  Future<List<Map<String, dynamic>>> fetchNews({
+    int page = 1,
+    int pageSize = 10,
+    String query = 'papa',
+    String language = 'es',
+    String sortBy = 'publishedAt',
+    int pageNumber = 1,
+  }) async {
+    try {
+      final response = await _dioNew.get(
+        Constantes.baseUrlNew,
+        queryParameters: {
+          'page': page,
+          'pageSize': pageSize,
+          'q': query,
+          'language': language,
+          'sortBy': sortBy,
+        },
+        options: Options(
+          headers: {
+            'x-api-key':
+                Constantes.apiKeyNew, // Agrega el API Key como encabezado
+          },
         ),
-      ),
-    );
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> articles = response.data['articles'];
+        return articles.map((article) {
+          return {
+            'titulo': article['title'],
+            'descripcion': article['description'],
+            'fuente': article['source']['name'],
+            'publicadaEl': article['publishedAt'],
+            'imageUrl': article['urlToImage'],
+          };
+        }).toList();
+      } else {
+        throw Exception(
+          'Error al obtener las noticias: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error al conectar con la API: $e');
+    }
+  }
+
+  // Future<List<Noticia>> getNoticias({
+  //   required int pageNumber,
+  //   int pageSize = 5,
+  // }) async {
+  //   // Calcula los índices de inicio y fin para la página solicitada
+  //   final startIndex = (pageNumber - 1) * pageSize;
+
+  //   try {
+  //     // Llama a la API para obtener las noticias
+  //     final noticiasApi = await fetchNoticiasCrudCrud(
+  //       // pageNumber: pageNumber,
+  //       // pageSize: pageSize,
+  //     );
+
+  //     // Si el índice inicial está fuera del rango, devuelve una lista vacía
+  //     if (startIndex >= noticiasApi.length) {
+  //       return [];
+  //     }
+
+  //     // Devuelve la sublista correspondiente a la página solicitada
+  //     final endIndex = startIndex + pageSize;
+  //     final noticiasPaginadas = noticiasApi.sublist(
+  //       startIndex,
+  //       endIndex > noticiasApi.length ? noticiasApi.length : endIndex,
+  //     );
+
+  //     // Mapea las noticias a objetos Noticia
+  //     return noticiasPaginadas.map((noticia) {
+  //       return Noticia(
+  //         titulo: noticia['titulo'] ?? 'Sin título',
+  //         descripcion: noticia['descripcion'] ?? 'Sin descripción',
+  //         fuente: noticia['fuente'] ?? 'Fuente desconocida',
+  //         publicadaEl:
+  //             DateTime.tryParse(noticia['publicadaEl'] ?? '') ?? DateTime.now(),
+  //         imageUrl: noticia['imageUrl'] ?? '',
+  //       );
+  //     }).toList();
+  //   } catch (e) {
+  //     throw Exception('Error al obtener las noticias: $e');
+  //   }
+  // }
+
+  //desafio semana 4
+  Future<List<Noticia>> getNoticias() async {
+    try {
+      final response = await _dioNew.get(Constantes.crudCrudUrl);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> noticiasJson = response.data;
+
+        // Mapea las noticias del JSON a objetos Noticia
+        return noticiasJson.map((json) {
+          return Noticia(
+            titulo: json['titulo'] ?? 'Sin título',
+            descripcion: json['descripcion'] ?? 'Sin descripción',
+            fuente: json['fuente'] ?? 'Fuente desconocida',
+            publicadaEl:
+                DateTime.tryParse(json['publicadaEl'] ?? '') ?? DateTime.now(),
+            imageUrl: json['urlImagen'] ?? '',
+          );
+        }).toList();
+      } else {
+        throw Exception(
+          'Error al obtener las noticias: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error al conectar con la API de CrudCrud: $e');
+    }
+  }
+
+  Future<void> crearNoticia(Map<String, dynamic> noticia) async {
+    try {
+      final response = await _dioNew.post(
+        Constantes.crudCrudUrl,
+        data: noticia,
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception('Error al crear la noticia: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error al conectar con la API de CrudCrud: $e');
+    }
+  }
+
+  Future<List<Noticia>> getPaginatedNoticia({
+    required int pageNumber,
+    required int pageSize,
+    bool ordenarPorFecha = true, // Nuevo parámetro
+  }) async {
+    try {
+      final response = await _dioNew.get(
+        Constantes.crudCrudUrl,
+        queryParameters: {'page': pageNumber, 'pageSize': pageSize},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> noticiasJson = response.data;
+
+        // Mapea las noticias y ordena según el criterio
+        final noticias =
+            noticiasJson.map((json) {
+              return Noticia(
+                titulo: json['titulo'] ?? 'Sin título',
+                descripcion: json['descripcion'] ?? 'Sin descripción',
+                fuente: json['fuente'] ?? 'Fuente desconocida',
+                publicadaEl:
+                    DateTime.tryParse(json['publicadaEl'] ?? '') ??
+                    DateTime.now(),
+                imageUrl: json['urlImagen'] ?? '',
+              );
+            }).toList();
+
+        // Ordenar las noticias
+        noticias.sort((a, b) {
+          if (ordenarPorFecha) {
+            return b.publicadaEl.compareTo(
+              a.publicadaEl,
+            ); // Más reciente primero
+          } else {
+            return a.fuente.compareTo(b.fuente); // Orden alfabético por fuente
+          }
+        });
+
+        return noticias;
+      } else {
+        throw Exception(
+          'Error al obtener las noticias: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error al conectar con la API: $e');
+    }
   }
 
   /// Devuelve una lista de noticias paginadas
-  Future<List<Noticia>> getNoticias({
-    required int pageNumber,
-    int pageSize = 5,
-  }) async {
-    await Future.delayed(
-      const Duration(seconds: 2),
-    ); // Simula un delay de 2 segundos
 
-    // Calcula los índices de inicio y fin para la página solicitada
-    final startIndex = (pageNumber - 1) * pageSize;
-    final endIndex = startIndex + pageSize;
+  // Future<List<Noticia>> getNoticias({
+  //   required int pageNumber,
+  //   int pageSize = 5,
+  // }) async {
+  //   // Simula un delay de 2 segundos
 
-    // Si el índice de fin está fuera del rango de la lista actual, genera más noticias
-    while (_allNoticias.length < endIndex) {
-      _allNoticias.add(_generateRandomNoticia(_allNoticias.length));
-    }
+  //   // Calcula los índices de inicio y fin para la página solicitada
+  //   final startIndex = (pageNumber - 1) * pageSize;
+  //   final endIndex = startIndex + pageSize;
 
-    // Si el índice inicial está fuera del rango, devuelve una lista vacía
-    if (startIndex >= _allNoticias.length) {
-      return [];
-    }
+  //   // Si el índice de fin está fuera del rango de la lista actual, genera más noticias
+  //   // while (_allNoticias.length < endIndex) {
+  //   //   _allNoticias.add(_generateRandomNoticia(_allNoticias.length));
+  //   // }
 
-    // Devuelve la sublista correspondiente a la página solicitada
-    return _allNoticias.sublist(
-      startIndex,
-      endIndex > _allNoticias.length ? _allNoticias.length : endIndex,
-    );
-  }
+  //   // Si el índice inicial está fuera del rango, devuelve una lista vacía
+  //   if (startIndex >= getNoticiasApi.length) {
+  //     return [];
+  //   }
+
+  //   // Devuelve la sublista correspondiente a la página solicitada
+  //   return _allNoticias.sublist(
+  //     startIndex,
+  //     endIndex > _allNoticias.length ? _allNoticias.length : endIndex,
+  //   );
+  // }
 }

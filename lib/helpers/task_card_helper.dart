@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/api/service/task_service.dart';
 import 'package:manazco/components/deportiva_card.dart';
-import '../domain/task.dart'; // Importa la clase Task
-import '../components/custom_card.dart'; // Importa el componente CustomCard
-import '../constants/constants.dart'; // Importa las constantes
+import 'package:manazco/domain/task.dart'; // Importa la clase Task
+import 'package:manazco/components/custom_card.dart'; // Importa el CustomCard
+import 'package:manazco/constants/constants.dart'; // Importa las constantes
 
 final TaskService _taskService = TaskService();
 Widget buildTaskCard(Task task, VoidCallback onEdit, VoidCallback onDelete) {
@@ -16,7 +16,7 @@ Widget buildTaskCard(Task task, VoidCallback onEdit, VoidCallback onDelete) {
     'icon': task.type == 'normal' ? Icons.task : Icons.warning,
     'iconColor': task.type == 'normal' ? Colors.blue : Colors.red,
     'title': task.title,
-    'type': '$TASK_TYPE_LABEL${task.type}',
+    'type': '$taskTypeLabel${task.type}',
     'date': task.fecha.toLocal().toString().split(' ')[0],
     'steps': steps,
   };

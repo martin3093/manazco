@@ -28,7 +28,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
             Container(
               /*agrega un resaldador de dimension 20 al texto */
               color: Colors.blueAccent, // Modificación 1
-              padding: EdgeInsets.all(20), // Modificación 2
+              padding: const EdgeInsets.all(20), // Modificación 2
               child: const Text(
                 'Hola, Flutter',
                 style: TextStyle(fontSize: 24),
@@ -37,12 +37,12 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
 
             Text(
               'Veces presionado: $_contador', // Modificación 1
-              style: TextStyle(color: Colors.blue), // Modificación 3
+              style: const TextStyle(color: Colors.blue), // Modificación 3
             ),
-            SizedBox(height: 30), // Modificación 2
+            const SizedBox(height: 30), // Modificación 2
             ElevatedButton(
               onPressed: _incrementarContador,
-              child: Text('Toca aquí'),
+              child: const Text('Toca aquí'),
             ),
           ],
         ),

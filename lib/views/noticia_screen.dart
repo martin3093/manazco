@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 //backend
 import 'package:manazco/api/service/noticia_service.dart';
+import 'package:manazco/components/crear_noticia_screen.dart';
 import 'package:manazco/domain/noticia.dart';
 //component
 import 'package:manazco/constants.dart';
 
 import 'package:manazco/helpers/noticia_card_helper.dart';
-import 'package:manazco/components/noticia_card.dart';
 
 class NoticiaScreen extends StatefulWidget {
   const NoticiaScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _NoticiaScreenState createState() => _NoticiaScreenState();
 }
 
 class _NoticiaScreenState extends State<NoticiaScreen> {
-  final NoticiaService _NoticiaService = NoticiaService();
+  final NoticiaService _noticiaService = NoticiaService();
   final ScrollController _scrollController = ScrollController();
   final List<Noticia> noticiasList = [];
-  final double spacingHeight = 10; // Espaciado entre tarjetas
   int currentPage = 1;
   bool isLoading = false;
   bool hasMore = true;
@@ -46,7 +46,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     });
 
     try {
-      final newNoticias = await _NoticiaService.getPaginatedNoticia(
+      final newNoticias = await _noticiaService.getPaginatedNoticia(
         pageNumber: currentPage,
         pageSize: Constantes.tamanoPaginaConst,
       );
@@ -62,8 +62,9 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
         isLoading = false;
       });
       ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
         context,
-      ).showSnackBar(SnackBar(content: Text(Constantes.mensajeError)));
+      ).showSnackBar(const SnackBar(content: Text(Constantes.mensajeError)));
     }
   }
 
@@ -78,30 +79,16 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200], // Fondo gris claro
       appBar: AppBar(title: const Text(Constantes.tituloApp)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          CrearNoticiaPopup.mostrarPopup(context);
+        },
+        tooltip: 'Agregar Noticia',
+        child: const Icon(Icons.add),
+      ),
       body:
           noticiasList.isEmpty && isLoading
               ? const Center(child: Text(Constantes.mensajeCargando))
-              // : ListView.builder(
-              //   controller: _scrollController,
-              //   itemCount: noticiasList.length + (isLoading ? 1 : 0),
-              //   itemBuilder: (context, index) {
-              //     if (index < noticiasList.length) {
-              //       final noticia = noticiasList[index];
-              //       // Llama al helper para construir la tarjeta
-              //       return NoticiaCardHelper.buildNoticiaCard(
-              //         noticia,
-              //         'https://picsum.photos/100/100?random=$index', // URL de la imagen
-              //       );
-              //     } else {
-              //       return const Center(
-              //         child: Padding(
-              //           padding: EdgeInsets.all(16.0),
-              //           child: CircularProgressIndicator(),
-              //         ),
-              //       );
-              //     }
-              //   },
-              // ),
               : ListView.builder(
                 controller: _scrollController,
                 itemCount: noticiasList.length + (isLoading ? 1 : 0),
@@ -113,9 +100,9 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                       children: [
                         // Tarjeta de noticia
                         NoticiaCardHelper.buildNoticiaCard(
-                          noticia,
-                          'https://picsum.photos/100/100?random=$index', // URL de la imagen
+                          noticia, // URL de la imagen
                         ),
+
                         // Línea divisoria
                         Divider(
                           color: Colors.grey[500], // Color negro

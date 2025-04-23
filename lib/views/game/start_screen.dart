@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../constants/constants_new.dart';
-import 'game_screen.dart';
+
+import 'package:manazco/constants/constants_new.dart';
+import 'package:manazco/views/game/game_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});

@@ -8,13 +8,13 @@ class QuoteService {
   /// Obtiene cotizaciones paginadas con validaciones
   Future<List<Quote>> getPaginatedQuotes({
     required int pageNumber,
-    int pageSize = AppConstants.page_size,
+    int pageSize = AppConstants.pageSize,
   }) async {
     if (pageNumber < 1) {
-      throw Exception(AppConstants.error_message);
+      throw Exception(AppConstants.errorMessage);
     }
     if (pageSize <= 0) {
-      throw Exception(AppConstants.error_message);
+      throw Exception(AppConstants.errorMessage);
     }
 
     // Llama al repositorio para obtener las cotizaciones paginadas

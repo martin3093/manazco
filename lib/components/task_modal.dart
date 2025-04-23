@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
+import 'package:manazco/domain/task.dart';
 
 class TaskModal extends StatefulWidget {
   final Task? task; // Tarea existente (para editar)
   final Function(String title, String type, DateTime fecha) onSave;
 
-  const TaskModal({Key? key, this.task, required this.onSave})
-    : super(key: key);
+  const TaskModal({super.key, this.task, required this.onSave});
 
   @override
+  // ignore: library_private_types_in_public_api
   _TaskModalState createState() => _TaskModalState();
 }
 

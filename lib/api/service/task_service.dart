@@ -1,6 +1,6 @@
-import '../../data/task_repository.dart';
-import '../../data/assistant_repository.dart';
-import '../../domain/task.dart';
+import 'package:manazco/data/task_repository.dart';
+import 'package:manazco/data/assistant_repository.dart';
+import 'package:manazco/domain/task.dart';
 
 class TaskService {
   final taskRepository = TaskRepository();
@@ -15,7 +15,7 @@ class TaskService {
     // Simula un retraso para imitar una llamada a una API
     await Future.delayed(const Duration(milliseconds: 500));
     final pasos =
-        await _assistantRepository
+        _assistantRepository
             .obtenerPasosRepository(titulo, fecha)
             .take(2)
             .toList();
@@ -76,10 +76,7 @@ class TaskService {
       final tareasConPasos = await Future.wait(
         tareas.map((tarea) async {
           if (tarea.pasos.isEmpty) {
-            final pasos = await obtenerPasosRepo(
-              tarea.title,
-              tarea.fechaLimite,
-            );
+            final pasos = obtenerPasosRepo(tarea.title, tarea.fechaLimite);
             return Task(
               title: tarea.title,
               type: tarea.type,
@@ -118,10 +115,7 @@ class TaskService {
       final tareasConPasos = await Future.wait(
         tareas.map((tarea) async {
           if (tarea.pasos.isEmpty) {
-            final pasos = await obtenerPasosRepo(
-              tarea.title,
-              tarea.fechaLimite,
-            );
+            final pasos = obtenerPasosRepo(tarea.title, tarea.fechaLimite);
             return Task(
               title: tarea.title,
               type: tarea.type,

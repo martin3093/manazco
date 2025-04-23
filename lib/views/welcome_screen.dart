@@ -10,6 +10,7 @@ class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
@@ -99,7 +100,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(color: Colors.pinkAccent),
               child: Text(
                 'Menú de Navegación',
@@ -107,33 +108,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.task),
-              title: Text('Inicio'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => WelcomeScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.task),
-              title: Text('Tareas'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TareasScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.task),
-              title: Text('Contador'),
+              leading: const Icon(Icons.task),
+              title: const Text('Inicio'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyHomePage(title: 'contador'),
+                    builder: (context) => const WelcomeScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.task),
+              title: const Text('Tareas'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TareasScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.task),
+              title: const Text('Contador'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyHomePage(title: 'contador'),
                   ),
                 );
               },
@@ -174,22 +177,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Salir'),
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Salir'),
               onTap: () {
                 // Cierra la aplicación
                 showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: Text('Confirmar'),
-                      content: Text('¿Estás seguro de que deseas salir?'),
+                      title: const Text('Confirmar'),
+                      content: const Text('¿Estás seguro de que deseas salir?'),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // Cierra el diálogo
                           },
-                          child: Text('Cancelar'),
+                          child: const Text('Cancelar'),
                         ),
                         ElevatedButton(
                           onPressed: () {
@@ -201,7 +204,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               ),
                             ); // Redirige al login
                           },
-                          child: Text('Salir'),
+                          child: const Text('Salir'),
                         ),
                       ],
                     );
@@ -236,10 +239,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             if (isLoading)
               const CircularProgressIndicator()
             else
-              ...quotes.map((quote) => Text(quote)).toList(),
+              ...quotes.map((quote) => Text(quote)),
             ElevatedButton(
               onPressed: _mostrarCotizaciones,
-              child: Text("Cotizaciones"),
+              child: const Text("Cotizaciones"),
             ),
             const SizedBox(height: 32),
           ],

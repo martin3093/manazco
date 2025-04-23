@@ -13,7 +13,7 @@ class MyButtonRow extends StatelessWidget {
           icon: const Icon(Icons.star_border), // Icono de estrella vacía
           onPressed: () {
             // Aquí va la lógica cuando se presiona el botón de favorito
-            print('Botón de favorito presionado');
+
             // Puedes cambiar el icono a Icons.star para indicar que está marcado
           },
         ),
@@ -21,7 +21,7 @@ class MyButtonRow extends StatelessWidget {
           icon: const Icon(Icons.share),
           onPressed: () {
             // Aquí va la lógica cuando se presiona el botón de compartir
-            print('Botón de compartir presionado');
+
             // Implementa la funcionalidad de compartir aquí
           },
         ),
@@ -29,7 +29,7 @@ class MyButtonRow extends StatelessWidget {
           icon: const Icon(Icons.more_vert), // Icono de tres puntos verticales
           onSelected: (String result) {
             // Aquí va la lógica cuando se selecciona una opción del menú
-            print('Opción seleccionada: $result');
+
             // Implementa las acciones para cada opción del menú
           },
           itemBuilder:

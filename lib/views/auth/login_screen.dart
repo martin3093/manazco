@@ -4,6 +4,8 @@ import 'package:manazco/views/welcome_screen.dart'; // Importa la pantalla de bi
 
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
+
+  LoginScreen({super.key});
   @override
   Widget build(BuildContext context) {
     final TextEditingController usernameController = TextEditingController();
@@ -68,16 +70,19 @@ class LoginScreen extends StatelessWidget {
                         password,
                       );
 
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context); // Cierra el indicador de carga
 
                       if (success) {
                         Navigator.push(
+                          // ignore: use_build_context_synchronously
                           context,
                           MaterialPageRoute(
-                            builder: (context) => WelcomeScreen(),
+                            builder: (context) => const WelcomeScreen(),
                           ),
                         );
                       } else {
+                        // ignore: use_build_context_synchronously
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Inicio de sesión fallido'),
@@ -85,8 +90,10 @@ class LoginScreen extends StatelessWidget {
                         );
                       }
                     } catch (e) {
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context); // Cierra el indicador de carga
                       ScaffoldMessenger.of(
+                        // ignore: use_build_context_synchronously
                         context,
                       ).showSnackBar(SnackBar(content: Text('Error: $e')));
                     }

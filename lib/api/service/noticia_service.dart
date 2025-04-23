@@ -17,15 +17,9 @@ class NoticiaService {
       throw Exception(Constantes.mensajeError);
     }
 
-    // Llama al repositorio para obtener las cotizaciones paginadas
-    /*
-    return await _repository.getNoticias(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-    );*/
     final noticia = await _repository.getNoticias(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
+      // pageNumber: pageNumber,
+      // pageSize: pageSize,
     );
 
     for (final noticia in noticia) {
@@ -39,5 +33,23 @@ class NoticiaService {
       }
     }
     return noticia;
+  }
+
+  Future<void> crearNoticia({
+    required String titulo,
+    required String descripcion,
+    required String fuente,
+    required String publicadaEl,
+    required String urlImagen,
+  }) async {
+    final noticia = {
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl,
+      'urlImagen': urlImagen,
+    };
+
+    await _repository.crearNoticia(noticia);
   }
 }

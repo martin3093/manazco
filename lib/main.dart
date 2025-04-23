@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'views/auth/login_screen.dart';
+import 'package:manazco/views/auth/login_screen.dart';
 import 'package:manazco/views/noticia_screen.dart';
 
 void main() {
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
 
       // home: LoginScreen(), // Establece LoginScreen como la pantalla inicial
       //home: const MyHomePage(title: 'Flutter Demo Katteryne Home Page'),
-      home: NoticiaScreen(),
+      home: const NoticiaScreen(),
     );
   }
 }
@@ -84,8 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            Text('Hola soy Katty'),
-            const Text('Hola soy Alejandra'),
+            //  Text('Hola soy Katty'),
+
+            //const Text('Hola soy Alejandra'),
             ElevatedButton(
               onPressed: () {
                 showDialog(

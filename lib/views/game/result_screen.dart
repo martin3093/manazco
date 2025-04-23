@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../constants/constants_new.dart';
-import 'start_screen.dart';
+import 'package:manazco/constants/constants_new.dart';
+import 'package:manazco/views/game/start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
   final int finalScore;
