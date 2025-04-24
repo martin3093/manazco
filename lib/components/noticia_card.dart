@@ -104,18 +104,15 @@ class NoticiaCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8.0),
+
           // Botones debajo de la imagen
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.green),
-                onPressed: onEdit, // Llama al callback de edición
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: onDelete, // Llama al callback de eliminación
-              ),
-            ],
+          IconButton(
+            icon: const Icon(Icons.edit, color: Colors.green),
+            onPressed: onEdit, // Llama al callback de edición
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: onDelete, // Llama al callback de eliminación
           ),
         ],
       ),
