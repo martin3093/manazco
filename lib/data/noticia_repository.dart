@@ -9,7 +9,7 @@ class NoticiaRepository {
   //desafio semana 4
   Future<List<Noticia>> getNoticias() async {
     try {
-      final response = await _dioNew.get(Constantes.crudCrudUrl);
+      final response = await _dioNew.get(Constantes.urlnoticias);
 
       if (response.statusCode == 200) {
         final List<dynamic> noticiasJson = response.data;
@@ -41,7 +41,7 @@ class NoticiaRepository {
   Future<void> crearNoticia(Map<String, dynamic> noticia) async {
     try {
       final response = await _dioNew.post(
-        Constantes.crudCrudUrl,
+        Constantes.urlnoticias,
         data: noticia,
       );
 
@@ -56,7 +56,7 @@ class NoticiaRepository {
   /// Edita una noticia en la API de CrudCrud
   Future<void> editarNoticia(String id, Map<String, dynamic> noticia) async {
     try {
-      final url = '${Constantes.crudCrudUrl}/$id'; // Construye la URL con el ID
+      final url = '${Constantes.urlnoticias}/$id'; // Construye la URL con el ID
       final response = await _dioNew.put(url, data: noticia);
 
       if (response.statusCode != 200) {
@@ -71,7 +71,7 @@ class NoticiaRepository {
   /// Elimina una noticia de la API de CrudCrud
   Future<void> eliminarNoticia(String id) async {
     try {
-      final url = '${Constantes.crudCrudUrl}/$id'; // Construye la URL con el ID
+      final url = '${Constantes.urlnoticias}/$id'; // Construye la URL con el ID
       final response = await _dioNew.delete(url);
 
       if (response.statusCode != 200 && response.statusCode != 204) {
@@ -89,7 +89,7 @@ class NoticiaRepository {
   }) async {
     try {
       final response = await _dioNew.get(
-        Constantes.crudCrudUrl,
+        Constantes.urlnoticias,
         queryParameters: {'page': pageNumber, 'pageSize': pageSize},
       );
 

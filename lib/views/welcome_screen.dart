@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manazco/views/categoria_screen.dart';
 import 'package:manazco/views/game/start_screen.dart';
 import 'package:manazco/views/utiles/contador.dart';
 import 'package:manazco/views/auth/login_screen.dart';
@@ -161,6 +162,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const NoticiaScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article),
+              title: const Text('Noticias'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CategoriaScreen(),
                   ),
                 );
               },

@@ -17,4 +17,6 @@ class Constantes {
   //  'https://crudcrud.com/api/3433f12af2af47739e2cf483b83922ec/noticias';
   static const String tooltipOrden = 'Cambiar orden';
   static String get crudCrudUrl => dotenv.env['CRUD_CRUD_URL'] ?? '';
+  static String get urlnoticias => '$crudCrudUrl/noticias';
+  static String get urlCategorias => '$crudCrudUrl/pp/categorias';
 }

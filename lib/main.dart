@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:manazco/views/auth/login_screen.dart';
-import 'package:manazco/views/noticia_screen.dart';
+import 'package:manazco/views/categoria_screen.dart';
 
 Future<void> main() async {
   // Carga las variables de entorno
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 
       // home: LoginScreen(), // Establece LoginScreen como la pantalla inicial
       //home: const MyHomePage(title: 'Flutter Demo Katteryne Home Page'),
-      home: const NoticiaScreen(),
+      home: const CategoriaScreen(),
     );
   }
 }
