@@ -7,6 +7,8 @@ class NoticiaCard extends StatelessWidget {
   final String fuente;
   final String publicadaEl; // Cambiado a DateTime
   final String imageUrl;
+  final VoidCallback onEdit; // Callback para editar
+  final VoidCallback onDelete; // Callback para eliminar
 
   const NoticiaCard({
     super.key,
@@ -15,6 +17,8 @@ class NoticiaCard extends StatelessWidget {
     required this.fuente,
     required this.publicadaEl,
     required this.imageUrl,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -93,9 +97,24 @@ class NoticiaCard extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 8.0),
               // Botones debajo de la imagen
               const MyButtonRow(),
+            ],
+          ),
+          const SizedBox(height: 8.0),
+          // Botones debajo de la imagen
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.green),
+                onPressed: onEdit, // Llama al callback de edición
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: onDelete, // Llama al callback de eliminación
+              ),
             ],
           ),
         ],

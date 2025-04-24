@@ -36,12 +36,12 @@ class TaskService {
   void deleteTasktest(int index) {
     final tasks = _repository.getTasks();
     if (index >= 0 && index < tasks.length) {
-      print('SE ELIMINO: Índice $index .');
+      // print('SE ELIMINO: Índice $index .');
       tasks.removeAt(index);
     } else {
-      print(
-        'Error: Índice $index fuera de rango. No se puede eliminar la tarea.',
-      );
+      // print(
+      // 'Error: Índice $index fuera de rango. No se puede eliminar la tarea.',
+      // );
     }
   }
 
@@ -56,9 +56,9 @@ class TaskService {
             .obtenerPasosRepository(titulo, fechaLimite)
             .take(2)
             .toList();
-    print(
-      'Pasos generados por AssistantRepository: $pasos',
-    ); // Imprime los pasos en consola
+    //print(
+    //'Pasos generados por AssistantRepository: $pasos',
+    // ); // Imprime los pasos en consola
     return pasos.take(2).toList();
   }
 
@@ -92,7 +92,7 @@ class TaskService {
 
       return tareasConPasos;
     } catch (e) {
-      print('Error al obtener tareas iniciales: $e');
+      // print('Error al obtener tareas iniciales: $e');
       return [];
     }
   }
@@ -132,7 +132,7 @@ class TaskService {
       _currentPage++; // Incrementa la página actual
       return tareasConPasos;
     } catch (e) {
-      print('Error al cargar más tareas: $e');
+      //  print('Error al cargar más tareas: $e');
       return [];
     }
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 //backend
 import 'package:manazco/api/service/noticia_service.dart';
-import 'package:manazco/components/crear_noticia_screen.dart';
+import 'package:manazco/components/noticias/crear_noticia_screen.dart';
+import 'package:manazco/components/noticias/eliminar_noticia_screen.dart';
+import 'package:manazco/components/noticias/noticia_modal.dart';
 import 'package:manazco/domain/noticia.dart';
 //component
 import 'package:manazco/constants.dart';
@@ -68,6 +70,26 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     }
   }
 
+  void _editarNoticia(Noticia noticia) {
+    NoticiaModal.mostrarModal(
+      context: context,
+      noticia: noticia.toJson(), // Pasa los datos de la noticia al modal
+      onSave: _loadNoticias, // Recarga las noticias después de guardar
+    );
+  }
+
+  void _eliminarNoticia(String noticiaId) {
+    EliminarNoticiaPopup.mostrarPopup(
+      context: context,
+      noticiaId: noticiaId,
+      onNoticiaEliminada: () {
+        setState(() {
+          noticiasList.removeWhere((noticia) => noticia.id == noticiaId);
+        });
+      },
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -98,11 +120,15 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
 
                     return Column(
                       children: [
-                        // Tarjeta de noticia
                         NoticiaCardHelper.buildNoticiaCard(
-                          noticia, // URL de la imagen
+                          noticia: noticia,
+                          onEdit:
+                              () => _editarNoticia(noticia), // Editar noticia
+                          onDelete:
+                              () => _eliminarNoticia(
+                                noticia.id,
+                              ), // Eliminar noticia
                         ),
-
                         // Línea divisoria
                         Divider(
                           color: Colors.grey[500], // Color negro

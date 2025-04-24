@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:manazco/views/auth/login_screen.dart';
 import 'package:manazco/views/noticia_screen.dart';
 
-void main() {
+Future<void> main() async {
+  // Carga las variables de entorno
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

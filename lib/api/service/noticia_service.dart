@@ -17,9 +17,9 @@ class NoticiaService {
       throw Exception(Constantes.mensajeError);
     }
 
-    final noticia = await _repository.getNoticias(
-      // pageNumber: pageNumber,
-      // pageSize: pageSize,
+    final noticia = await _repository.getNoticiasPaginadas(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
     );
 
     for (final noticia in noticia) {
@@ -51,5 +51,44 @@ class NoticiaService {
     };
 
     await _repository.crearNoticia(noticia);
+  }
+
+  Future<void> editarNoticia({
+    required String id,
+    required String titulo,
+    required String descripcion,
+    required String fuente,
+    required String publicadaEl,
+    required String urlImagen,
+  }) async {
+    if (id.isEmpty) {
+      throw Exception('El ID de la noticia no puede estar vacío.');
+    }
+
+    if (titulo.isEmpty || descripcion.isEmpty || fuente.isEmpty) {
+      throw Exception(
+        'Los campos título, descripción y fuente no pueden estar vacíos.',
+      );
+    }
+
+    final noticia = {
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl,
+      'urlImagen': urlImagen,
+    };
+
+    await _repository.editarNoticia(id, noticia);
+  }
+
+  Future<void> eliminarNoticia(String id) async {
+    if (id.isEmpty) {
+      throw Exception(
+        '${Constantes.mensajeError} El ID de la noticia no puede estar vacío.',
+      );
+    }
+
+    await _repository.eliminarNoticia(id);
   }
 }
