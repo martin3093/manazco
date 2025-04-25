@@ -11,6 +11,10 @@ class ErrorHelper {
         message = 'Solicitud incorrecta. Verifica los datos enviados.';
         color = Colors.orange;
         break;
+      case 408:
+        message = 'Tiempo de espera agotado. Intenta de nuevo.';
+        color = const Color.fromARGB(255, 225, 0, 255);
+        break;
       case 401:
         message = 'No autorizado. Verifica tus credenciales.';
         color = Colors.red;

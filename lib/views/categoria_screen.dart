@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/api/service/categoria_service.dart';
 import 'package:manazco/domain/categoria.dart';
+import 'package:manazco/constants.dart';
 import 'package:manazco/exceptions/api_exception.dart';
 import 'package:manazco/helpers/error_helper.dart';
 
@@ -23,6 +24,7 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
     _loadCategorias();
   }
 
+  /// Carga las categorías desde el servicio
   Future<void> _loadCategorias() async {
     setState(() {
       isLoading = true;
@@ -56,24 +58,22 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
     }
   }
 
+  /// Agrega una nueva categoría
   Future<void> _agregarCategoria() async {
     final nuevaCategoriaData = await _mostrarDialogCategoria(context);
     if (nuevaCategoriaData != null) {
       try {
-        // Crear un objeto Categoria a partir de los datos del diálogo
         final nuevaCategoria = Categoria(
-          id: '', // El ID será generado por la API
+          id: null,
           nombre: nuevaCategoriaData['nombre'],
-          descripcion: '',
-          imagenUrl: '',
+          descripcion: nuevaCategoriaData['descripcion'],
+          imagenUrl: nuevaCategoriaData['imagenUrl'],
         );
 
-        await _categoriaService.crearCategoria(
-          nuevaCategoria,
-        ); // Llama al servicio
-        _loadCategorias(); // Recarga las categorías
+        await _categoriaService.crearCategoria(nuevaCategoria);
+        _loadCategorias();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Categoría agregada exitosamente')),
+          const SnackBar(content: Text(Constantes.successCreated)),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,12 +83,65 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
     }
   }
 
+  /// Edita una categoría existente
+  Future<void> _editarCategoria(Categoria categoria) async {
+    final categoriaEditadaData = await _mostrarDialogCategoria(
+      context,
+      categoria: categoria,
+    );
+    if (categoriaEditadaData != null) {
+      try {
+        final categoriaEditada = Categoria(
+          id: categoria.id,
+          nombre: categoriaEditadaData['nombre'],
+          descripcion: categoriaEditadaData['descripcion'],
+          imagenUrl: categoriaEditadaData['imagenUrl'],
+        );
+
+        await _categoriaService.editarCategoria(
+          categoria.id!,
+          categoriaEditada,
+        );
+        _loadCategorias();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(Constantes.successUpdated)),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al editar la categoría: $e')),
+        );
+      }
+    }
+  }
+
+  /// Elimina una categoría
+  Future<void> _eliminarCategoria(String id) async {
+    try {
+      await _categoriaService.eliminarCategoria(id);
+      _loadCategorias();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(Constantes.successDeleted)));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al eliminar la categoría: $e')),
+      );
+    }
+  }
+
+  /// Muestra un diálogo para agregar o editar una categoría
   Future<Map<String, dynamic>?> _mostrarDialogCategoria(
     BuildContext context, {
     Categoria? categoria,
   }) async {
     final TextEditingController nombreController = TextEditingController(
       text: categoria?.nombre ?? '',
+    );
+    final TextEditingController descripcionController = TextEditingController(
+      text: categoria?.descripcion ?? '',
+    );
+    final TextEditingController imagenUrlController = TextEditingController(
+      text: categoria?.imagenUrl ?? '',
     );
 
     return showDialog<Map<String, dynamic>>(
@@ -98,11 +151,24 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
           title: Text(
             categoria == null ? 'Agregar Categoría' : 'Editar Categoría',
           ),
-          content: TextField(
-            controller: nombreController,
-            decoration: const InputDecoration(
-              labelText: 'Nombre de la Categoría',
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nombreController,
+                decoration: const InputDecoration(labelText: 'Nombre'),
+              ),
+              TextField(
+                controller: descripcionController,
+                decoration: const InputDecoration(labelText: 'Descripción'),
+              ),
+              TextField(
+                controller: imagenUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'URL de la Imagen',
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -111,13 +177,17 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (nombreController.text.isNotEmpty) {
-                  Navigator.pop(context, {'nombre': nombreController.text});
+                if (nombreController.text.isNotEmpty &&
+                    descripcionController.text.isNotEmpty &&
+                    imagenUrlController.text.isNotEmpty) {
+                  Navigator.pop(context, {
+                    'nombre': nombreController.text,
+                    'descripcion': descripcionController.text,
+                    'imagenUrl': imagenUrlController.text,
+                  });
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('El nombre no puede estar vacío'),
-                    ),
+                    const SnackBar(content: Text(Constantes.errorEmptyFields)),
                   );
                 }
               },
@@ -154,11 +224,24 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
                 itemCount: categorias.length,
                 itemBuilder: (context, index) {
                   final categoria = categorias[index];
-                  return ListTile(
-                    title: Text(categoria.nombre),
-                    subtitle: Text('ID: ${categoria.id}'),
-                    leading: const Icon(Icons.category),
-                    trailing: Row(mainAxisSize: MainAxisSize.min),
+                  return Card(
+                    child: ListTile(
+                      title: Text(categoria.nombre),
+                      subtitle: Text(categoria.descripcion),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _editarCategoria(categoria),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _eliminarCategoria(categoria.id!),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 },
               ),

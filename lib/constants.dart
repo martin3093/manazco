@@ -18,5 +18,18 @@ class Constantes {
   static const String tooltipOrden = 'Cambiar orden';
   static String get crudCrudUrl => dotenv.env['CRUD_CRUD_URL'] ?? '';
   static String get urlnoticias => '$crudCrudUrl/noticias';
-  static String get urlCategorias => '$crudCrudUrl/pp/categorias';
+  static String get urlCategorias => '$crudCrudUrl/categorias';
+  static String errorNocategoria = 'Categoría no encontrada';
+  static const String defaultCategoriaId = 'sin_categoria'; // ID por defecto
+  static const int timeoutSeconds = 10;
+  // Mensajes de error
+  static const String errorUnauthorized = 'No autorizado';
+  static const String errorNotFound = 'Noticias no encontradas';
+  static const String errorServer = 'Error del servidor';
+  static const String errorTimeout = 'Tiempo de espera agotado';
+
+  static const String successCreated = 'Categoría creada exitosamente';
+  static const String successUpdated = 'Categoría actualizada exitosamente';
+  static const String successDeleted = 'Categoría eliminada exitosamente';
+  static const String errorEmptyFields = 'Todos los campos son obligatorios';
 }

@@ -1,3 +1,5 @@
+import 'package:manazco/constants.dart';
+
 class Noticia {
   final String id;
   final String titulo;
@@ -5,6 +7,7 @@ class Noticia {
   final String fuente;
   final DateTime publicadaEl;
   final String imageUrl;
+  final String categoriaId;
 
   Noticia({
     required this.id,
@@ -13,6 +16,7 @@ class Noticia {
     required this.fuente,
     required this.publicadaEl,
     required this.imageUrl,
+    required this.categoriaId,
   });
 
   // Método para convertir la instancia en un mapa
@@ -24,6 +28,7 @@ class Noticia {
       'fuente': fuente,
       'publicadaEl': publicadaEl.toIso8601String(),
       'urlImagen': imageUrl,
+      'categoriaId': categoriaId,
     };
   }
 
@@ -37,6 +42,7 @@ class Noticia {
       publicadaEl:
           DateTime.tryParse(json['publicadaEl'] ?? '') ?? DateTime.now(),
       imageUrl: json['urlImagen'] ?? '',
+      categoriaId: json['categoriaId'] ?? Constantes.defaultCategoriaId,
     );
   }
 }

@@ -168,7 +168,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.article),
-              title: const Text('Noticias'),
+              title: const Text('Categorias'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(

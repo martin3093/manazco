@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 
       // home: LoginScreen(), // Establece LoginScreen como la pantalla inicial
       //home: const MyHomePage(title: 'Flutter Demo Katteryne Home Page'),
-      home: const CategoriaScreen(),
+      home: LoginScreen(),
     );
   }
 }

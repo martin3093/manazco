@@ -8,8 +8,11 @@ import 'package:manazco/components/noticias/noticia_modal.dart';
 import 'package:manazco/domain/noticia.dart';
 //component
 import 'package:manazco/constants.dart';
+import 'package:manazco/exceptions/api_exception.dart';
+import 'package:manazco/helpers/error_helper.dart';
 
 import 'package:manazco/helpers/noticia_card_helper.dart';
+import 'package:manazco/views/categoria_screen.dart';
 
 class NoticiaScreen extends StatefulWidget {
   const NoticiaScreen({super.key});
@@ -44,37 +47,8 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       }
     });
   }
+
   /*
-  Future<void> _loadNoticias() async {
-    if (isLoading) return;
-
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final newNoticias = await _noticiaService.getPaginatedNoticia(
-        pageNumber: currentPage,
-        pageSize: Constantes.tamanoPaginaConst,
-      );
-
-      setState(() {
-        noticiasList.addAll(newNoticias);
-        isLoading = false;
-        hasMore = newNoticias.length == Constantes.tamanoPaginaConst;
-        if (hasMore) currentPage++;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
-        context,
-      ).showSnackBar(const SnackBar(content: Text(Constantes.mensajeError)));
-    }
-  }*/
-
   Future<void> _loadNoticias() async {
     setState(() {
       isLoading = true; // Comienza la carga
@@ -101,8 +75,74 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
         isLoading = false; // Finaliza la carga
         hasError = true; // Marca que ocurrió un error
       });
+
+      // Determina el mensaje y el color del error
+      String errorMessage = Constantes.mensajeError;
+      Color errorColor = Colors.grey;
+
+      if (e is ApiException) {
+        final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
+        errorMessage = errorData['message'];
+        errorColor = errorData['color'];
+      }
+
+      // Muestra el SnackBar con el mensaje y el color
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al cargar las noticias.')),
+        SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
+      );
+    }
+  }
+*/
+  Future<void> _loadNoticias() async {
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
+
+    try {
+      final noticias = await _noticiaService.getPaginatedNoticia(
+        pageNumber: currentPage,
+        pageSize: Constantes.tamanoPaginaConst,
+      );
+
+      setState(() {
+        noticiasList.addAll(noticias);
+        isLoading = false;
+        hasMore = noticias.length == Constantes.tamanoPaginaConst;
+        if (hasMore) currentPage++;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        hasError = true;
+      });
+
+      String errorMessage = Constantes.mensajeError;
+      Color errorColor = Colors.grey;
+
+      if (e is ApiException) {
+        switch (e.statusCode) {
+          case 400:
+          case 500:
+            errorMessage = e.message;
+            errorColor = Colors.red;
+            break;
+          case 401:
+            errorMessage = e.message;
+            errorColor = Colors.orange;
+            break;
+          case 404:
+            errorMessage = e.message;
+            errorColor = Colors.grey;
+            break;
+          default:
+            errorMessage = 'Error desconocido.';
+            errorColor = Colors.grey;
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
       );
     }
   }
@@ -139,6 +179,19 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       backgroundColor: Colors.grey[200], // Fondo gris claro
       appBar: AppBar(
         title: const Text(Constantes.tituloApp),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CategoriaScreen(),
+                ),
+              );
+            },
+          ),
+        ],
         bottom:
             lastUpdated != null
                 ? PreferredSize(
