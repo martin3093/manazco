@@ -9,6 +9,7 @@ class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _QuoteScreenState createState() => _QuoteScreenState();
 }
 
@@ -45,13 +46,13 @@ class _QuoteScreenState extends State<QuoteScreen> {
     try {
       final newQuotes = await _quoteService.getPaginatedQuotes(
         pageNumber: currentPage,
-        pageSize: AppConstants.page_size,
+        pageSize: AppConstants.pageSize,
       );
 
       setState(() {
         quotesList.addAll(newQuotes);
         isLoading = false;
-        hasMore = newQuotes.length == AppConstants.page_size;
+        hasMore = newQuotes.length == AppConstants.pageSize;
         if (hasMore) currentPage++;
       });
     } catch (e) {
@@ -59,8 +60,9 @@ class _QuoteScreenState extends State<QuoteScreen> {
         isLoading = false;
       });
       ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
         context,
-      ).showSnackBar(SnackBar(content: Text(AppConstants.error_message)));
+      ).showSnackBar(const SnackBar(content: Text(AppConstants.errorMessage)));
     }
   }
 
@@ -74,10 +76,10 @@ class _QuoteScreenState extends State<QuoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200], // Fondo gris claro
-      appBar: AppBar(title: const Text(AppConstants.title_app)),
+      appBar: AppBar(title: const Text(AppConstants.titleAappCotizaciones)),
       body:
           quotesList.isEmpty && isLoading
-              ? const Center(child: Text(AppConstants.loading_message))
+              ? const Center(child: Text(AppConstants.loadingMessage))
               : ListView.builder(
                 controller: _scrollController,
                 itemCount: quotesList.length + (isLoading ? 1 : 0),

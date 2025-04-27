@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/helpers/task_card_helper.dart';
 
-import '../views/task/detalle_tarea_screen.dart'; // Importa la pantalla de detalle
-import '../domain/task.dart'; // Importa la clase Task
+import 'package:manazco/views/task/detalle_tarea_screen.dart'; // Importa la pantalla de detalle
+import 'package:manazco/domain/task.dart'; // Importa la clase Task
 
 class DeportivaCard extends StatelessWidget {
   final String imageUrl; // URL de la imagen

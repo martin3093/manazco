@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 class PantallaCambioColor extends StatefulWidget {
+  const PantallaCambioColor({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _PantallaCambioColorState createState() => _PantallaCambioColorState();
 }
 
 class _PantallaCambioColorState extends State<PantallaCambioColor> {
-  List<Color> _colores = [Colors.blue, Colors.red, Colors.green];
+  final List<Color> _colores = [Colors.blue, Colors.red, Colors.green];
   int _indiceColor = 0;
   Color _colorActual = Colors.white; // Color inicial
 
@@ -26,7 +29,7 @@ class _PantallaCambioColorState extends State<PantallaCambioColor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Cambio de Color')),
+      appBar: AppBar(title: const Text('Cambio de Color')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -35,16 +38,16 @@ class _PantallaCambioColorState extends State<PantallaCambioColor> {
               height: 300,
               width: 300,
               color: _colorActual,
-              child: Center(child: Text('¡Cambio de color!')),
+              child: const Center(child: Text('¡Cambio de color!')),
             ),
 
             ElevatedButton(
               onPressed: _cambiarColor,
-              child: Text('Cambiar Color'),
+              child: const Text('Cambiar Color'),
             ),
             ElevatedButton(
               onPressed: _cambiarColorblanco,
-              child: Text('Cambiar Color blanco '),
+              child: const Text('Cambiar Color blanco '),
             ),
           ],
         ),

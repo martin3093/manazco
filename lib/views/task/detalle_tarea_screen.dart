@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/task.dart';
+import 'package:manazco/domain/task.dart';
 
 class DetalleTareaScreen extends StatelessWidget {
   final Task task;
@@ -84,10 +84,10 @@ class DetalleTareaScreen extends StatelessWidget {
                 width: 1.5, // Grosor del borde
               ),
               boxShadow: [
-                BoxShadow(
+                const BoxShadow(
                   color: Colors.black12, // Sombra más suave
                   blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
               ],
             ),

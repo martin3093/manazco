@@ -1,4 +1,4 @@
-import '../domain/question.dart';
+import 'package:manazco/domain/question.dart';
 
 class QuestionRepository {
   final List<Question> _questions = [

@@ -94,7 +94,7 @@
 
 import 'dart:async';
 import 'dart:math'; // Para generar valores aleatorios
-import '../domain/quote.dart';
+import 'package:manazco/domain/quote.dart';
 
 class QuoteRepository {
   // Lista inicial de cotizaciones predefinidas

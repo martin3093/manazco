@@ -8,11 +8,15 @@ class AppConstants {
   static const String playAgain = 'Jugar de Nuevo';
 
   //title_app = 'Cotizaciones Financieras', loading_message = 'Cargando cotizaciones...', y empty_list = 'No hay cotizaciones'.
-  static const String title_app = 'Cotizaciones Financieras';
-  static const String loading_message = 'Cargando cotizaciones...';
-  static const String empty_list = 'No hay cotizaciones';
-  static const String error_message = 'Error al cargar cotizaciones';
-  static const int page_size = 7; // Tamaño de la página
+  static const String titleAappCotizaciones = 'Cotizaciones Financieras';
+  static const String loadingMessage = 'Cargando cotizaciones...';
+  static const String emptyLlist = 'No hay cotizaciones';
+  static const String errorMessage = 'Error al cargar cotizaciones';
+  static const int pageSize = 7; // Tamaño de la página
 
-  static const String date_format = 'dd/MM/yyyy HH:mm'; // Formato de fecha
+  static const String dateFormat = 'dd/MM/yyyy HH:mm'; // Formato de fecha
+  static const String apikey =
+      '567f0cd10a17800a10c8bb3810c13977'; // Formato de fecha completo
+  static const String url =
+      'https://gnews.io/api/v4/top-headlines'; // URL de la API
 }

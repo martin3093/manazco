@@ -1,6 +1,6 @@
-import '../../data/task_repository.dart';
-import '../../data/assistant_repository.dart';
-import '../../domain/task.dart';
+import 'package:manazco/data/task_repository.dart';
+import 'package:manazco/data/assistant_repository.dart';
+import 'package:manazco/domain/task.dart';
 
 class TaskService {
   final taskRepository = TaskRepository();
@@ -15,7 +15,7 @@ class TaskService {
     // Simula un retraso para imitar una llamada a una API
     await Future.delayed(const Duration(milliseconds: 500));
     final pasos =
-        await _assistantRepository
+        _assistantRepository
             .obtenerPasosRepository(titulo, fecha)
             .take(2)
             .toList();
@@ -36,12 +36,12 @@ class TaskService {
   void deleteTasktest(int index) {
     final tasks = _repository.getTasks();
     if (index >= 0 && index < tasks.length) {
-      print('SE ELIMINO: Índice $index .');
+      // print('SE ELIMINO: Índice $index .');
       tasks.removeAt(index);
     } else {
-      print(
-        'Error: Índice $index fuera de rango. No se puede eliminar la tarea.',
-      );
+      // print(
+      // 'Error: Índice $index fuera de rango. No se puede eliminar la tarea.',
+      // );
     }
   }
 
@@ -56,9 +56,9 @@ class TaskService {
             .obtenerPasosRepository(titulo, fechaLimite)
             .take(2)
             .toList();
-    print(
-      'Pasos generados por AssistantRepository: $pasos',
-    ); // Imprime los pasos en consola
+    //print(
+    //'Pasos generados por AssistantRepository: $pasos',
+    // ); // Imprime los pasos en consola
     return pasos.take(2).toList();
   }
 
@@ -76,10 +76,7 @@ class TaskService {
       final tareasConPasos = await Future.wait(
         tareas.map((tarea) async {
           if (tarea.pasos.isEmpty) {
-            final pasos = await obtenerPasosRepo(
-              tarea.title,
-              tarea.fechaLimite,
-            );
+            final pasos = obtenerPasosRepo(tarea.title, tarea.fechaLimite);
             return Task(
               title: tarea.title,
               type: tarea.type,
@@ -95,7 +92,7 @@ class TaskService {
 
       return tareasConPasos;
     } catch (e) {
-      print('Error al obtener tareas iniciales: $e');
+      // print('Error al obtener tareas iniciales: $e');
       return [];
     }
   }
@@ -118,10 +115,7 @@ class TaskService {
       final tareasConPasos = await Future.wait(
         tareas.map((tarea) async {
           if (tarea.pasos.isEmpty) {
-            final pasos = await obtenerPasosRepo(
-              tarea.title,
-              tarea.fechaLimite,
-            );
+            final pasos = obtenerPasosRepo(tarea.title, tarea.fechaLimite);
             return Task(
               title: tarea.title,
               type: tarea.type,
@@ -138,7 +132,7 @@ class TaskService {
       _currentPage++; // Incrementa la página actual
       return tareasConPasos;
     } catch (e) {
-      print('Error al cargar más tareas: $e');
+      //  print('Error al cargar más tareas: $e');
       return [];
     }
   }

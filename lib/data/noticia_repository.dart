@@ -1,139 +1,94 @@
-import 'dart:async';
-import 'dart:math';
-import 'package:manazco/domain/noticia.dart'; // Para generar valores aleatorios
+import 'package:manazco/api/service/noticia_service.dart';
+import 'package:manazco/domain/noticia.dart';
+import 'package:manazco/constants.dart';
 
 class NoticiaRepository {
-  // Lista inicial de noticias predefinidas
-  final List<Noticia> _allNoticias = [
-    Noticia(
-      titulo: 'Nueva tecnología revolucionaria',
-      descripcion:
-          'Se ha presentado una nueva tecnología que cambiará el mundo.',
-      fuente: 'Tech News',
-      publicadaEl: DateTime.now(),
-    ),
-    Noticia(
-      titulo: 'Avances en inteligencia artificial',
-      descripcion: 'La IA está transformando industrias a un ritmo acelerado.',
-      fuente: 'AI Today',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    Noticia(
-      titulo: 'Exploración espacial',
-      descripcion: 'Nuevas misiones a Marte están en desarrollo.',
-      fuente: 'Space News',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-    Noticia(
-      titulo: 'Cambio climático',
-      descripcion: 'Expertos advierten sobre los efectos del cambio climático.',
-      fuente: 'Global News',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 3)),
-    ),
-    Noticia(
-      titulo: 'Innovaciones en salud',
-      descripcion: 'Nuevas tecnologías están mejorando la atención médica.',
-      fuente: 'Health Weekly',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 4)),
-    ),
-    Noticia(
-      titulo: 'Economía global',
-      descripcion: 'Los mercados financieros enfrentan desafíos importantes.',
-      fuente: 'Finance Daily',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-    Noticia(
-      titulo: 'Deportes internacionales',
-      descripcion: 'Grandes eventos deportivos están en marcha.',
-      fuente: 'Sports World',
-      publicadaEl: DateTime.now().subtract(const Duration(days: 6)),
-    ),
-  ];
+  final NoticiaService _noticiaService = NoticiaService();
 
-  /// Genera una noticia aleatoria
-  Noticia _generateRandomNoticia(int index) {
-    final random = Random();
-    final titulos = [
-      'Descubrimiento científico',
-      'Avances en tecnología',
-      'Noticias de última hora',
-      'Tendencias globales',
-      'Innovaciones en transporte',
-      'Nuevas políticas públicas',
-      'Eventos culturales destacados',
-      'Progreso en energías renovables',
-      'Impacto de la economía digital',
-      'Exploración de nuevos mercados',
-    ];
+  /// Obtiene cotizaciones paginadas con validaciones
+  Future<List<Noticia>> getPaginatedNoticia({
+    required int pageNumber,
+    int pageSize = Constantes.tamanoPaginaConst,
+  }) async {
+    if (pageNumber < 1) {
+      throw Exception(Constantes.mensajeError);
+    }
+    if (pageSize <= 0) {
+      throw Exception(Constantes.mensajeError);
+    }
 
-    final descripciones = [
-      'Un avance significativo ha sido reportado.',
-      'Se han presentado nuevas soluciones tecnológicas.',
-      'Un evento importante está ocurriendo en este momento.',
-      'Se destacan nuevas tendencias en el ámbito global.',
-      'Nuevas formas de transporte están revolucionando el sector.',
-      'Se implementan políticas que buscan mejorar la calidad de vida.',
-      'Eventos culturales están captando la atención mundial.',
-      'Las energías renovables están ganando terreno.',
-      'La economía digital está transformando industrias.',
-      'Nuevas oportunidades están surgiendo en mercados emergentes.',
-    ];
-
-    final fuentes = [
-      'Tech News',
-      'Global Times',
-      'Daily Report',
-      'World Insights',
-      'Innovation Weekly',
-      'Economic Review',
-      'Cultural Digest',
-      'Energy Today',
-      'Digital Trends',
-      'Market Watch',
-    ];
-
-    return Noticia(
-      titulo: titulos[random.nextInt(titulos.length)], // Título aleatorio
-      descripcion:
-          descripciones[random.nextInt(
-            descripciones.length,
-          )], // Descripción aleatoria
-      fuente: fuentes[random.nextInt(fuentes.length)], // Fuente aleatoria
-      publicadaEl: DateTime.now().subtract(
-        Duration(
-          minutes: random.nextInt(1440), // Publicada en las últimas 24 horas
-        ),
-      ),
+    final noticia = await _noticiaService.getNoticiasPaginadas(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
     );
+
+    for (final noticia in noticia) {
+      // Formatear la fecha de publicación
+      if (noticia.titulo.isEmpty ||
+          noticia.descripcion.isEmpty ||
+          noticia.fuente.isEmpty) {
+        throw Exception(
+          '${Constantes.mensajeError} Los campos título, descripción y fuente no pueden estar vacíos.',
+        );
+      }
+    }
+    return noticia;
   }
 
-  /// Devuelve una lista de noticias paginadas
-  Future<List<Noticia>> getNoticias({
-    required int pageNumber,
-    int pageSize = 5,
+  Future<void> crearNoticia({
+    required String titulo,
+    required String descripcion,
+    required String fuente,
+    required String publicadaEl,
+    required String urlImagen,
   }) async {
-    await Future.delayed(
-      const Duration(seconds: 2),
-    ); // Simula un delay de 2 segundos
+    final noticia = {
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl,
+      'urlImagen': urlImagen,
+    };
 
-    // Calcula los índices de inicio y fin para la página solicitada
-    final startIndex = (pageNumber - 1) * pageSize;
-    final endIndex = startIndex + pageSize;
+    await _noticiaService.crearNoticia(noticia);
+  }
 
-    // Si el índice de fin está fuera del rango de la lista actual, genera más noticias
-    while (_allNoticias.length < endIndex) {
-      _allNoticias.add(_generateRandomNoticia(_allNoticias.length));
+  Future<void> editarNoticia({
+    required String id,
+    required String titulo,
+    required String descripcion,
+    required String fuente,
+    required String publicadaEl,
+    required String urlImagen,
+  }) async {
+    if (id.isEmpty) {
+      throw Exception('El ID de la noticia no puede estar vacío.');
     }
 
-    // Si el índice inicial está fuera del rango, devuelve una lista vacía
-    if (startIndex >= _allNoticias.length) {
-      return [];
+    if (titulo.isEmpty || descripcion.isEmpty || fuente.isEmpty) {
+      throw Exception(
+        'Los campos título, descripción y fuente no pueden estar vacíos.',
+      );
     }
 
-    // Devuelve la sublista correspondiente a la página solicitada
-    return _allNoticias.sublist(
-      startIndex,
-      endIndex > _allNoticias.length ? _allNoticias.length : endIndex,
-    );
+    final noticia = {
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl,
+      'urlImagen': urlImagen,
+    };
+
+    await _noticiaService.editarNoticia(id, noticia);
+  }
+
+  Future<void> eliminarNoticia(String id) async {
+    if (id.isEmpty) {
+      throw Exception(
+        '${Constantes.mensajeError} El ID de la noticia no puede estar vacío.',
+      );
+    }
+
+    await _noticiaService.eliminarNoticia(id);
   }
 }
