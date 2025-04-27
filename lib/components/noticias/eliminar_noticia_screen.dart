@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/api/service/noticia_service.dart';
+import 'package:manazco/data/noticia_repository.dart';
 
 class EliminarNoticiaPopup {
   static Future<void> mostrarPopup({
@@ -7,7 +7,7 @@ class EliminarNoticiaPopup {
     required String noticiaId,
     required VoidCallback onNoticiaEliminada,
   }) async {
-    final NoticiaService noticiaService = NoticiaService();
+    final NoticiaRepository noticiaService = NoticiaRepository();
 
     Future<void> eliminarNoticia() async {
       try {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 //backend
-import 'package:manazco/api/service/noticia_service.dart';
+import 'package:manazco/data/noticia_repository.dart';
 import 'package:manazco/components/noticias/crear_noticia_screen.dart';
 import 'package:manazco/components/noticias/eliminar_noticia_screen.dart';
 import 'package:manazco/components/noticias/noticia_modal.dart';
@@ -23,7 +23,7 @@ class NoticiaScreen extends StatefulWidget {
 }
 
 class _NoticiaScreenState extends State<NoticiaScreen> {
-  final NoticiaService _noticiaService = NoticiaService();
+  final NoticiaRepository _noticiaRepository = NoticiaRepository();
   final ScrollController _scrollController = ScrollController();
   final List<Noticia> noticiasList = [];
   int currentPage = 1;
@@ -100,7 +100,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     });
 
     try {
-      final noticias = await _noticiaService.getPaginatedNoticia(
+      final noticias = await _noticiaRepository.getPaginatedNoticia(
         pageNumber: currentPage,
         pageSize: Constantes.tamanoPaginaConst,
       );

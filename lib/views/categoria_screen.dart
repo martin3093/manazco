@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/api/service/categoria_service.dart';
+import 'package:manazco/data/categoria_repository.dart';
 import 'package:manazco/domain/categoria.dart';
 import 'package:manazco/constants.dart';
 import 'package:manazco/exceptions/api_exception.dart';
@@ -13,7 +13,7 @@ class CategoriaScreen extends StatefulWidget {
 }
 
 class _CategoriaScreenState extends State<CategoriaScreen> {
-  final CategoriaService _categoriaService = CategoriaService();
+  final CategoriaRepository _categoriaRepository = CategoriaRepository();
   List<Categoria> categorias = [];
   bool isLoading = false;
   bool hasError = false;
@@ -32,7 +32,7 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
     });
 
     try {
-      final fetchedCategorias = await _categoriaService.getCategorias();
+      final fetchedCategorias = await _categoriaRepository.getCategorias();
       setState(() {
         categorias = fetchedCategorias;
         isLoading = false;
@@ -70,7 +70,7 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
           imagenUrl: nuevaCategoriaData['imagenUrl'],
         );
 
-        await _categoriaService.crearCategoria(nuevaCategoria);
+        await _categoriaRepository.crearCategoria(nuevaCategoria);
         _loadCategorias();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text(Constantes.successCreated)),
@@ -98,7 +98,7 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
           imagenUrl: categoriaEditadaData['imagenUrl'],
         );
 
-        await _categoriaService.editarCategoria(
+        await _categoriaRepository.editarCategoria(
           categoria.id!,
           categoriaEditada,
         );
@@ -117,7 +117,7 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
   /// Elimina una categoría
   Future<void> _eliminarCategoria(String id) async {
     try {
-      await _categoriaService.eliminarCategoria(id);
+      await _categoriaRepository.eliminarCategoria(id);
       _loadCategorias();
       ScaffoldMessenger.of(
         context,

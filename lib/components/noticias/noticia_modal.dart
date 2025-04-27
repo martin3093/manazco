@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:manazco/api/service/noticia_service.dart';
+import 'package:manazco/data/noticia_repository.dart';
 
 class NoticiaModal {
   static Future<void> mostrarModal({
@@ -9,7 +9,7 @@ class NoticiaModal {
     required VoidCallback onSave, // Callback para guardar
   }) async {
     final formKey = GlobalKey<FormState>();
-    final NoticiaService noticiaService = NoticiaService();
+    final NoticiaRepository noticiaService = NoticiaRepository();
 
     // Controladores para los campos del formulario
     final TextEditingController tituloController = TextEditingController(

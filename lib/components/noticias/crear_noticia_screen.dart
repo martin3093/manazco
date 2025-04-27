@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/api/service/noticia_service.dart';
+import 'package:manazco/data/noticia_repository.dart';
 import 'package:intl/intl.dart'; // Para formatear la fecha
 
 class CrearNoticiaPopup {
   static Future<void> mostrarPopup(BuildContext context) async {
     final formKey = GlobalKey<FormState>();
-    final NoticiaService noticiaService = NoticiaService();
+    final NoticiaRepository noticiaService = NoticiaRepository();
 
     // Controladores para los campos del formulario
     final TextEditingController tituloController = TextEditingController();
