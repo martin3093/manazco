@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manazco/views/categoria_dos_screen.dart';
 import 'package:manazco/views/categoria_screen.dart';
 import 'package:manazco/views/game/start_screen.dart';
 import 'package:manazco/views/utiles/contador.dart';
@@ -6,6 +7,7 @@ import 'package:manazco/views/auth/login_screen.dart';
 import 'package:manazco/views/quote/quote_screen.dart';
 import 'package:manazco/views/task/tareas_screen.dart';
 import 'package:manazco/views/noticia_screen.dart';
+import 'package:manazco/views/utiles/contador_bloc.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -132,6 +134,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.task),
+              title: const Text('Tareas'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ContadorBloc(title: 'contador'),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.task),
               title: const Text('Contador'),
               onTap: () {
                 Navigator.push(
@@ -174,7 +188,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CategoriaScreen(),
+                    builder: (context) => const CategoriaScreendos(),
                   ),
                 );
               },

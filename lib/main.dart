@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:manazco/bloc/categoria_bloc/categoria_bloc.dart';
+import 'package:manazco/di/locator.dart';
 
 import 'package:manazco/views/auth/login_screen.dart';
 
 Future<void> main() async {
   // Carga las variables de entorno
   await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: ".env"); // Carga el archivo .env
+  await dotenv.load(fileName: ".env");
+  await initLocator(); // Carga el archivo .env
   runApp(const MyApp());
 }
 
@@ -37,34 +42,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  void _decrementCounter() {
-    setState(() {
-      _counter--;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     String message;
     Color messageColor;
-
-    // Determina el mensaje y el color según el valor del contador
-    if (_counter > 0) {
-      message = 'Contador en positivo';
-      messageColor = Colors.green;
-    } else if (_counter == 0) {
-      message = 'Contador en cero';
-      messageColor = Colors.black;
-    } else {
-      message = 'Contador en negativo';
-      messageColor = Colors.red;
-    }
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -114,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Mostrar Advertencia'),
             ),
             const SizedBox(height: 16),
-            Text(message, style: TextStyle(fontSize: 18, color: messageColor)),
+            // Text(message, style: TextStyle(fontSize: 18, color: messageColor)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -128,32 +109,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end, // Alinea los botones al final
-        children: [
-          FloatingActionButton(
-            onPressed: _decrementCounter,
-            tooltip: 'Decrement',
-            child: const Icon(Icons.remove),
-          ),
-          const SizedBox(width: 16), // Espaciado entre los botones
-          FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-          const SizedBox(width: 16), // Espaciado entre los botones
-          FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _counter = 0; // Reinicia el contador a 0
-              });
-            },
-            tooltip: 'Reset',
-            child: const Icon(Icons.refresh),
-          ),
-        ],
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
