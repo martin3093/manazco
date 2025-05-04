@@ -2,10 +2,12 @@ import 'package:bloc/bloc.dart';
 import 'package:manazco/bloc/categoria_bloc/categoria_event.dart';
 import 'package:manazco/bloc/categoria_bloc/categoria_state.dart';
 import 'package:manazco/data/categoria_repository.dart';
+import 'package:manazco/domain/categoria.dart';
 import 'package:watch_it/watch_it.dart';
 
 class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
   final CategoriaRepository categoriaRepository = di<CategoriaRepository>();
+  List<Categoria> _categorias = [];
 
   CategoriaBloc() : super(CategoriaInitial()) {
     on<CategoriaInitEvent>(_onInit);
@@ -29,8 +31,8 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
     emit(CategoriaLoading());
 
     try {
-      final categorias = await categoriaRepository.getCategorias();
-      emit(CategoriaLoaded(categorias, DateTime.now()));
+      _categorias = await categoriaRepository.getCategorias();
+      emit(CategoriaLoaded(_categorias, DateTime.now()));
     } catch (e) {
       emit(CategoriaError('Error al cargar categorías: ${e.toString()}'));
     }
@@ -41,8 +43,12 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
     Emitter<CategoriaState> emit,
   ) async {
     try {
+      // Save to API
       await categoriaRepository.crearCategoria(event.categoria);
-      await _onLoadCategorias(LoadCategoriasEvent(), emit);
+
+      // After creating, reload categories to get fresh data with IDs
+      _categorias = await categoriaRepository.getCategorias();
+      emit(CategoriaLoaded(_categorias, DateTime.now()));
     } catch (e) {
       emit(CategoriaError('Error al crear categoría: ${e.toString()}'));
     }
@@ -53,8 +59,12 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
     Emitter<CategoriaState> emit,
   ) async {
     try {
+      // Save to API
       await categoriaRepository.editarCategoria(event.id, event.categoria);
-      await _onLoadCategorias(LoadCategoriasEvent(), emit);
+
+      // Reload categories to get fresh data with updates
+      _categorias = await categoriaRepository.getCategorias();
+      emit(CategoriaLoaded(_categorias, DateTime.now()));
     } catch (e) {
       emit(CategoriaError('Error al editar categoría: ${e.toString()}'));
     }
@@ -65,8 +75,12 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
     Emitter<CategoriaState> emit,
   ) async {
     try {
+      // Delete from API
       await categoriaRepository.eliminarCategoria(event.id);
-      await _onLoadCategorias(LoadCategoriasEvent(), emit);
+
+      // Update local state instead of reloading from API
+      _categorias.removeWhere((c) => c.id == event.id);
+      emit(CategoriaLoaded(_categorias, DateTime.now()));
     } catch (e) {
       emit(CategoriaError('Error al eliminar categoría: ${e.toString()}'));
     }

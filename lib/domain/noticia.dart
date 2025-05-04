@@ -6,7 +6,7 @@ class Noticia {
   final String descripcion;
   final String fuente;
   final DateTime publicadaEl;
-  final String imageUrl;
+  final String urlImagen;
   final String categoriaId;
 
   Noticia({
@@ -15,8 +15,8 @@ class Noticia {
     required this.descripcion,
     required this.fuente,
     required this.publicadaEl,
-    required this.imageUrl,
-    required this.categoriaId,
+    required this.urlImagen,
+    this.categoriaId = Constantes.defaultCategoriaId,
   });
 
   // Método para convertir la instancia en un mapa
@@ -27,7 +27,7 @@ class Noticia {
       'descripcion': descripcion,
       'fuente': fuente,
       'publicadaEl': publicadaEl.toIso8601String(),
-      'urlImagen': imageUrl,
+      'urlImagen': urlImagen,
       'categoriaId': categoriaId,
     };
   }
@@ -41,8 +41,8 @@ class Noticia {
       fuente: json['fuente'] ?? 'Fuente desconocida',
       publicadaEl:
           DateTime.tryParse(json['publicadaEl'] ?? '') ?? DateTime.now(),
-      imageUrl: json['urlImagen'] ?? '',
       categoriaId: json['categoriaId'] ?? Constantes.defaultCategoriaId,
+      urlImagen: json['urlImagen'] ?? '', // Asegúrate de que este campo exista
     );
   }
 }

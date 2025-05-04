@@ -30,7 +30,7 @@ class NoticiaCardHelper {
       descripcion: noticia.descripcion,
       fuente: noticia.fuente,
       publicadaEl: tiempoTranscurrido,
-      imageUrl: noticia.imageUrl,
+      urlImagen: noticia.urlImagen,
       onEdit: onEdit, // Callback para editar
       onDelete: onDelete, // Callback para eliminar
     );

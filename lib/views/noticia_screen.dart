@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 //backend
-import 'package:manazco/data/noticia_repository.dart';
+import 'package:manazco/bloc/noticia_bloc/noticia_bloc.dart';
+import 'package:manazco/bloc/noticia_bloc/noticia_event.dart';
+import 'package:manazco/bloc/noticia_bloc/noticia_state.dart';
 import 'package:manazco/components/noticias/crear_noticia_screen.dart';
 import 'package:manazco/components/noticias/eliminar_noticia_screen.dart';
 import 'package:manazco/components/noticias/noticia_modal.dart';
 import 'package:manazco/domain/noticia.dart';
 //component
 import 'package:manazco/constants.dart';
-import 'package:manazco/exceptions/api_exception.dart';
-import 'package:manazco/helpers/error_helper.dart';
-
 import 'package:manazco/helpers/noticia_card_helper.dart';
-import 'package:manazco/views/categoria_screen.dart';
+import 'package:manazco/views/categoria_dos_screen.dart';
 
 class NoticiaScreen extends StatefulWidget {
   const NoticiaScreen({super.key});
@@ -23,135 +23,36 @@ class NoticiaScreen extends StatefulWidget {
 }
 
 class _NoticiaScreenState extends State<NoticiaScreen> {
-  final NoticiaRepository _noticiaRepository = NoticiaRepository();
+  late NoticiaBloc _noticiaBloc;
   final ScrollController _scrollController = ScrollController();
-  final List<Noticia> noticiasList = [];
-  int currentPage = 1;
-
-  bool hasMore = true;
-
-  bool isLoading = false; // Indica si los datos están cargando
-  bool hasError = false; // Indica si ocurrió un error
-  DateTime? lastUpdated; // Fecha y hora de la última actualización
 
   @override
   void initState() {
     super.initState();
-    _loadNoticias();
+    _noticiaBloc = NoticiaBloc();
+    _noticiaBloc.add(LoadNoticiasEvent());
+
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
               _scrollController.position.maxScrollExtent &&
-          !isLoading &&
-          hasMore) {
-        _loadNoticias();
+          !(_noticiaBloc.state is NoticiasLoadingMoreState) &&
+          _noticiaBloc.hasMore) {
+        _noticiaBloc.add(LoadMoreNoticiasEvent());
       }
     });
   }
 
-  /*
-  Future<void> _loadNoticias() async {
-    setState(() {
-      isLoading = true; // Comienza la carga
-      hasError = false; // Resetea el estado de error
-    });
-
-    try {
-      // Llama al servicio para obtener las noticias
-      final newNoticias = await _noticiaService.getPaginatedNoticia(
-        pageNumber: currentPage,
-        pageSize: Constantes.tamanoPaginaConst,
-      );
-
-      setState(() {
-        noticiasList.addAll(newNoticias); // Agrega las noticias a la lista
-        isLoading = false; // Finaliza la carga
-        hasMore = newNoticias.length == Constantes.tamanoPaginaConst;
-        if (hasMore) currentPage++;
-        lastUpdated =
-            DateTime.now(); // Actualiza la fecha y hora de la última actualización
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false; // Finaliza la carga
-        hasError = true; // Marca que ocurrió un error
-      });
-
-      // Determina el mensaje y el color del error
-      String errorMessage = Constantes.mensajeError;
-      Color errorColor = Colors.grey;
-
-      if (e is ApiException) {
-        final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
-        errorMessage = errorData['message'];
-        errorColor = errorData['color'];
-      }
-
-      // Muestra el SnackBar con el mensaje y el color
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
-      );
-    }
-  }
-*/
-  Future<void> _loadNoticias() async {
-    setState(() {
-      isLoading = true;
-      hasError = false;
-    });
-
-    try {
-      final noticias = await _noticiaRepository.getPaginatedNoticia(
-        pageNumber: currentPage,
-        pageSize: Constantes.tamanoPaginaConst,
-      );
-
-      setState(() {
-        noticiasList.addAll(noticias);
-        isLoading = false;
-        hasMore = noticias.length == Constantes.tamanoPaginaConst;
-        if (hasMore) currentPage++;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        hasError = true;
-      });
-
-      String errorMessage = Constantes.mensajeError;
-      Color errorColor = Colors.grey;
-
-      if (e is ApiException) {
-        switch (e.statusCode) {
-          case 400:
-          case 500:
-            errorMessage = e.message;
-            errorColor = Colors.red;
-            break;
-          case 401:
-            errorMessage = e.message;
-            errorColor = Colors.orange;
-            break;
-          case 404:
-            errorMessage = e.message;
-            errorColor = Colors.grey;
-            break;
-          default:
-            errorMessage = 'Error desconocido.';
-            errorColor = Colors.grey;
-        }
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
-      );
-    }
+  Future<void> _refreshNoticias() async {
+    _noticiaBloc.add(RefreshNoticiasEvent());
   }
 
   void _editarNoticia(Noticia noticia) {
     NoticiaModal.mostrarModal(
       context: context,
       noticia: noticia.toJson(), // Pasa los datos de la noticia al modal
-      onSave: _loadNoticias, // Recarga las noticias después de guardar
+      onSave: () {
+        _noticiaBloc.add(EditNoticiaEvent(noticia.id, {...noticia.toJson()}));
+      },
     );
   }
 
@@ -160,9 +61,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       context: context,
       noticiaId: noticiaId,
       onNoticiaEliminada: () {
-        setState(() {
-          noticiasList.removeWhere((noticia) => noticia.id == noticiaId);
-        });
+        _noticiaBloc.add(DeleteNoticiaEvent(noticiaId));
       },
     );
   }
@@ -170,6 +69,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _noticiaBloc.close();
     super.dispose();
   }
 
@@ -186,60 +86,97 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const CategoriaScreen(),
+                  builder: (context) => const CategoriaScreendos(),
                 ),
               );
             },
           ),
         ],
-        bottom:
-            lastUpdated != null
-                ? PreferredSize(
-                  preferredSize: const Size.fromHeight(20.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(20.0),
+          child: BlocBuilder<NoticiaBloc, NoticiaState>(
+            bloc: _noticiaBloc,
+            builder: (context, state) {
+              final lastUpdated =
+                  state is NoticiasLoadedState ? state.lastUpdated : null;
+              return lastUpdated != null
+                  ? Padding(
+                    padding: const EdgeInsets.all(8),
                     child: Text(
-                      'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(lastUpdated!)}',
+                      'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(lastUpdated)}',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.white70,
                       ),
                     ),
-                  ),
-                )
-                : null,
+                  )
+                  : const SizedBox(height: 0);
+            },
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          CrearNoticiaPopup.mostrarPopup(context);
+          CrearNoticiaPopup.mostrarPopup(context).then((value) {
+            _noticiaBloc.add(RefreshNoticiasEvent());
+          });
         },
         tooltip: 'Agregar Noticia',
         child: const Icon(Icons.add),
       ),
-      body:
-          noticiasList.isEmpty && isLoading
-              ? const Center(child: Text(Constantes.mensajeCargando))
-              : ListView.builder(
-                controller: _scrollController,
-                itemCount: noticiasList.length + (isLoading ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index < noticiasList.length) {
-                    final noticia = noticiasList[index];
+      body: BlocConsumer<NoticiaBloc, NoticiaState>(
+        bloc: _noticiaBloc,
+        listener: (context, state) {
+          if (state is NoticiasErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is NoticiasInitialState ||
+              state is NoticiasLoadingState &&
+                  !(state is NoticiasLoadingMoreState)) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is NoticiasLoadedState ||
+              state is NoticiasLoadingMoreState) {
+            final noticias =
+                state is NoticiasLoadedState
+                    ? state.noticias
+                    : (state as NoticiasLoadingMoreState).noticias;
 
+            final isLoadingMore = state is NoticiasLoadingMoreState;
+
+            if (noticias.isEmpty) {
+              return const Center(
+                child: Text(
+                  'No hay noticias disponibles',
+                  style: TextStyle(fontSize: 16),
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: _refreshNoticias,
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: noticias.length + (isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index < noticias.length) {
+                    final noticia = noticias[index];
                     return Column(
                       children: [
                         NoticiaCardHelper.buildNoticiaCard(
                           noticia: noticia,
-                          onEdit:
-                              () => _editarNoticia(noticia), // Editar noticia
-                          onDelete:
-                              () => _eliminarNoticia(
-                                noticia.id,
-                              ), // Eliminar noticia
+                          onEdit: () => _editarNoticia(noticia),
+                          onDelete: () => _eliminarNoticia(noticia.id),
                         ),
                         // Línea divisoria
                         Divider(
-                          color: Colors.grey[500], // Color negro
+                          color: Colors.grey[500], // Color gris
                           thickness: 0.5, // Grosor de la línea
                           height: 1, // Espaciado vertical
                         ),
@@ -255,6 +192,27 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
                   }
                 },
               ),
+            );
+          } else {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Ocurrió un error al cargar las noticias',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _refreshNoticias,
+                    child: const Text('Intentar nuevamente'),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }

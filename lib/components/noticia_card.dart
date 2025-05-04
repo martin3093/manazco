@@ -6,7 +6,7 @@ class NoticiaCard extends StatelessWidget {
   final String descripcion;
   final String fuente;
   final String publicadaEl; // Cambiado a DateTime
-  final String imageUrl;
+  final String urlImagen;
   final VoidCallback onEdit; // Callback para editar
   final VoidCallback onDelete; // Callback para eliminar
 
@@ -16,7 +16,7 @@ class NoticiaCard extends StatelessWidget {
     required this.descripcion,
     required this.fuente,
     required this.publicadaEl,
-    required this.imageUrl,
+    required this.urlImagen,
     required this.onEdit,
     required this.onDelete,
   });
@@ -75,7 +75,7 @@ class NoticiaCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
-                    imageUrl,
+                    urlImagen,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;

@@ -1,38 +1,24 @@
 import 'package:manazco/api/service/noticia_service.dart';
 import 'package:manazco/domain/noticia.dart';
 import 'package:manazco/constants.dart';
+import 'package:manazco/exceptions/api_exception.dart';
 
 class NoticiaRepository {
   final NoticiaService _noticiaService = NoticiaService();
 
   /// Obtiene cotizaciones paginadas con validaciones
-  Future<List<Noticia>> getPaginatedNoticia({
-    required int pageNumber,
-    int pageSize = Constantes.tamanoPaginaConst,
-  }) async {
-    if (pageNumber < 1) {
-      throw Exception(Constantes.mensajeError);
-    }
-    if (pageSize <= 0) {
-      throw Exception(Constantes.mensajeError);
-    }
-
-    final noticia = await _noticiaService.getNoticiasPaginadas(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-    );
-
-    for (final noticia in noticia) {
-      // Formatear la fecha de publicación
-      if (noticia.titulo.isEmpty ||
-          noticia.descripcion.isEmpty ||
-          noticia.fuente.isEmpty) {
-        throw Exception(
-          '${Constantes.mensajeError} Los campos título, descripción y fuente no pueden estar vacíos.',
-        );
+  /// Obtiene todas las categorías desde el repositorio
+  Future<List<Noticia>> getCategorias() async {
+    try {
+      return await _noticiaService.getNoticias();
+    } catch (e) {
+      if (e is ApiException) {
+        // Propaga el mensaje contextual de ApiException
+        rethrow;
+      } else {
+        throw Exception('Error desconocido: $e');
       }
     }
-    return noticia;
   }
 
   Future<void> crearNoticia({
@@ -41,6 +27,7 @@ class NoticiaRepository {
     required String fuente,
     required String publicadaEl,
     required String urlImagen,
+    String? categoriaId,
   }) async {
     final noticia = {
       'titulo': titulo,
@@ -48,6 +35,7 @@ class NoticiaRepository {
       'fuente': fuente,
       'publicadaEl': publicadaEl,
       'urlImagen': urlImagen,
+      'categoriaId': categoriaId ?? Constantes.defaultCategoriaId,
     };
 
     await _noticiaService.crearNoticia(noticia);
@@ -60,6 +48,7 @@ class NoticiaRepository {
     required String fuente,
     required String publicadaEl,
     required String urlImagen,
+    String? categoriaId,
   }) async {
     if (id.isEmpty) {
       throw Exception('El ID de la noticia no puede estar vacío.');
@@ -77,6 +66,7 @@ class NoticiaRepository {
       'fuente': fuente,
       'publicadaEl': publicadaEl,
       'urlImagen': urlImagen,
+      'categoriaId': categoriaId ?? Constantes.defaultCategoriaId,
     };
 
     await _noticiaService.editarNoticia(id, noticia);
