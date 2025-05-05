@@ -1,13 +1,11 @@
-import 'package:manazco/constants.dart';
-
 class Noticia {
   final String id;
   final String titulo;
   final String descripcion;
   final String fuente;
   final DateTime publicadaEl;
-  final String urlImagen;
-  final String categoriaId;
+  final String imageUrl;
+  final String? categoriaId; // ID de la categoría asociada
 
   Noticia({
     required this.id,
@@ -15,8 +13,8 @@ class Noticia {
     required this.descripcion,
     required this.fuente,
     required this.publicadaEl,
-    required this.urlImagen,
-    this.categoriaId = Constantes.defaultCategoriaId,
+    required this.imageUrl,
+    this.categoriaId, // Valor por defecto
   });
 
   // Método para convertir la instancia en un mapa
@@ -27,12 +25,12 @@ class Noticia {
       'descripcion': descripcion,
       'fuente': fuente,
       'publicadaEl': publicadaEl.toIso8601String(),
-      'urlImagen': urlImagen,
-      'categoriaId': categoriaId,
+      'urlImagen': imageUrl,
+      'categoriaId': categoriaId, // Añadido al mapa
     };
   }
 
-  // Método para crear una instancia desde un mapa (opcional)
+  // Método para crear una instancia desde un mapa
   factory Noticia.fromJson(Map<String, dynamic> json) {
     return Noticia(
       id: json['_id'] ?? '',
@@ -41,8 +39,8 @@ class Noticia {
       fuente: json['fuente'] ?? 'Fuente desconocida',
       publicadaEl:
           DateTime.tryParse(json['publicadaEl'] ?? '') ?? DateTime.now(),
-      categoriaId: json['categoriaId'] ?? Constantes.defaultCategoriaId,
-      urlImagen: json['urlImagen'] ?? '', // Asegúrate de que este campo exista
+      imageUrl: json['urlImagen'] ?? '',
+      categoriaId: json['categoriaId'] ?? 'sin_categoria', // Valor por defecto
     );
   }
 }

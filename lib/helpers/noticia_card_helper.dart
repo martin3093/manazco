@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/domain/noticia.dart';
-import 'package:manazco/components/noticia_card.dart';
+import 'package:manazco/components/noticias_card.dart';
 
 class NoticiaCardHelper {
   /// Construye un widget NoticiaCard directamente desde una instancia de Noticia
@@ -30,7 +30,9 @@ class NoticiaCardHelper {
       descripcion: noticia.descripcion,
       fuente: noticia.fuente,
       publicadaEl: tiempoTranscurrido,
-      urlImagen: noticia.urlImagen,
+      imageUrl: noticia.imageUrl,
+      categoriaId: noticia.categoriaId ?? '',
+      categoriaNombre: '',
       onEdit: onEdit, // Callback para editar
       onDelete: onDelete, // Callback para eliminar
     );

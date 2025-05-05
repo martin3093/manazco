@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/views/categoria_dos_screen.dart';
-import 'package:manazco/views/categoria_screen.dart';
+import 'package:manazco/views/category_screen.dart';
+import 'package:manazco/views/utiles/categoria_screen.dart';
 import 'package:manazco/views/game/start_screen.dart';
 import 'package:manazco/views/utiles/contador.dart';
 import 'package:manazco/views/auth/login_screen.dart';
 import 'package:manazco/views/quote/quote_screen.dart';
 import 'package:manazco/views/task/tareas_screen.dart';
-import 'package:manazco/views/noticia_screen.dart';
+import 'package:manazco/views/noticia_screen_dos.dart';
 import 'package:manazco/views/utiles/contador_bloc.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -188,7 +188,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CategoriaScreendos(),
+                    builder: (context) => const CategoryScreen(),
                   ),
                 );
               },

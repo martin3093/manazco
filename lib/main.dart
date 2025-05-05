@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:manazco/bloc/categoria_bloc/categoria_bloc.dart';
+import 'package:manazco/bloc/categorias_bloc/categorias_bloc.dart';
+import 'package:manazco/bloc/preferencia/preferencia_bloc.dart';
+import 'package:manazco/bloc/preferencia/preferencia_event.dart';
 import 'package:manazco/di/locator.dart';
 
 import 'package:manazco/views/auth/login_screen.dart';
@@ -8,9 +11,8 @@ import 'package:manazco/views/auth/login_screen.dart';
 Future<void> main() async {
   // Carga las variables de entorno
   await dotenv.load(fileName: ".env");
-  await dotenv.load(fileName: ".env"); // Carga el archivo .env
-  await dotenv.load(fileName: ".env");
   await initLocator(); // Carga el archivo .env
+
   runApp(const MyApp());
 }
 
@@ -19,15 +21,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create:
+              (context) => PreferenciaBloc()..add(const CargarPreferencias()),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 254, 70, 85),
+          ),
+        ),
+        home: LoginScreen(), // Pantalla inicial
       ),
-
-      // home: LoginScreen(), // Establece LoginScreen como la pantalla inicial
-      //home: const MyHomePage(title: 'Flutter Demo Katteryne Home Page'),
-      home: LoginScreen(),
     );
   }
 }
