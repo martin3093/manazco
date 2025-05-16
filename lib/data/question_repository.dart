@@ -1,31 +1,29 @@
 import 'package:manazco/domain/question.dart';
 
 class QuestionRepository {
-  final List<Question> _questions = [
-    Question(
-      questionText: '¿Cuál es la capital de Francia?',
-      answerOptions: ['Madrid', 'París', 'Roma'],
-      correctAnswerIndex: 1,
-    ),
-    Question(
-      questionText: '¿Cuál es el planeta más cercano al Sol?',
-      answerOptions: ['Venus', 'Mercurio', 'Marte'],
-      correctAnswerIndex: 1,
-    ),
-    Question(
-      questionText: '¿Cuántos continentes hay en el mundo?',
-      answerOptions: ['5', '6', '7'],
-      correctAnswerIndex: 2,
-    ),
-    Question(
-      questionText:
-          '¿Qué planeta es conocido como el planeta rojo?', // Nueva pregunta añadida
-      answerOptions: ['Júpiter', 'Marte', 'Venus'],
-      correctAnswerIndex: 1,
-    ),
-  ];
-
-  List<Question> getQuestions() {
-    return _questions;
+  Future<List<Question>> getQuestions() async {
+    await Future.delayed(const Duration(seconds: 2));
+    return [
+      Question(
+        questionText: '¿Cuál es la capital de Francia?',
+        answerOptions: ['Madrid', 'París', 'Roma'],
+        correctAnswerIndex: 1,
+      ),
+      Question(
+        questionText: '¿Cuál es la capital de España?',
+        answerOptions: ['Madrid', 'Barcelona', 'Valencia'],
+        correctAnswerIndex: 0,
+      ),
+      Question(
+        questionText: '¿Cuál es la capital de Italia?',
+        answerOptions: ['Roma', 'Milán', 'Nápoles'],
+        correctAnswerIndex: 0,
+      ),
+      Question(
+        questionText: '¿Qué planeta es conocido como el planeta rojo?',
+        answerOptions: ['Júpiter', 'Marte', 'Venus'],
+        correctAnswerIndex: 2,
+      ),
+    ];
   }
 }

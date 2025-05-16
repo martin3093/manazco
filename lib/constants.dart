@@ -1,4 +1,4 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:manazco/core/api_config.dart';
 
 class AppConstants {
   //Constantes para la aplicación de tareas
@@ -55,11 +55,14 @@ class AppConstants {
 }
 
 class ApiConstantes {
-  static final String newsurl =
-      dotenv.env['CRUD_CRUD_URL'] ?? 'URL_NO_DEFINIDA';
+  static final String newsurl = ApiConfig.beeceptorBaseUrl;
   static final String noticiasUrl = '$newsurl/noticias';
   static final String categoriasUrl = '$newsurl/categorias';
   static final String preferenciasUrl = '$newsurl/preferencias';
+  static final String comentariosUrl = '$newsurl/comentarios';
+  static final String reportesUrl = '$newsurl/reportes';
+  static final String loginUrl = '$newsurl/login';
+
   static const int timeoutSeconds = 10;
   static const String errorTimeout = 'Tiempo de espera agotado';
   static const String errorNoCategory = 'Categoría no encontrada';
@@ -73,10 +76,11 @@ class ApiConstantes {
   static const String newssuccessCreated = 'Noticia creada con éxito';
   static const String newssuccessUpdated = 'Noticia actualizada con éxito';
   static const String newssuccessDeleted = 'Noticia eliminada con éxito';
-
   static const String errorUnauthorized = 'No autorizado';
   static const String errorNotFound = 'Noticias no encontradas';
   static const String errorServer = 'Error del servidor';
+  static const String errorNoInternet =
+      'Por favor, verifica tu conexión a internet.';
 }
 
 class NoticiaConstantes {

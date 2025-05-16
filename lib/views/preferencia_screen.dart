@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:manazco/bloc/categorias_bloc/categorias_bloc.dart';
-import 'package:manazco/bloc/categorias_bloc/categorias_event.dart';
-import 'package:manazco/bloc/categorias_bloc/categorias_state.dart';
+import 'package:manazco/bloc/categorias/categorias_bloc.dart';
+import 'package:manazco/bloc/categorias/categorias_event.dart';
+import 'package:manazco/bloc/categorias/categorias_state.dart';
 import 'package:manazco/bloc/preferencia/preferencia_bloc.dart';
 import 'package:manazco/bloc/preferencia/preferencia_event.dart';
 import 'package:manazco/bloc/preferencia/preferencia_state.dart';
@@ -135,7 +135,8 @@ class PreferenciasScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           value: isSelected,
-          onChanged: (_) => _toggleCategoria(context, categoria.id, isSelected),
+          onChanged:
+              (_) => _toggleCategoria(context, categoria.id!, isSelected),
           controlAffinity: ListTileControlAffinity.leading,
           activeColor: Theme.of(context).colorScheme.primary,
         );

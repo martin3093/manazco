@@ -1,210 +1,120 @@
-// import 'dart:async';
-// import '../domain/quote.dart';
-
-// class QuoteRepository {
-//   // Lista completa de cotizaciones
-//   final List<Quote> _allQuotes = [
-//     Quote(
-//       companyName: 'Apple',
-//       stockPrice: 150.25,
-//       changePercentage: 2.5,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Microsoft',
-//       stockPrice: 299.99,
-//       changePercentage: 1.2,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Amazon',
-//       stockPrice: 3450.50,
-//       changePercentage: -0.8,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Tesla',
-//       stockPrice: 720.30,
-//       changePercentage: 3.1,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Facebook',
-//       stockPrice: 355.10,
-//       changePercentage: -2.0,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Google',
-//       stockPrice: 2800.50,
-//       changePercentage: -1.3,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Netflix',
-//       stockPrice: 590.20,
-//       changePercentage: 4.5,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Adobe',
-//       stockPrice: 650.00,
-//       changePercentage: 0.0,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'Intel',
-//       stockPrice: 55.30,
-//       changePercentage: -0.5,
-//       lastUpdated: DateTime.now(),
-//     ),
-//     Quote(
-//       companyName: 'NVIDIA',
-//       stockPrice: 220.15,
-//       changePercentage: 2.8,
-//       lastUpdated: DateTime.now(),
-//     ),
-//   ];
-
-//   /// Devuelve una lista de cotizaciones paginadas
-//   Future<List<Quote>> getQuotes({
-//     required int pageNumber,
-//     int pageSize = 5,
-//   }) async {
-//     await Future.delayed(
-//       const Duration(seconds: 2),
-//     ); // Simula un delay de 2 segundos
-
-//     // Calcula los índices de inicio y fin para la página solicitada
-//     final startIndex = (pageNumber - 1) * pageSize;
-//     final endIndex = startIndex + pageSize;
-
-//     // Si el índice inicial está fuera del rango, devuelve una lista vacía
-//     if (startIndex >= _allQuotes.length) {
-//       return [];
-//     }
-
-//     // Devuelve la sublista correspondiente a la página solicitada
-//     return _allQuotes.sublist(
-//       startIndex,
-//       endIndex > _allQuotes.length ? _allQuotes.length : endIndex,
-//     );
-//   }
-// }
-
-import 'dart:async';
-import 'dart:math'; // Para generar valores aleatorios
 import 'package:manazco/domain/quote.dart';
+import 'dart:math';
 
 class QuoteRepository {
-  // Lista inicial de cotizaciones predefinidas
-  final List<Quote> _allQuotes = [
-    Quote(
-      companyName: 'Apple',
-      stockPrice: 150.25,
-      changePercentage: 2.5,
-      lastUpdated: DateTime.now(),
-    ),
-    Quote(
-      companyName: 'Microsoft',
-      stockPrice: 299.99,
-      changePercentage: 1.2,
-      lastUpdated: DateTime.now(),
-    ),
-    Quote(
-      companyName: 'Amazon',
-      stockPrice: 3450.50,
-      changePercentage: -0.8,
-      lastUpdated: DateTime.now(),
-    ),
-    Quote(
-      companyName: 'Tesla',
-      stockPrice: 720.30,
-      changePercentage: 3.1,
-      lastUpdated: DateTime.now(),
-    ),
-    Quote(
-      companyName: 'Facebook',
-      stockPrice: 355.10,
-      changePercentage: -2.0,
-      lastUpdated: DateTime.now(),
-    ),
-    Quote(
-      companyName: 'Google',
-      stockPrice: 2800.50,
-      changePercentage: -1.3,
-      lastUpdated: DateTime.now(),
-    ),
-    Quote(
-      companyName: 'Netflix',
-      stockPrice: 590.20,
-      changePercentage: 4.5,
-      lastUpdated: DateTime.now(),
-    ),
+  final random = Random();
+  final List<String> companyNames = [
+    'Apple',
+    'Google',
+    'Amazon',
+    'Microsoft',
+    'Tesla',
+    'Meta',
+    'IBM',
+    'Adobe',
+    'Netflix',
+    'Spotify',
+    'Intel',
+    'NVIDIA',
+    'Samsung',
+    'Oracle',
+    'Cisco',
+    'Salesforce',
+    'Twitter',
+    'Snapchat',
+    'Zoom',
+    'PayPal',
   ];
 
-  /// Genera una cotización aleatoria
-  Quote _generateRandomQuote(int index) {
-    final random = Random();
-    final companyNames = [
-      'Adobe',
-      'Intel',
-      'NVIDIA',
-      'Spotify',
-      'Twitter',
-      'Snapchat',
-      'Uber',
-      'Lyft',
-      'Zoom',
-      'Slack',
-    ];
+  Future<List<Quote>> fetchQuotes() async {
+    // Simula un retraso de 2 segundos
+    await Future.delayed(const Duration(seconds: 2));
 
-    return Quote(
-      companyName:
-          companyNames[random.nextInt(companyNames.length)], // Nombre aleatorio
-      stockPrice: double.parse(
-        (random.nextDouble() * 1000).toStringAsFixed(2),
-      ), // Precio entre 0 y 1000
-      changePercentage: double.parse(
-        (random.nextDouble() * 20 - 10).toStringAsFixed(2),
-      ), // Cambio entre -10% y 10%
-      lastUpdated: DateTime.now().subtract(
-        Duration(
-          minutes: random.nextInt(
-            60,
-          ), // Última actualización en los últimos 60 minutos
-        ),
+    // Devuelve una lista inicial de cotizaciones
+    return [
+      Quote(
+        companyName: 'Apple',
+        stockPrice: 150.25,
+        changePercentage: 2.5,
+        lastUpdated: DateTime.now(),
       ),
-    );
+      Quote(
+        companyName: 'Google',
+        stockPrice: 2800.50,
+        changePercentage: -1.2,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'Amazon',
+        stockPrice: 3400.75,
+        changePercentage: 0.8,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'Microsoft',
+        stockPrice: 299.99,
+        changePercentage: 1.1,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'Tesla',
+        stockPrice: 720.30,
+        changePercentage: -0.5,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'Meta',
+        stockPrice: 350.00,
+        changePercentage: 3.0,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'IBM',
+        stockPrice: 140.00,
+        changePercentage: 1.8,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'Adobe',
+        stockPrice: 500.00,
+        changePercentage: -1.0,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'Netflix',
+        stockPrice: 600.00,
+        changePercentage: -2.5,
+        lastUpdated: DateTime.now(),
+      ),
+      Quote(
+        companyName: 'Spotify',
+        stockPrice: 150.00,
+        changePercentage: 1.5,
+        lastUpdated: DateTime.now(),
+      ),
+    ];
   }
 
-  /// Devuelve una lista de cotizaciones paginadas
-  Future<List<Quote>> getQuotes({
+  Future<List<Quote>> getPaginatedQuotes({
     required int pageNumber,
     int pageSize = 5,
   }) async {
-    await Future.delayed(
-      const Duration(seconds: 2),
-    ); // Simula un delay de 2 segundos
+    await Future.delayed(const Duration(seconds: 2));
+    final offset = (pageNumber - 1) * pageSize;
 
-    // Calcula los índices de inicio y fin para la página solicitada
-    final startIndex = (pageNumber - 1) * pageSize;
-    final endIndex = startIndex + pageSize;
-
-    // Si el índice de fin está fuera del rango de la lista actual, genera más cotizaciones
-    while (_allQuotes.length < endIndex) {
-      _allQuotes.add(_generateRandomQuote(_allQuotes.length));
-    }
-
-    // Si el índice inicial está fuera del rango, devuelve una lista vacía
-    if (startIndex >= _allQuotes.length) {
-      return [];
-    }
-
-    // Devuelve la sublista correspondiente a la página solicitada
-    return _allQuotes.sublist(
-      startIndex,
-      endIndex > _allQuotes.length ? _allQuotes.length : endIndex,
-    );
+    return List.generate(pageSize, (index) {
+      final quoteNumber = offset + index + 1;
+      final companyName = companyNames[random.nextInt(companyNames.length)];
+      final stockPrice = (random.nextDouble() * 3000 + 50).toStringAsFixed(2);
+      final changePercentage = (random.nextDouble() * 10 - 5).toStringAsFixed(
+        2,
+      );
+      return Quote(
+        companyName: '$companyName $quoteNumber',
+        stockPrice: double.parse(stockPrice),
+        changePercentage: double.parse(changePercentage),
+        lastUpdated: DateTime.now(),
+      );
+    });
   }
 }

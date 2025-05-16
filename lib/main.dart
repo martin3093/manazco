@@ -1,17 +1,27 @@
+import 'package:manazco/bloc/comentarios/comentario_bloc.dart';
+import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart'; // Importa flutter_bloc
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:manazco/bloc/categorias_bloc/categorias_bloc.dart';
 import 'package:manazco/bloc/preferencia/preferencia_bloc.dart';
 import 'package:manazco/bloc/preferencia/preferencia_event.dart';
 import 'package:manazco/di/locator.dart';
-
-import 'package:manazco/views/auth/login_screen.dart';
+import 'package:manazco/bloc/auth/auth_bloc.dart'; // Importa el AuthBloc
+import 'package:manazco/helpers/secure_storage_service.dart'; // Importa el servicio de almacenamiento seguro
+import 'package:watch_it/watch_it.dart'; // Importa watch_it para usar di
+import 'package:manazco/components/connectivity_wrapper.dart'; // Importa el wrapper de conectividad
+import 'package:manazco/views/login_screen.dart';
+import 'package:manazco/bloc/contador/contador_bloc.dart'; // Importa el BLoC del contador
 
 Future<void> main() async {
   // Carga las variables de entorno
-  await dotenv.load(fileName: ".env");
-  await initLocator(); // Carga el archivo .env
+  await dotenv.load(fileName: '.env');
+  await initLocator();
+
+  // Eliminar cualquier token guardado para forzar el inicio de sesión
+  final secureStorage = di<SecureStorageService>();
+  await secureStorage.clearJwt();
+  await secureStorage.clearUserEmail();
 
   runApp(const MyApp());
 }
@@ -23,100 +33,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (context) => ContadorBloc()),
         BlocProvider(
           create:
               (context) => PreferenciaBloc()..add(const CargarPreferencias()),
         ),
+        BlocProvider(create: (context) => ComentarioBloc()),
+        BlocProvider(
+          create: (context) => AuthBloc(),
+        ), // Solo se inicializa el AuthBloc sin verificar autenticación
+        BlocProvider(
+          create: (context) => ConnectivityBloc(),
+        ), // Bloc para gestionar la conectividad
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 254, 70, 85),
           ),
         ),
-        home: LoginScreen(), // Pantalla inicial
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    String message;
-    Color messageColor;
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            //  Text('Hola soy Katty'),
-
-            //const Text('Hola soy Alejandra'),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Advertencia'),
-                      content: const Text(
-                        'Esta es una advertencia importante.',
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Cerrar'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: const Text('Mostrar Advertencia'),
-            ),
-            const SizedBox(height: 16),
-            // Text(message, style: TextStyle(fontSize: 18, color: messageColor)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
-              },
-              child: const Text('Ir a Inicio de Sesión'),
-            ),
-          ],
-        ),
+        builder: (context, child) {
+          return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
+        },
+        home: const LoginScreen(), // Pantalla inicial
       ),
     );
   }
