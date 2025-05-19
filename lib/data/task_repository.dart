@@ -1,82 +1,73 @@
 import 'package:manazco/domain/task.dart';
+import 'package:manazco/data/api_repository.dart';
+import 'dart:math';
+import 'dart:async';
 
 class TaskRepository {
-  static final List<Task> _tasks = [
-    Task(
-      title: 'Tarea 1',
-      type: 'normal',
-
-      fecha: DateTime.now(),
-      fechaLimite: DateTime.now().add(const Duration(days: 1)),
-      description: 'hola', // Fecha límite: 1 día desde hoy
-      pasos: [],
-    ),
-    Task(
-      title: 'Tarea 2',
-      type: 'urgente',
-      description: 'hola',
-      fecha: DateTime.now().subtract(const Duration(days: 1)),
-      fechaLimite: DateTime.now().add(
-        const Duration(days: 2),
-      ), // Fecha límite: 2 días desde hoy
-      pasos: [],
-    ),
-    Task(
-      title: 'Tarea 3',
-      type: 'normal',
-      description: 'hola',
-      fecha: DateTime.now().subtract(const Duration(days: 2)),
-      fechaLimite: DateTime.now().add(
-        const Duration(days: 3),
-      ), // Fecha límite: 3 días desde hoy
-      pasos: [],
-    ),
-    Task(
-      title: 'Tarea 4',
-      type: 'urgente',
-      description: 'hola',
-      fecha: DateTime.now().subtract(const Duration(days: 3)),
-      fechaLimite: DateTime.now().add(
-        const Duration(days: 4),
-      ), // Fecha límite: 4 días desde hoy
-      pasos: [],
-    ),
-    Task(
-      title: 'Tarea 5',
-      type: 'normal',
-      description: 'hola',
-      fecha: DateTime.now().subtract(const Duration(days: 4)),
-      fechaLimite: DateTime.now().add(
-        const Duration(days: 5),
-      ), // Fecha límite: 5 días desde hoy
-      pasos: [],
-    ),
-  ];
-
-  int _taskCounter = _tasks.length; // Contador para generar nuevas tareas
-
-  // Método para obtener tareas existentes
-  List<Task> getTasks() {
-    return _tasks;
+  final ApiRepository apiRepository = ApiRepository();
+  final Random random = Random();
+  Future<List<Task>> getTasks() async {
+    await Future.delayed(const Duration(seconds: 2));
+    return [
+      Task(
+        titulo: 'Tarea 1',
+        tipo: 'urgente',
+        descripcion: 'Descripción de la tarea 1',
+        fechaLimite: DateTime(2025, 4, 10), //Modificacion 1.3
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 2',
+        tipo: 'normal',
+        descripcion: 'Descripción de la tarea 2',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 3',
+        tipo: 'urgente',
+        descripcion: 'Descripción de la tarea 3',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 4',
+        tipo: 'normal',
+        descripcion: 'Descripción de la tarea 4',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
+      Task(
+        titulo: 'Tarea 5',
+        tipo: 'urgente',
+        descripcion: 'Descripción de la tarea 5',
+        fechaLimite: DateTime.now().add(Duration(days: random.nextInt(5) + 1)),
+        pasos: [],
+      ),
+    ];
   }
 
-  // Método para cargar más tareas (simula la carga dinámica)
-  List<Task> loadMoreTasks(int count) {
-    final List<Task> newTasks = List.generate(count, (index) {
-      _taskCounter++;
+  Future<List<Task>> getMoreTasks({int offset = 0, int limit = 5}) async {
+    await Future.delayed(
+      const Duration(seconds: 2),
+    ); // Simula la obtención de más tareas
+    return List.generate(limit, (index) {
+      final taskNumber = offset + index + 1;
+      final fechaLimite = DateTime.now().add(
+        Duration(days: random.nextInt(5) + 1),
+      );
+      final numeroDePasos = random.nextInt(5) + 3;
       return Task(
-        title: 'Tarea $_taskCounter',
-        type: _taskCounter % 2 == 0 ? 'normal' : 'urgente',
-        description: 'hola', // Alterna entre 'normal' y 'urgente'
-        fecha: DateTime.now().subtract(Duration(days: _taskCounter)),
-        fechaLimite: DateTime.now().add(
-          Duration(days: _taskCounter % 5 + 1),
-        ), // Fecha límite dinámica
-        pasos: [],
+        titulo: 'Tarea $taskNumber',
+        tipo: taskNumber % 2 == 0 ? 'normal' : 'urgente',
+        descripcion: 'Descripción de la tarea $taskNumber',
+        fechaLimite: fechaLimite,
+        pasos: apiRepository.obtenerPasos(
+          'Tarea $taskNumber',
+          fechaLimite,
+          numeroDePasos,
+        ),
       );
     });
-
-    _tasks.addAll(newTasks); // Agrega las nuevas tareas a la lista existente
-    return newTasks; // Devuelve las nuevas tareas
   }
 }

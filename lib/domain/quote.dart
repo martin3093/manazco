@@ -1,8 +1,9 @@
+
 class Quote {
   final String companyName;
   final double stockPrice;
   final double changePercentage;
-  final DateTime lastUpdated; // Nuevo campo añadido
+  final DateTime lastUpdated;
 
   Quote({
     required this.companyName,
@@ -11,3 +12,4 @@ class Quote {
     required this.lastUpdated,
   });
 }
+

@@ -1,139 +1,115 @@
+import 'package:manazco/data/api_repository.dart';
 import 'package:manazco/data/task_repository.dart';
-import 'package:manazco/data/assistant_repository.dart';
 import 'package:manazco/domain/task.dart';
 
 class TaskService {
-  final taskRepository = TaskRepository();
-  final AssistantRepository _assistantRepository = AssistantRepository();
+  final TaskRepository _repository;
+  final ApiRepository _apiRepository;
 
-  final TaskRepository _repository = TaskRepository();
+  TaskService(this._repository, this._apiRepository);
 
-  static const int pageSize = 5; // Tamaño de cada página
+  final List<Task> _tasks = [];
 
-  //clase que se conecta a una API para obtener los pasos de una tarea
-  Future<Task> addNewTask(String titulo, String detalle, DateTime fecha) async {
-    // Simula un retraso para imitar una llamada a una API
-    await Future.delayed(const Duration(milliseconds: 500));
-    final pasos =
-        _assistantRepository
-            .obtenerPasosRepository(titulo, fecha)
-            .take(2)
-            .toList();
-
-    // Crear la nueva tarea
-    final nuevaTarea = Task(
-      title: titulo,
-      type: 'normal',
-      description: detalle,
-      fecha: fecha,
-      fechaLimite: fecha,
-      pasos: pasos,
-    );
-    _repository.getTasks().add(nuevaTarea);
-    return nuevaTarea;
-  }
-
-  void deleteTasktest(int index) {
-    final tasks = _repository.getTasks();
-    if (index >= 0 && index < tasks.length) {
-      // print('SE ELIMINO: Índice $index .');
-      tasks.removeAt(index);
-    } else {
-      // print(
-      // 'Error: Índice $index fuera de rango. No se puede eliminar la tarea.',
-      // );
-    }
-  }
-
-  // Función para modificar una tarea existente
-  void updateTask(int index, Task updatedTask) {
-    _repository.getTasks()[index] = updatedTask;
-  }
-
-  List<String> obtenerPasosRepo(String titulo, DateTime fechaLimite) {
-    final pasos =
-        _assistantRepository
-            .obtenerPasosRepository(titulo, fechaLimite)
-            .take(2)
-            .toList();
-    //print(
-    //'Pasos generados por AssistantRepository: $pasos',
-    // ); // Imprime los pasos en consola
-    return pasos.take(2).toList();
-  }
-
-  int _currentPage = 0; // Página actual para la carga incremental
-
-  // Método para obtener las tareas iniciales con pasos
   Future<List<Task>> getTasksWithSteps() async {
-    try {
-      await Future.delayed(
-        const Duration(milliseconds: 500),
-      ); // Simula un retraso
+    final tasks = await _repository.getTasks();
 
-      final tareas = _repository.getTasks().take(pageSize).toList();
+    final updatedTasks = await Future.wait(
+      tasks.map((task) async {
+        try {
+          // Elimina el 'await' si obtenerPasos no es asíncrono
+          var pasos = _apiRepository.obtenerPasos(
+            task.titulo,
+            task.fechaLimite,
+            2,
+          );
+          pasos = pasos.take(2).toList();
+          return Task(
+            titulo: task.titulo,
+            tipo: task.tipo,
+            descripcion: task.descripcion,
+            fechaLimite: task.fechaLimite,
+            pasos: pasos,
+          );
+        } catch (e) {
+          //print("Error al obtener pasos para la tarea '${task.titulo}': $e");
+          return task;
+        }
+      }).toList(),
+    );
 
-      final tareasConPasos = await Future.wait(
-        tareas.map((tarea) async {
-          if (tarea.pasos.isEmpty) {
-            final pasos = obtenerPasosRepo(tarea.title, tarea.fechaLimite);
-            return Task(
-              title: tarea.title,
-              type: tarea.type,
-              description: tarea.description,
-              fecha: tarea.fecha,
-              fechaLimite: tarea.fechaLimite,
-              pasos: pasos,
-            );
-          }
-          return tarea;
-        }),
-      );
-
-      return tareasConPasos;
-    } catch (e) {
-      // print('Error al obtener tareas iniciales: $e');
-      return [];
-    }
+    return updatedTasks;
   }
 
-  // Método para cargar más tareas con pasos
-  Future<List<Task>> getMoreTasksWithSteps() async {
-    try {
-      await Future.delayed(
-        const Duration(milliseconds: 500),
-      ); // Simula un retraso
+  Future<List<Task>> getMoreTaskWithSteps(int offset) async {
+    final tasks = await _repository.getMoreTasks(offset: offset, limit: 5);
 
-      final startIndex = _currentPage * pageSize;
-      final tareas =
-          _repository.getTasks().skip(startIndex).take(pageSize).toList();
+    final updatedTasks = await Future.wait(
+      tasks.map((task) async {
+        try {
+          // Elimina el 'await' si obtenerPasos no es asíncrono
+          var pasos = _apiRepository.obtenerPasos(
+            task.titulo,
+            task.fechaLimite,
+            2,
+          );
+          pasos = pasos.take(2).toList();
+          return Task(
+            titulo: task.titulo,
+            tipo: task.tipo,
+            descripcion: task.descripcion,
+            fechaLimite: DateTime.now().add(const Duration(days: 1)),
+            pasos: pasos,
+          );
+        } catch (e) {
+          //print("Error al obtener pasos para la tarea '${task.titulo}': $e");
+          return task;
+        }
+      }).toList(),
+    );
 
-      if (tareas.isEmpty) {
-        return []; // No hay más tareas para cargar
-      }
+    return updatedTasks;
+  }
 
-      final tareasConPasos = await Future.wait(
-        tareas.map((tarea) async {
-          if (tarea.pasos.isEmpty) {
-            final pasos = obtenerPasosRepo(tarea.title, tarea.fechaLimite);
-            return Task(
-              title: tarea.title,
-              type: tarea.type,
-              description: tarea.description,
-              fecha: tarea.fecha,
-              fechaLimite: tarea.fechaLimite,
-              pasos: pasos,
-            );
-          }
-          return tarea;
-        }),
-      );
+  List<String> obtenerPasos(String titulo, DateTime fecha, int numeroDePasos) {
+    return _apiRepository.obtenerPasos(titulo, fecha, numeroDePasos);
+  }
 
-      _currentPage++; // Incrementa la página actual
-      return tareasConPasos;
-    } catch (e) {
-      //  print('Error al cargar más tareas: $e');
-      return [];
-    }
+  bool updateTask(
+    int index, {
+    String? title,
+    String? type,
+    String? description,
+    DateTime? date,
+  }) {
+    if (index < 0 || index >= _tasks.length) return false;
+    final task = _tasks[index];
+    _tasks[index] = Task(
+      titulo: title ?? task.titulo,
+      tipo: type ?? task.tipo,
+      descripcion: description ?? task.descripcion,
+      fechaLimite: date ?? task.fechaLimite,
+      pasos: task.pasos,
+    );
+    return true;
+  }
+
+  bool addTask(Task task) {
+    _tasks.add(task);
+    //print("Task added: ${task.titulo}, type: ${task.tipo}, description: ${task.descripcion}, date: ${task.fechaLimite}"); // Replace print
+    return true;
+  }
+
+  bool deleteTask(int index) {
+    if (index < 0 || index >= _tasks.length) return false;
+    _tasks.removeAt(index);
+    return true;
+  }
+
+  Future<void> fetchMoreTasks() async {
+    final moreTasks = await _repository.getMoreTasks(
+      offset: _tasks.length,
+      limit: 5,
+    );
+    _tasks.addAll(moreTasks);
   }
 }

@@ -1,94 +1,100 @@
-import 'package:manazco/api/service/noticia_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:manazco/api/service/noticia_sevice.dart';
 import 'package:manazco/domain/noticia.dart';
 import 'package:manazco/constants.dart';
+import 'package:manazco/exceptions/api_exception.dart';
 
 class NoticiaRepository {
-  final NoticiaService _noticiaService = NoticiaService();
+  final NoticiaService _service = NoticiaService();
 
   /// Obtiene cotizaciones paginadas con validaciones
-  Future<List<Noticia>> getPaginatedNoticia({
-    required int pageNumber,
-    int pageSize = Constantes.tamanoPaginaConst,
-  }) async {
-    if (pageNumber < 1) {
-      throw Exception(Constantes.mensajeError);
-    }
-    if (pageSize <= 0) {
-      throw Exception(Constantes.mensajeError);
-    }
-
-    final noticia = await _noticiaService.getNoticiasPaginadas(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-    );
-
-    for (final noticia in noticia) {
-      // Formatear la fecha de publicación
-      if (noticia.titulo.isEmpty ||
-          noticia.descripcion.isEmpty ||
-          noticia.fuente.isEmpty) {
-        throw Exception(
-          '${Constantes.mensajeError} Los campos título, descripción y fuente no pueden estar vacíos.',
-        );
+  Future<List<Noticia>> obtenerNoticias() async {
+    try {
+      final noticias = await _service.getNoticias();
+      return noticias;
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow; // Relanza la excepción para que la maneje la capa superior
       }
+      debugPrint('Error inesperado al obtener noticias: $e');
+      throw ApiException('Error inesperado al obtener noticias.');
     }
-    return noticia;
   }
 
   Future<void> crearNoticia({
     required String titulo,
     required String descripcion,
     required String fuente,
-    required String publicadaEl,
+    required DateTime publicadaEl,
     required String urlImagen,
+    required String categoriaId,
   }) async {
-    final noticia = {
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'fuente': fuente,
-      'publicadaEl': publicadaEl,
-      'urlImagen': urlImagen,
-    };
-
-    await _noticiaService.crearNoticia(noticia);
-  }
-
-  Future<void> editarNoticia({
-    required String id,
-    required String titulo,
-    required String descripcion,
-    required String fuente,
-    required String publicadaEl,
-    required String urlImagen,
-  }) async {
-    if (id.isEmpty) {
-      throw Exception('El ID de la noticia no puede estar vacío.');
+    final noticia = Noticia(
+      titulo: titulo,
+      descripcion: descripcion,
+      fuente: fuente,
+      publicadaEl: publicadaEl,
+      urlImagen: urlImagen,
+      categoriaId: categoriaId,
+    );
+    try {
+      await _service.crearNoticia(noticia);
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      debugPrint('Error inesperado al crear noticia: $e');
+      throw ApiException('Error inesperado al crear noticia.');
     }
-
-    if (titulo.isEmpty || descripcion.isEmpty || fuente.isEmpty) {
-      throw Exception(
-        'Los campos título, descripción y fuente no pueden estar vacíos.',
-      );
-    }
-
-    final noticia = {
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'fuente': fuente,
-      'publicadaEl': publicadaEl,
-      'urlImagen': urlImagen,
-    };
-
-    await _noticiaService.editarNoticia(id, noticia);
   }
 
   Future<void> eliminarNoticia(String id) async {
     if (id.isEmpty) {
       throw Exception(
-        '${Constantes.mensajeError} El ID de la noticia no puede estar vacío.',
+        '${NoticiaConstantes.mensajeError} El ID de la noticia no puede estar vacío.',
       );
     }
+    try {
+      await _service.eliminarNoticia(id);
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      debugPrint('Error inesperado al eliminar noticia: $e');
+      throw ApiException('Error inesperado al eliminar noticia.');
+    }
+  }
 
-    await _noticiaService.eliminarNoticia(id);
+  Future<void> actualizarNoticia({
+    required String id,
+    required String titulo,
+    required String descripcion,
+    required String fuente,
+    required DateTime publicadaEl,
+    required String urlImagen,
+    required String categoriaId,
+  }) async {
+    if (titulo.isEmpty || descripcion.isEmpty || fuente.isEmpty) {
+      throw ApiException(
+        'Los campos título, descripción y fuente no pueden estar vacíos.',
+      );
+    }
+    final noticia = Noticia(
+      titulo: titulo,
+      descripcion: descripcion,
+      fuente: fuente,
+      publicadaEl: publicadaEl,
+      urlImagen: urlImagen,
+      categoriaId: categoriaId,
+    );
+    try {
+      await _service.editarNoticia(id, noticia);
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      debugPrint('Error inesperado al editar noticia: $e');
+      throw ApiException('Error inesperado al editar noticia.');
+    }
   }
 }
