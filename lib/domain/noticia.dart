@@ -1,10 +1,11 @@
-import 'package:json_annotation/json_annotation.dart';
-part 'noticia.g.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 
-@JsonSerializable()
-class Noticia {
-  @JsonKey(includeIfNull: false)
+part 'noticia.mapper.dart';
+
+@MappableClass()
+class Noticia with NoticiaMappable {
   final String? id;
+
   final String titulo;
   final String descripcion;
   final String fuente;
@@ -12,7 +13,7 @@ class Noticia {
   final String urlImagen;
   final String? categoriaId; // ID de la categoría asociada
 
-  Noticia({
+  const Noticia({
     this.id,
     required this.titulo,
     required this.descripcion,
@@ -21,6 +22,4 @@ class Noticia {
     required this.urlImagen,
     this.categoriaId, // Valor por defecto
   });
-  factory Noticia.fromJson(Map<String, dynamic> json) => _$NoticiaFromJson(json);
-  Map<String, dynamic> toJson() => _$NoticiaToJson(this); 
 }

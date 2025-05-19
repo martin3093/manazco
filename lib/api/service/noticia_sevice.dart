@@ -21,7 +21,9 @@ class NoticiaService extends BaseService {
         return noticiasJson
             .map((json) {
               try {
-                return Noticia.fromJson(json);
+                return NoticiaMapper.ensureInitialized().decodeMap<Noticia>(
+                  json,
+                );
               } catch (e) {
                 debugPrint('❌ Error al deserializar noticia: $e');
                 debugPrint('Datos problemáticos: $json');
@@ -56,7 +58,8 @@ class NoticiaService extends BaseService {
       debugPrint('🔄 Editando noticia con ID: $id');
 
       // Convertir el objeto Noticia a JSON utilizando el método generado
-      Map<String, dynamic> noticiaJson = noticia.toJson();
+      // Map<String, dynamic> noticiaJson = noticia.toJson();
+      Map<String, dynamic> noticiaJson = noticia.toMap();
       debugPrint('📤 Datos a enviar: $noticiaJson');
 
       await put('/noticias/$id', data: noticiaJson, requireAuthToken: true);
@@ -80,7 +83,8 @@ class NoticiaService extends BaseService {
       debugPrint('➕ Creando nueva noticia');
 
       // Convertir el objeto Noticia a JSON utilizando el método generado
-      Map<String, dynamic> noticiaJson = noticia.toJson();
+
+      Map<String, dynamic> noticiaJson = noticia.toMap();
       debugPrint('📤 Datos a enviar: $noticiaJson');
 
       await post('/noticias', data: noticiaJson, requireAuthToken: true);

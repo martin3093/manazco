@@ -1,24 +1,18 @@
-import 'package:json_annotation/json_annotation.dart'; 
-part 'categoria.g.dart'; 
+import 'package:dart_mappable/dart_mappable.dart';
 
-@JsonSerializable()
-// category.dart
-class Categoria {
-  @JsonKey(includeToJson: false)
+part 'categoria.mapper.dart';
+
+@MappableClass()
+class Categoria with CategoriaMappable {
   final String? id;
-  final String nombre; 
-  final String descripcion; 
-  final String? imagenUrl; 
+  final String nombre;
+  final String descripcion;
+  final String? imagenUrl;
 
-  Categoria({
+  const Categoria({
     this.id,
     required this.nombre,
     required this.descripcion,
     this.imagenUrl,
   });
-
-
-  factory Categoria.fromJson(Map<String, dynamic> json) => _$CategoriaFromJson(json); 
-  
-  Map<String, dynamic> toJson() => _$CategoriaToJson(this);
 }
