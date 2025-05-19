@@ -6,6 +6,7 @@ abstract class ComentarioEvent extends Equatable {
 }
 
 // Evento para cargar comentarios de una noticia específica
+/*
 class LoadComentarios extends ComentarioEvent {
   final String noticiaId;
 
@@ -13,6 +14,19 @@ class LoadComentarios extends ComentarioEvent {
 
   @override
   List<Object?> get props => [noticiaId];
+}*/
+class LoadComentarios extends ComentarioEvent {
+  final String noticiaId;
+  // Añadir esta propiedad nueva
+  final bool forzarRecarga;
+
+  LoadComentarios({
+    required this.noticiaId,
+    this.forzarRecarga = false, // Por defecto no fuerza recarga
+  });
+
+  @override
+  List<Object?> get props => [noticiaId, forzarRecarga]; // Añade forzarRecarga a props
 }
 
 // Evento para agregar un comentario

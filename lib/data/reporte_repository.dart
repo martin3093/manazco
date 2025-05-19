@@ -1,18 +1,26 @@
 import 'package:manazco/api/service/reporte_service.dart';
+import 'package:manazco/data/base_repository.dart';
 import 'package:manazco/domain/reporte.dart';
 import 'package:manazco/exceptions/api_exception.dart';
 
-class ReporteRepository {
+class ReporteRepository extends BaseRepository {
   final ReporteService _reporteService = ReporteService();
 
   // Obtener todos los reportes
   Future<List<Reporte>> obtenerReportes() async {
     try {
-      return await _reporteService.getReportes();
+      // Crear un nuevo reporte
+
+      logOperationStart('obtener', 'reportes');
+
+      final reportes = await _reporteService.getReportes();
+
+      logOperationSuccess('obtenidos', 'reportes');
+      return reportes;
     } on ApiException catch (e) {
       throw Exception('Error al obtener reportes: ${e.message}');
     } catch (e) {
-      throw Exception('Error al obtener reportes: ${e.toString()}');
+      return handleError(e, 'al obtener', 'reportes');
     }
   }
 
@@ -36,22 +44,32 @@ class ReporteRepository {
   // Obtener reportes por id de noticia
   Future<List<Reporte>> obtenerReportesPorNoticia(String noticiaId) async {
     try {
-      return await _reporteService.getReportesPorNoticia(noticiaId);
+      checkIdNotEmpty(noticiaId, 'noticia');
+      logOperationStart('obtener reportes para noticia', 'reportes', noticiaId);
+
+      final reportes = await _reporteService.getReportesPorNoticia(noticiaId);
+
+      logOperationSuccess('obtenidos para noticia', 'reportes', noticiaId);
+      return reportes;
     } on ApiException catch (e) {
       throw Exception('Error al obtener reportes por noticia: ${e.message}');
     } catch (e) {
-      throw Exception('Error al obtener reportes por noticia: ${e.toString()}');
+      return handleError(e, 'al obtener reportes para noticia', 'reportes');
     }
   }
 
   // Eliminar un reporte
   Future<void> eliminarReporte(String reporteId) async {
     try {
+      checkIdNotEmpty(reporteId, 'reporte');
+      logOperationStart('eliminar', 'reporte', reporteId);
       await _reporteService.eliminarReporte(reporteId);
+      logOperationSuccess('eliminado', 'reporte', reporteId);
     } on ApiException catch (e) {
       throw Exception('Error al eliminar reporte: ${e.message}');
     } catch (e) {
-      throw Exception('Error al eliminar reporte: ${e.toString()}');
+      handleError(e, 'al eliminar', 'reporte');
+      rethrow;
     }
   }
 }

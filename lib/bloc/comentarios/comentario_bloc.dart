@@ -19,7 +19,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     on<AddReaccion>(_onAddReaccion);
     on<AddSubcomentario>(_onAddSubcomentario);
   }
-
+  /*
   Future<void> _onLoadComentarios(
     LoadComentarios event,
     Emitter<ComentarioState> emit,
@@ -40,6 +40,37 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
           errorMessage:
               'Error al cargar comentarios'
               '${e.toString()}',
+          statusCode: statusCode,
+        ),
+      );
+    }
+  }
+*/
+  // Busca este método en tu ComentarioBloc
+  Future<void> _onLoadComentarios(
+    LoadComentarios event,
+    Emitter<ComentarioState> emit,
+  ) async {
+    try {
+      emit(
+        ComentarioLoading(),
+      ); // Cambiado de ComentariosCargando a ComentarioLoading
+
+      // Usa comentarioRepository (no _comentarioRepository)
+      final comentarios = await comentarioRepository
+          .obtenerComentariosPorNoticia(
+            event.noticiaId,
+            forzarRecarga: event.forzarRecarga,
+          );
+
+      emit(
+        ComentarioLoaded(comentariosList: comentarios),
+      ); // Ajustado al formato correcto de tu estado
+    } catch (e) {
+      final int? statusCode = e is ApiException ? e.statusCode : null;
+      emit(
+        ComentarioError(
+          errorMessage: 'Error al cargar comentarios: ${e.toString()}',
           statusCode: statusCode,
         ),
       );
@@ -236,6 +267,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       await comentarioRepository.reaccionarComentario(
         comentarioId: event.comentarioId,
         tipoReaccion: event.tipoReaccion,
+        noticiaId: event.noticiaId,
       );
 
       // Recargamos los comentarios para asegurar los datos más recientes
@@ -277,6 +309,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
         comentarioId: event.comentarioId,
         texto: event.texto,
         autor: event.autor,
+        noticiaId: event.noticiaId,
       );
 
       if (resultado['success'] == true) {
