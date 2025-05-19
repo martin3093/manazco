@@ -341,7 +341,7 @@ class NoticiaScreen extends StatelessWidget {
   Future<void> _editarNoticia(BuildContext context, Noticia noticia) async {
     await NoticiaModal.mostrarModal(
       context: context,
-      noticia: noticia.toJson(),
+      noticia: noticia.toMap(),
       onSave: (oldNoticia, noticiaActualizada) {
         // Crear una nueva instancia de Noticia con los datos actualizados
         final noticiaModel = Noticia(
