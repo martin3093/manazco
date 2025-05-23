@@ -1,75 +1,114 @@
 import 'package:manazco/api/service/reporte_service.dart';
+import 'package:manazco/constants/constantes.dart';
 import 'package:manazco/data/base_repository.dart';
 import 'package:manazco/domain/reporte.dart';
 import 'package:manazco/exceptions/api_exception.dart';
 
-class ReporteRepository extends BaseRepository {
+class ReporteRepository extends CacheableRepository<Reporte> {
   final ReporteService _reporteService = ReporteService();
 
-  // Obtener todos los reportes
-  Future<List<Reporte>> obtenerReportes() async {
-    try {
-      // Crear un nuevo reporte
-
-      logOperationStart('obtener', 'reportes');
-
-      final reportes = await _reporteService.getReportes();
-
-      logOperationSuccess('obtenidos', 'reportes');
-      return reportes;
-    } on ApiException catch (e) {
-      throw Exception('Error al obtener reportes: ${e.message}');
-    } catch (e) {
-      return handleError(e, 'al obtener', 'reportes');
-    }
+  @override
+  void validarEntidad(Reporte reporte) {
+    validarNoVacio(reporte.noticiaId, 'ID de la noticia');
+    // Validaciones adicionales si es necesario
   }
 
-  // Crear un nuevo reporte
-  Future<Reporte?> crearReporte({
+  @override
+  Future<List<Reporte>> cargarDatos() async {
+    return await _reporteService.obtenerReportes();
+  }
+
+  /// Envía un reporte de una noticia
+  Future<bool> enviarReporte({
     required String noticiaId,
     required MotivoReporte motivo,
   }) async {
-    try {
-      return await _reporteService.crearReporte(
+    return manejarExcepcion(() async {
+      // Verificar que la noticia exista
+      final noticiaExiste = await _reporteService.verificarNoticiaExiste(
+        noticiaId,
+      );
+
+      if (!noticiaExiste) {
+        throw ApiException(ReporteConstantes.noticiaNoExiste);
+      }
+
+      // Crear el objeto Reporte
+      final reporte = Reporte(
         noticiaId: noticiaId,
+        fecha: DateTime.now().toIso8601String(),
         motivo: motivo,
       );
-    } on ApiException catch (e) {
-      throw Exception('Error al crear reporte: ${e.message}');
-    } catch (e) {
-      throw Exception('Error al crear reporte: ${e.toString()}');
-    }
+
+      // Enviar el reporte
+      await _reporteService.enviarReporte(reporte);
+
+      // Invalidar caché si la operación fue exitosa
+      invalidarCache();
+
+      return true;
+    }, mensajeError: 'Error al enviar reporte');
   }
 
-  // Obtener reportes por id de noticia
-  Future<List<Reporte>> obtenerReportesPorNoticia(String noticiaId) async {
-    try {
-      checkIdNotEmpty(noticiaId, 'noticia');
-      logOperationStart('obtener reportes para noticia', 'reportes', noticiaId);
-
-      final reportes = await _reporteService.getReportesPorNoticia(noticiaId);
-
-      logOperationSuccess('obtenidos para noticia', 'reportes', noticiaId);
-      return reportes;
-    } on ApiException catch (e) {
-      throw Exception('Error al obtener reportes por noticia: ${e.message}');
-    } catch (e) {
-      return handleError(e, 'al obtener reportes para noticia', 'reportes');
-    }
+  /// Obtiene todos los reportes
+  Future<List<Reporte>> obtenerReportes() async {
+    return await obtenerDatos();
   }
 
-  // Eliminar un reporte
-  Future<void> eliminarReporte(String reporteId) async {
-    try {
-      checkIdNotEmpty(reporteId, 'reporte');
-      logOperationStart('eliminar', 'reporte', reporteId);
-      await _reporteService.eliminarReporte(reporteId);
-      logOperationSuccess('eliminado', 'reporte', reporteId);
-    } on ApiException catch (e) {
-      throw Exception('Error al eliminar reporte: ${e.message}');
-    } catch (e) {
-      handleError(e, 'al eliminar', 'reporte');
-      rethrow;
-    }
+  /// Obtiene estadísticas de reportes por motivo
+  Future<Map<MotivoReporte, int>> obtenerEstadisticasReportes() async {
+    return manejarExcepcion(() async {
+      final reportes = await obtenerReportes();
+      final estadisticas = <MotivoReporte, int>{};
+
+      // Inicializar contadores
+      for (final motivo in MotivoReporte.values) {
+        estadisticas[motivo] = 0;
+      }
+
+      // Contar reportes por motivo
+      for (final reporte in reportes) {
+        estadisticas[reporte.motivo] = (estadisticas[reporte.motivo] ?? 0) + 1;
+      }
+
+      return estadisticas;
+    }, mensajeError: 'Error al obtener estadísticas');
+  }
+
+  /// Obtiene estadísticas de reportes de una noticia específica
+  Future<Map<MotivoReporte, int>> obtenerEstadisticasReportesPorNoticia(
+    String noticiaId,
+  ) async {
+    return manejarExcepcion(() async {
+      validarNoVacio(noticiaId, 'ID de la noticia');
+
+      final reportes = await obtenerReportes();
+      final estadisticas = <MotivoReporte, int>{};
+
+      // Inicializar contadores
+      for (final motivo in MotivoReporte.values) {
+        estadisticas[motivo] = 0;
+      }
+
+      // Contar reportes por motivo para esta noticia
+      for (final reporte in reportes) {
+        if (reporte.noticiaId == noticiaId) {
+          estadisticas[reporte.motivo] =
+              (estadisticas[reporte.motivo] ?? 0) + 1;
+        }
+      }
+
+      return estadisticas;
+    }, mensajeError: 'Error al obtener estadísticas por noticia');
+  }
+
+  /// Verifica si el usuario actual ha reportado una noticia con un motivo específico
+  /// Ahora siempre devuelve false para permitir reportes múltiples
+  Future<bool> verificarReporteUsuario({
+    required String noticiaId,
+    required MotivoReporte motivo,
+  }) async {
+    // Siempre retornar false para permitir que el usuario reporte múltiples veces
+    return false;
   }
 }

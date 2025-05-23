@@ -1,137 +1,162 @@
-import 'package:flutter/foundation.dart';
 import 'package:manazco/api/service/preferencia_service.dart';
+import 'package:manazco/constants/constantes.dart';
 import 'package:manazco/data/base_repository.dart';
 import 'package:manazco/domain/preferencia.dart';
 import 'package:manazco/exceptions/api_exception.dart';
+import 'package:manazco/helpers/secure_storage_service.dart';
+import 'package:watch_it/watch_it.dart';
 
-class PreferenciaRepository extends BaseRepository {
+/// Repositorio para gestionar las preferencias del usuario.
+/// Utiliza caché para minimizar las llamadas a la API.
+class PreferenciaRepository extends CacheableRepository<Preferencia> {
   final PreferenciaService _preferenciaService = PreferenciaService();
+  final SecureStorageService _secureStorage = di<SecureStorageService>();
 
-  // Caché de preferencias para minimizar llamadas a la API
+  // Caché de preferencias del usuario actual
   Preferencia? _cachedPreferencias;
+
+  @override
+  void validarEntidad(Preferencia preferencia) {
+    validarNoVacio(preferencia.email, ValidacionConstantes.email);
+  }
+
+  @override
+  Future<List<Preferencia>> cargarDatos() async {
+    // Inicializar preferencias del usuario si es necesario
+    if (_cachedPreferencias == null) {
+      await inicializarPreferenciasUsuario();
+    }
+    // Devolver lista con un solo elemento (preferencias del usuario actual)
+    return _cachedPreferencias != null ? [_cachedPreferencias!] : [];
+  }
+
+  /// Inicializa las preferencias del usuario autenticado actual.
+  /// Busca directamente por email las preferencias del usuario.
+  /// Si no existen, crea unas preferencias vacías para ese email.
+  Future<void> inicializarPreferenciasUsuario() async {
+    return manejarExcepcion(() async {
+      // Obtener el email del usuario autenticado
+      final email = await _secureStorage.getUserEmail();
+      if (email == null || email.isEmpty) {
+        throw ApiException(AppConstantes.notUser, statusCode: 401);
+      }
+      try {
+        // Buscar directamente por email (más eficiente)
+        final preferencia = await _preferenciaService
+            .obtenerPreferenciaPorEmail(email);
+        // Guardar en caché
+        _cachedPreferencias = preferencia;
+      } catch (e) {
+        // Si no encuentra la preferencia (error 404), crear una nueva
+        if (e is ApiException && e.statusCode == 404) {
+          _cachedPreferencias = await _preferenciaService.crearPreferencia(
+            email,
+          );
+        } else {
+          // Si es otro tipo de error, propagarlo
+          rethrow;
+        }
+      }
+    }, mensajeError: PreferenciaConstantes.errorInit);
+  }
 
   /// Obtiene las categorías seleccionadas para filtrar las noticias
   Future<List<String>> obtenerCategoriasSeleccionadas() async {
-    try {
-      logOperationStart('obtener', 'categorías seleccionadas');
-
-      // Si no hay caché o es la primera vez, obtener de la API
-      _cachedPreferencias ??= await _preferenciaService.getPreferencias();
-
-      logOperationSuccess('obtenidas', 'categorías seleccionadas');
-      return _cachedPreferencias!.categoriasSeleccionadas;
-    } catch (e) {
-      if (e is ApiException) {
-        // Propaga el mensaje contextual de ApiException
-        rethrow;
-      } else {
-        // En caso de error desconocido, devolver lista vacía para no romper la UI
-        debugPrint('Error al obtener categorías seleccionadas: $e');
-        return [];
+    return manejarExcepcion(() async {
+      // Si no hay caché o es la primera vez, inicializar preferencias
+      if (_cachedPreferencias == null) {
+        await inicializarPreferenciasUsuario();
       }
-    }
+
+      return _cachedPreferencias?.categoriasSeleccionadas ?? [];
+    }, mensajeError: CategoriaConstantes.mensajeError);
   }
 
-  /// Guarda las categorías seleccionadas para filtrar las noticias
-  Future<void> guardarCategoriasSeleccionadas(List<String> categoriaIds) async {
-    try {
-      logOperationStart('guardar', 'categorías seleccionadas');
+  /// Actualiza la caché local con las nuevas categorías (sin hacer PUT a la API)
+  Future<void> _actualizarCacheLocal(List<String> categoriaIds) async {
+    return manejarExcepcion(() async {
+      // Si no hay caché, inicializar preferencias
+      if (_cachedPreferencias == null) {
+        await inicializarPreferenciasUsuario();
+      }
 
-      // Si no hay caché o es la primera vez, obtener de la API
-      _cachedPreferencias ??= await _preferenciaService.getPreferencias();
+      // Obtener el email actual desde la caché o buscar uno nuevo
+      final email =
+          _cachedPreferencias?.email ??
+          (await _secureStorage.getUserEmail() ?? AppConstantes.usuarioDefault);
 
       // Actualizar el objeto en caché
-      _cachedPreferencias = Preferencia(categoriasSeleccionadas: categoriaIds);
+      _cachedPreferencias = Preferencia(
+        email: email,
+        categoriasSeleccionadas: categoriaIds,
+      );
+
+      // Marcar que hay cambios pendientes
+      marcarCambiosPendientes();
+    }, mensajeError: AppConstantes.errorCache);
+  }
+
+  /// Guarda las categorías seleccionadas en la API (solo cuando se presiona Aplicar Filtros)
+  Future<void> guardarCambiosEnAPI() async {
+    return manejarExcepcion(() async {
+      // Verificar si hay cambios pendientes
+      if (!hayCambiosPendientes()) {
+        return;
+      }
+
+      // Verificar que la caché esté inicializada
+      if (_cachedPreferencias == null) {
+        await inicializarPreferenciasUsuario();
+        // Si no hay cambios después de inicializar, no hay nada que guardar
+        if (!hayCambiosPendientes()) {
+          return;
+        }
+      }
 
       // Guardar en la API
       await _preferenciaService.guardarPreferencias(_cachedPreferencias!);
 
-      logOperationSuccess('guardadas', 'categorías seleccionadas');
-    } catch (e) {
-      if (e is ApiException) {
-        // Propaga el mensaje contextual de ApiException
-        rethrow;
-      } else {
-        debugPrint('Error al guardar categorías seleccionadas: $e');
-        throw ApiException('Error al guardar preferencias: $e');
-      }
-    }
+      // Una vez guardado, ya no hay cambios pendientes
+      super
+          .invalidarCache(); // Esto también establece _cambiosPendientes = false
+    }, mensajeError: PreferenciaConstantes.errorUpdated);
   }
 
-  /// Añade una categoría a las categorías seleccionadas
-  Future<void> agregarCategoriaFiltro(String categoriaId) async {
-    try {
-      checkIdNotEmpty(categoriaId, 'categoría');
-      logOperationStart('agregar', 'categoría al filtro', categoriaId);
+  /// Este método se mantiene para compatibilidad, pero ahora solo actualiza cache
+  /// y no hace llamadas a la API
+  Future<void> guardarCategoriasSeleccionadas(List<String> categoriaIds) async {
+    return _actualizarCacheLocal(categoriaIds);
+  }
 
+  /// Añade una categoría a las categorías seleccionadas (solo en caché)
+  Future<void> agregarCategoriaFiltro(String categoriaId) async {
+    return manejarExcepcion(() async {
       final categorias = await obtenerCategoriasSeleccionadas();
       if (!categorias.contains(categoriaId)) {
         categorias.add(categoriaId);
-        await guardarCategoriasSeleccionadas(categorias);
+        await _actualizarCacheLocal(categorias);
       }
-
-      logOperationSuccess('agregada', 'categoría al filtro', categoriaId);
-    } catch (e) {
-      if (e is ApiException) {
-        // Propaga el mensaje contextual de ApiException
-        rethrow;
-      } else {
-        debugPrint('Error al agregar categoría: $e');
-        throw ApiException('Error al agregar categoría: $e');
-      }
-    }
+    }, mensajeError: CategoriaConstantes.errorAdd);
   }
 
-  /// Elimina una categoría de las categorías seleccionadas
+  /// Elimina una categoría de las categorías seleccionadas (solo en caché)
   Future<void> eliminarCategoriaFiltro(String categoriaId) async {
-    try {
-      checkIdNotEmpty(categoriaId, 'categoría');
-      logOperationStart('eliminar', 'categoría del filtro', categoriaId);
-
+    return manejarExcepcion(() async {
       final categorias = await obtenerCategoriasSeleccionadas();
       categorias.remove(categoriaId);
-      await guardarCategoriasSeleccionadas(categorias);
-
-      logOperationSuccess('eliminada', 'categoría del filtro', categoriaId);
-    } catch (e) {
-      if (e is ApiException) {
-        // Propaga el mensaje contextual de ApiException
-        rethrow;
-      } else {
-        debugPrint('Error al eliminar categoría: $e');
-        throw ApiException('Error al eliminar categoría: $e');
-      }
-    }
+      await _actualizarCacheLocal(categorias);
+    }, mensajeError: CategoriaConstantes.errorDelete);
   }
 
-  /// Limpia todas las categorías seleccionadas
+  /// Limpia todas las categorías seleccionadas (solo en caché)
   Future<void> limpiarFiltrosCategorias() async {
-    try {
-      logOperationStart('limpiar', 'filtros de categorías');
-
-      await guardarCategoriasSeleccionadas([]);
-
-      // Limpiar también la caché
-      if (_cachedPreferencias != null) {
-        _cachedPreferencias = Preferencia.empty();
-      }
-
-      logOperationSuccess('limpiados', 'filtros de categorías');
-    } catch (e) {
-      if (e is ApiException) {
-        // Propaga el mensaje contextual de ApiException
-        rethrow;
-      } else {
-        debugPrint('Error al limpiar filtros: $e');
-        throw ApiException('Error al limpiar filtros: $e');
-      }
-    }
+    return _actualizarCacheLocal([]);
   }
 
-  /// Limpia la caché para forzar una recarga desde la API
+  /// Sobreescribe el método de la clase base para también limpiar la preferencia cacheada
+  @override
   void invalidarCache() {
-    logOperationStart('invalidar', 'caché de preferencias');
+    super.invalidarCache();
     _cachedPreferencias = null;
-    logOperationSuccess('invalidada', 'caché de preferencias');
   }
 }

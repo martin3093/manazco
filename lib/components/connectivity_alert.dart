@@ -1,10 +1,11 @@
-import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
-import 'package:manazco/bloc/connectivity/connectivity_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:manazco/constants.dart';
+import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
+import 'package:manazco/bloc/connectivity/connectivity_state.dart';
+import 'package:manazco/helpers/snackbar_manager.dart';
 
 /// Widget que muestra una alerta cuando no hay conectividad a Internet usando SnackBar
+/// Complementario a la animación del dinosaurio en el ConnectivityWrapper
 class ConnectivityAlert extends StatelessWidget {
   const ConnectivityAlert({super.key});
 
@@ -19,26 +20,18 @@ class ConnectivityAlert extends StatelessWidget {
                 current is ConnectivityConnected);
       },
       listener: (context, state) {
+        // Obtener la instancia del SnackBarManager
+        final SnackBarManager snackBarManager = SnackBarManager();
         if (state is ConnectivityDisconnected) {
-          // Mostrar SnackBar persistente cuando se desconecta
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                content: Text(
-                  ApiConstantes.errorNoInternet,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                backgroundColor: Colors.red,
-                duration: Duration(days: 1), // Virtualmente infinito
-              ),
-            );
+          // Ya no es necesario mostrar el SnackBar porque ahora mostramos una pantalla completa
+          // Solo actualizamos el estado del manager para seguimiento interno
+          snackBarManager.setConnectivitySnackBarShowing(true);
         } else if (state is ConnectivityConnected) {
           // Ocultar SnackBar cuando se recupera la conexión
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+          // Marcar que ya no se está mostrando el SnackBar de conectividad
+          snackBarManager.setConnectivitySnackBarShowing(false);
         }
       },
       child: const SizedBox.shrink(), // Widget invisible

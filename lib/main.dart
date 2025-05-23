@@ -1,22 +1,21 @@
-import 'package:manazco/bloc/comentarios/comentario_bloc.dart';
-import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; // Importa flutter_bloc
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:manazco/bloc/preferencia/preferencia_bloc.dart';
-import 'package:manazco/bloc/preferencia/preferencia_event.dart';
+import 'package:manazco/bloc/auth/auth_bloc.dart';
+import 'package:manazco/bloc/comentario/comentario_bloc.dart';
+import 'package:manazco/bloc/reporte/reporte_bloc.dart';
 import 'package:manazco/di/locator.dart';
-import 'package:manazco/bloc/auth/auth_bloc.dart'; // Importa el AuthBloc
-import 'package:manazco/helpers/secure_storage_service.dart'; // Importa el servicio de almacenamiento seguro
-import 'package:watch_it/watch_it.dart'; // Importa watch_it para usar di
-import 'package:manazco/components/connectivity_wrapper.dart'; // Importa el wrapper de conectividad
+import 'package:manazco/bloc/contador/contador_bloc.dart';
+import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
+import 'package:manazco/components/connectivity_wrapper.dart';
+import 'package:manazco/helpers/secure_storage_service.dart';
 import 'package:manazco/views/login_screen.dart';
-import 'package:manazco/bloc/contador/contador_bloc.dart'; // Importa el BLoC del contador
+import 'package:watch_it/watch_it.dart';
+import 'package:manazco/bloc/noticia/noticia_bloc.dart';
 
-Future<void> main() async {
-  // Carga las variables de entorno
-  await dotenv.load(fileName: '.env');
-  await initLocator();
+void main() async {
+  await dotenv.load(fileName: ".env");
+  await initLocator(); // Carga el archivo .env
 
   // Eliminar cualquier token guardado para forzar el inicio de sesión
   final secureStorage = di<SecureStorageService>();
@@ -28,36 +27,29 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => ContadorBloc()),
-        BlocProvider(
-          create:
-              (context) => PreferenciaBloc()..add(const CargarPreferencias()),
-        ),
+        BlocProvider<ContadorBloc>(create: (context) => ContadorBloc()),
+        BlocProvider<ConnectivityBloc>(create: (context) => ConnectivityBloc()),
         BlocProvider(create: (context) => ComentarioBloc()),
-        BlocProvider(
-          create: (context) => AuthBloc(),
-        ), // Solo se inicializa el AuthBloc sin verificar autenticación
-        BlocProvider(
-          create: (context) => ConnectivityBloc(),
-        ), // Bloc para gestionar la conectividad
+        BlocProvider(create: (context) => ReporteBloc()),
+        BlocProvider(create: (context) => AuthBloc()),
+        // Agregamos NoticiaBloc como un provider global para mantener el estado entre navegaciones
+        BlocProvider<NoticiaBloc>(create: (context) => NoticiaBloc()),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 254, 70, 85),
-          ),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
         ),
+        debugShowCheckedModeBanner: false,
         builder: (context, child) {
+          // Envolvemos con nuestro ConnectivityWrapper
           return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
         },
-        home: const LoginScreen(), // Pantalla inicial
+        home: LoginScreen(), // Pantalla inicial
       ),
     );
   }

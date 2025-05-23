@@ -1,24 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
+import 'package:manazco/bloc/connectivity/connectivity_state.dart';
 import 'package:manazco/components/connectivity_alert.dart';
+import 'package:manazco/components/no_connectivity_screen.dart';
 
 /// Widget que envuelve la aplicación y muestra una alerta de conectividad cuando es necesario
 class ConnectivityWrapper extends StatelessWidget {
   final Widget child;
 
   const ConnectivityWrapper({super.key, required this.child});
-
   @override
   Widget build(BuildContext context) {
-    // Como ahora usamos SnackBar que se superpone en la pantalla,
-    // ya no necesitamos colocar la alerta en una columna
-    return Stack(
-      children: [
-        // Contenido principal de la aplicación
-        child,
+    return BlocBuilder<ConnectivityBloc, ConnectivityState>(
+      builder: (context, state) {
+        // Si no hay conexión, mostrar la pantalla completa del dinosaurio
+        if (state is ConnectivityDisconnected) {
+          return const NoConnectivityScreen();
+        }
 
-        // Widget invisible que escucha cambios de conectividad y muestra SnackBars
-        const ConnectivityAlert(),
-      ],
+        // Si hay conexión, mostrar el contenido normal con el ConnectivityAlert
+        return Stack(
+          children: [
+            // Contenido principal de la aplicación
+            child,
+
+            // Widget invisible que escucha cambios de conectividad
+            const ConnectivityAlert(),
+          ],
+        );
+      },
     );
   }
 }

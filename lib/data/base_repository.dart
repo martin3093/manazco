@@ -1,94 +1,95 @@
-import 'package:flutter/foundation.dart';
+import 'package:manazco/constants/constantes.dart';
 import 'package:manazco/exceptions/api_exception.dart';
 
-/// Repositorio base que proporciona funcionalidades comunes para todos los repositorios
-abstract class BaseRepository {
-  /// Maneja errores comunes y proporciona un mensaje claro
-  ///
-  /// [error] - La excepción capturada
-  /// [operacion] - Descripción de la operación que falló (ej: "al obtener noticias")
-  /// [entidad] - El nombre de la entidad con la que se trabaja (ej: "noticia")
-  Future<Never> handleError(
-    dynamic error,
-    String operacion,
-    String entidad,
-  ) async {
-    debugPrint('❌ Error $operacion: ${error.toString()}');
+/// La clase BaseRepository sirve como base para todos los repositorios de la aplicación.
+/// Proporciona funcionalidad común y manejo de errores estandarizado.
+abstract class BaseRepository<T> {
+  /// Un método para validar entidades genéricas.
+  /// Cada repositorio concreto debe implementar su propia lógica de validación.
+  void validarEntidad(T entidad);
 
-    if (error is ApiException) {
-      throw ApiException(
-        'Error $operacion: ${error.message}',
-        statusCode: error.statusCode,
-      );
-    }
-
-    throw ApiException('Error inesperado $operacion');
-  }
-
-  /// Verifica si un id está vacío o es nulo, lanzando una excepción en caso afirmativo
-  ///
-  /// [id] - El ID a verificar
-  /// [entidad] - El nombre de la entidad para el mensaje de error (ej: "noticia")
-  void checkIdNotEmpty(String? id, String entidad) {
-    if (id == null || id.isEmpty) {
-      throw ApiException(
-        'El ID de $entidad no puede estar vacío',
-        statusCode: 400,
-      );
+  /// Método utilitario para manejar excepciones de manera consistente.
+  /// Diferencia entre ApiException y otras excepciones, permitiendo un manejo adecuado.
+  Future<R> manejarExcepcion<R>(
+    Future<R> Function() accion, {
+    String mensajeError = 'Error desconocido',
+  }) async {
+    try {
+      return await accion();
+    } catch (e) {
+      if (e is ApiException) {
+        // Propagar ApiException directamente
+        rethrow;
+      } else {
+        // Envolver otras excepciones en ApiException con mensaje contextual
+        throw ApiException('$mensajeError: $e');
+      }
     }
   }
 
-  /// Verifica si un campo obligatorio está vacío o es nulo, lanzando una excepción en caso afirmativo
-  ///
-  /// [valor] - El valor a verificar
-  /// [nombreCampo] - El nombre del campo para el mensaje de error
-  void checkFieldNotEmpty(String? valor, String nombreCampo) {
+  /// Valida que un valor no esté vacío y lanza una excepción si lo está.
+  void validarNoVacio(String? valor, String nombreCampo) {
     if (valor == null || valor.isEmpty) {
       throw ApiException(
-        'El campo $nombreCampo no puede estar vacío',
+        '$nombreCampo${ValidacionConstantes.campoVacio}',
         statusCode: 400,
       );
     }
   }
 
-  /// Verifica si una lista está vacía, devolviendo un valor por defecto o lanzando una excepción
-  ///
-  /// [lista] - La lista a verificar
-  /// [entidad] - El nombre de la entidad para el mensaje (ej: "noticias")
-  /// [lanzarError] - Si es true, lanza una excepción cuando la lista está vacía
-  /// [valorPorDefecto] - El valor por defecto a devolver si la lista está vacía y no se lanza error
-  T checkListNotEmpty<T>(
-    List<dynamic>? lista,
-    String entidad, {
-    bool lanzarError = false,
-    T? valorPorDefecto,
-  }) {
-    if (lista == null || lista.isEmpty) {
-      if (lanzarError) {
-        throw ApiException('No se encontraron $entidad', statusCode: 404);
-      }
-      return valorPorDefecto as T;
+  /// Valida que un ID no esté vacío.
+  void validarId(String? id) {
+    validarNoVacio(id, 'ID');
+  }
+
+  /// Valida que una fecha no esté en el futuro
+  /// @param fecha La fecha a validar
+  /// @param nombreCampo Nombre del campo para el mensaje de error
+  /// @param mensajeError Mensaje de error personalizado (opcional)
+  void validarFechaNoFutura(DateTime fecha, String nombreCampo) {
+    if (fecha.isAfter(DateTime.now())) {
+      throw ApiException(
+        '$nombreCampo${ValidacionConstantes.noFuturo}',
+        statusCode: 400,
+      );
     }
-    return lista as T;
+  }
+}
+
+/// Extensión del BaseRepository que incluye capacidades de caché.
+abstract class CacheableRepository<T> extends BaseRepository<T> {
+  /// Almacenamiento en caché de datos
+  List<T>? _cache;
+
+  /// Flag para indicar si hay cambios pendientes
+  bool _cambiosPendientes = false;
+
+  /// Obtiene datos, preferentemente desde la caché
+  Future<List<T>> obtenerDatos({bool forzarRecarga = false}) async {
+    // Si forzarRecarga es true o no hay caché, cargar desde la fuente de datos
+    if (forzarRecarga || _cache == null) {
+      _cache = await cargarDatos();
+    }
+
+    return _cache ?? [];
   }
 
-  /// Registra el inicio de una operación para debugging
-  void logOperationStart(
-    String operacion,
-    String entidad, [
-    String? idOpcional,
-  ]) {
-    final idStr = idOpcional != null ? ' con ID: $idOpcional' : '';
-    debugPrint('🔄 Iniciando $operacion $entidad$idStr');
+  /// Carga datos desde la fuente de datos
+  Future<List<T>> cargarDatos();
+
+  /// Marca que hay cambios pendientes
+  void marcarCambiosPendientes() {
+    _cambiosPendientes = true;
   }
 
-  /// Registra el éxito de una operación para debugging
-  void logOperationSuccess(
-    String operacion,
-    String entidad, [
-    String? idOpcional,
-  ]) {
-    final idStr = idOpcional != null ? ' con ID: $idOpcional' : '';
-    debugPrint('✅ $entidad$idStr ${operacion.toLowerCase()} exitosamente');
+  /// Verifica si hay cambios pendientes
+  bool hayCambiosPendientes() {
+    return _cambiosPendientes;
+  }
+
+  /// Limpia la caché para forzar una recarga
+  void invalidarCache() {
+    _cache = null;
+    _cambiosPendientes = false;
   }
 }

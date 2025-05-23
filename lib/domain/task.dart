@@ -1,17 +1,17 @@
-
 class Task {
-  final String titulo;
-  final String tipo;
-  final String descripcion; 
-  final DateTime fechaLimite; 
-  List<String> pasos; 
-
+  final String title;
+  final String type;
+  final String? description;
+  final DateTime? date;
+  final DateTime? fechaLimite; // Nueva fecha límite
+  final List<String>? pasos; // Nuevos pasos
 
   Task({
-    required this.titulo,
-    required this.tipo,
-    required this.descripcion,
-    required this.fechaLimite,
-    required this.pasos
+    required this.title,
+    this.type = 'normal', // Valor por defecto
+    this.description,
+    this.date,
+    this.fechaLimite,
+    this.pasos,
   });
 }

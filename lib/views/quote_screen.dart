@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/api/service/quote_service.dart';
-import 'package:manazco/data/quote_repository.dart';
+import 'package:manazco/components/side_menu.dart';
 import 'package:manazco/domain/quote.dart';
-import 'package:manazco/constants.dart';
-import 'package:manazco/components/quote_card.dart';
+import 'package:manazco/constants/constantes.dart';
+import 'package:intl/intl.dart'; // Importa el paquete intl
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
@@ -13,135 +13,169 @@ class QuoteScreen extends StatefulWidget {
 }
 
 class QuoteScreenState extends State<QuoteScreen> {
-  final QuoteService quoteService = QuoteService(QuoteRepository());
+  final QuoteService _quoteService = QuoteService();
   final ScrollController _scrollController = ScrollController();
-  List<Quote> quotesList = [];
-  int currentPage = 1;
-  bool isLoading = false;
-  bool hasMore = true;
+
+  List<Quote> _quotes = [];
+  int _pageNumber = 1;
+  bool _isLoading = false;
+  bool _hasMore = true;
+
+  static const double spacingHeight = 10; // Espaciado entre Cards
 
   @override
   void initState() {
     super.initState();
     _loadInitialQuotes(); // Carga las cotizaciones iniciales
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
+      if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent &&
-          hasMore &&
-          !isLoading) {
-        _loadQuotes(); // Carga más cotizaciones al llegar al final del scroll
+          !_isLoading &&
+          _hasMore) {
+        _loadQuotes();
       }
     });
   }
 
   Future<void> _loadInitialQuotes() async {
     setState(() {
-      isLoading = true;
-      quotesList.clear();
-      currentPage = 1;
-      hasMore = true;
+      _isLoading = true;
     });
 
     try {
-      // Llama a getQuotes para cargar la primera página
-      final initialQuotes = await quoteService.getQuotes(
-        pageNumber: currentPage,
-        pageSize: AppConstants.pageSize,
-      );
-
+      // Carga todas las cotizaciones disponibles
+      final allQuotes = await _quoteService.getAllQuotes();
       setState(() {
-        if (initialQuotes.isEmpty) {
-          hasMore = false; // No hay datos iniciales para cargar
-        } else {
-          quotesList.addAll(initialQuotes);
-          currentPage++;
-        }
+        _quotes = allQuotes;
+        _pageNumber = 1; // Configura la paginación para el scroll infinito
+        _hasMore = allQuotes.isNotEmpty;
       });
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text(AppConstants.errorMessage)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(CotizacionConstantes.errorMessage)),
+        );
+      }
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
   }
 
   Future<void> _loadQuotes() async {
     setState(() {
-      isLoading = true;
+      _isLoading = true;
     });
 
     try {
-      // Llama a getPaginatedQuotes para cargar la siguiente página
-      final newQuotes = await quoteService.getPaginatedQuotes(
-        pageNumber: currentPage,
-        pageSize: AppConstants.pageSize,
+      final newQuotes = await _quoteService.getPaginatedQuotes(
+        pageNumber: _pageNumber,
+        pageSize: 5,
       );
-
       setState(() {
-        if (newQuotes.isEmpty) {
-          hasMore = false; // No hay más datos para cargar
-        } else {
-          quotesList.addAll(newQuotes);
-          currentPage++;
-        }
+        _quotes.addAll(newQuotes);
+        _pageNumber++;
+        _hasMore = newQuotes.isNotEmpty;
       });
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text(AppConstants.errorMessage)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(CotizacionConstantes.errorMessage)),
+        );
+      }
     } finally {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const double spacingHeight = 10;
-    return Scaffold(
-      appBar: AppBar(title: const Text(AppConstants.titleAppFinance)),
-      body: Container(
-        color: Colors.grey[200],
-        child:
-            quotesList.isEmpty && isLoading
-                ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text(AppConstants.loadingmessage),
-                    ],
-                  ),
-                )
-                : ListView.builder(
-                  controller: _scrollController,
-                  itemCount: quotesList.length + (isLoading ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == quotesList.length) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final quote = quotesList[index];
-                    return QuoteCard(
-                      quote: quote,
-                      spacingHeight: spacingHeight,
-                    );
-                  },
-                ),
-      ),
-    );
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(CotizacionConstantes.titleApp),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
+      drawer: const SideMenu(),
+      backgroundColor: Colors.grey[200], // Fondo gris claro
+      body:
+          _quotes.isEmpty && _isLoading
+              ? const Center(child: Text(CotizacionConstantes.loadingMessage))
+              : ListView.builder(
+                controller: _scrollController,
+                itemCount: _quotes.length + (_hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _quotes.length) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final quote = _quotes[index];
+                  return Column(
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 8.0,
+                            horizontal: 16.0,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  quote.companyName,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8.0),
+                                Text(
+                                  'Precio: \$${quote.stockPrice.toStringAsFixed(2)}',
+                                ),
+                                Text(
+                                  'Cambio: ${quote.changePercentage.toStringAsFixed(2)}%',
+                                  style: TextStyle(
+                                    color:
+                                        quote.changePercentage >= 0
+                                            ? Colors.green
+                                            : Colors.red,
+                                  ),
+                                ),
+                                Text(
+                                  'Última actualización: ${_formatDate(quote.lastUpdated)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: spacingHeight,
+                      ), // Espaciado entre Cards
+                    ],
+                  );
+                },
+              ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat(AppConstantes.formatoFecha).format(date);
   }
 }

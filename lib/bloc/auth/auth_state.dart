@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
+import 'package:manazco/exceptions/api_exception.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();
-  
+
   @override
   List<Object> get props => [];
 }
@@ -16,9 +17,9 @@ class AuthAuthenticated extends AuthState {}
 class AuthUnauthenticated extends AuthState {}
 
 class AuthFailure extends AuthState {
-  final String error;
+  final ApiException error;
 
-  const AuthFailure({required this.error});
+  const AuthFailure(this.error);
 
   @override
   List<Object> get props => [error];
