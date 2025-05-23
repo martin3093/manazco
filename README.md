@@ -24,8 +24,8 @@ cp .env.example .env
 Sigue estos pasos para configurar y ejecutar el proyecto localmente:
 ```bash
 # 1. Clonar repositorio
-git clone https://github.com/katty0055/kagaona-flutter.git
-cd kagaona-flutter
+git clone https://github.com/martin3093/manazco.git
+cd manazco
 
 # 2. Limpiar el proyecto 
 flutter clean
