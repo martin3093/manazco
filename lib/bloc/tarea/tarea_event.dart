@@ -49,3 +49,14 @@ class DeleteTareaEvent extends TareaEvent {
   @override
   List<Object?> get props => [id];
 }
+
+// Añadir al final del archivo tarea_event.dart
+class CompletarTareaEvent extends TareaEvent {
+  final String tareaId;
+  final bool completada;
+
+  CompletarTareaEvent({required this.tareaId, required this.completada});
+
+  @override
+  List<Object?> get props => [tareaId, completada];
+}

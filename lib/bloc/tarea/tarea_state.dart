@@ -61,3 +61,22 @@ class TareaUpdated extends TareaOperationSuccess {
 class TareaDeleted extends TareaOperationSuccess {
   TareaDeleted(super.tareas, super.tipoOperacion, super.mensaje);
 }
+
+// Añadir en tarea_state.dart
+// En lib/bloc/tarea/tarea_state.dart
+// Cámbialo a:
+class TareaCompletada extends TareaOperationSuccess {
+  final String? tareaId;
+  final bool? completada;
+
+  TareaCompletada(
+    List<Tarea> tareas,
+    TipoOperacionTarea operacion,
+    String mensaje, {
+    this.tareaId,
+    this.completada,
+  }) : super(tareas, operacion, mensaje);
+
+  @override
+  List<Object?> get props => [...super.props, tareaId, completada];
+}

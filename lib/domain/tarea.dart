@@ -2,7 +2,7 @@ import 'package:dart_mappable/dart_mappable.dart';
 part 'tarea.mapper.dart';
 
 @MappableClass()
-class Tarea with TareaMappable{
+class Tarea with TareaMappable {
   final String? id;
   final String usuario;
   final String titulo;
@@ -10,6 +10,7 @@ class Tarea with TareaMappable{
   final String? descripcion;
   final DateTime? fecha;
   final DateTime? fechaLimite; // Nueva fecha límite
+  bool completada;
 
   Tarea({
     this.id,
@@ -19,5 +20,6 @@ class Tarea with TareaMappable{
     this.descripcion,
     this.fecha,
     this.fechaLimite,
+    this.completada = false, // Valor por defecto
   });
 }
