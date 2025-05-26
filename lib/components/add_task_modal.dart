@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/domain/task.dart';
+import 'package:manazco/domain/tarea.dart';
 
 class AddTaskModal extends StatefulWidget {
-  final Function(Task) onTaskAdded;
-  final Task? taskToEdit; // Tarea opcional para editar
+  final Function(Tarea) onTaskAdded;
+  final Tarea? taskToEdit; // Tarea opcional para editar
 
   const AddTaskModal({super.key, required this.onTaskAdded, this.taskToEdit});
 
@@ -18,7 +18,7 @@ class AddTaskModalState extends State<AddTaskModal> {
   late TextEditingController fechaLimiteController;
   DateTime? fechaSeleccionada;
   DateTime? fechaLimiteSeleccionada;
-  late List<String> pasos; //Lista para los pasos
+  late List<String> pasos;
   late String tipoSeleccionado;
 
   @override
@@ -26,12 +26,12 @@ class AddTaskModalState extends State<AddTaskModal> {
     super.initState();
     // Inicializa los controladores con los datos de la tarea a editar (si existe)
     tituloController = TextEditingController(
-      text: widget.taskToEdit?.title ?? '',
+      text: widget.taskToEdit?.titulo ?? '',
     );
     descripcionController = TextEditingController(
-      text: widget.taskToEdit?.description ?? '',
+      text: widget.taskToEdit?.descripcion ?? '',
     );
-    fechaSeleccionada = widget.taskToEdit?.date;
+    fechaSeleccionada = widget.taskToEdit?.fecha;
     fechaController = TextEditingController(
       text:
           fechaSeleccionada != null
@@ -46,12 +46,35 @@ class AddTaskModalState extends State<AddTaskModal> {
               ? '${fechaLimiteSeleccionada!.day}/${fechaLimiteSeleccionada!.month}/${fechaLimiteSeleccionada!.year}'
               : '',
     );
+    tipoSeleccionado = widget.taskToEdit?.tipo ?? 'normal';
+  }
 
-    // Inicializa la lista de pasos
-    pasos = widget.taskToEdit?.pasos ?? [];
+  void _guardarTarea() {
+    final titulo = tituloController.text.trim();
+    final descripcion = descripcionController.text.trim();
 
-    // Inicializa el tipo de tarea
-    tipoSeleccionado = widget.taskToEdit?.type ?? 'normal';
+    if (titulo.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, ingresa el título de la tarea'),
+        ),
+      );
+      return;
+    }
+
+    // Crear o actualizar la tarea
+    final tarea = Tarea(
+      id: widget.taskToEdit?.id,
+      usuario: widget.taskToEdit?.usuario ?? '',
+      titulo: titulo,
+      tipo: tipoSeleccionado,
+      descripcion: descripcion.isEmpty ? null : descripcion,
+      fecha: fechaSeleccionada ?? DateTime.now(),
+      fechaLimite: fechaLimiteSeleccionada,
+    );
+
+    Navigator.of(context).pop(); // Primero cerramos el modal
+    widget.onTaskAdded(tarea); // Luego llamamos al callback
   }
 
   @override
@@ -149,45 +172,10 @@ class AddTaskModalState extends State<AddTaskModal> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
           child: const Text('Cancelar'),
         ),
-        ElevatedButton(
-          onPressed: () async {
-            final titulo = tituloController.text.trim();
-            final descripcion = descripcionController.text.trim();
-
-            if (titulo.isEmpty ||
-                descripcion.isEmpty ||
-                fechaSeleccionada == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Por favor, completa todos los campos'),
-                ),
-              );
-              return;
-            }
-
-            // Crear la tarea sin el campo 'type'
-            final nuevaTarea = Task(
-              title: titulo,
-              description: descripcion,
-              date: fechaSeleccionada,
-              fechaLimite: fechaLimiteSeleccionada,
-              // Mantiene el type si está editando
-              type: tipoSeleccionado,
-              pasos: pasos,
-            );
-
-            widget.onTaskAdded(
-              nuevaTarea,
-            ); // Llama al callback para agregar la tarea
-            Navigator.pop(context);
-          },
-          child: const Text('Guardar'),
-        ),
+        ElevatedButton(onPressed: _guardarTarea, child: const Text('Guardar')),
       ],
     );
   }

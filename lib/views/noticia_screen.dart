@@ -251,7 +251,7 @@ class _NoticiaScreenContent extends StatelessWidget {
                     // Mostrar el diálogo de reportes
                     ReporteDialog.mostrarDialogoReporte(
                       context: context,
-                      noticiaId: noticia.id!,
+                      noticia: noticia,
                     );
                   },
                   onEdit: () async {

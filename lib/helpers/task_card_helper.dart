@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/constants/constantes.dart';
-import 'package:manazco/domain/task.dart';
+import 'package:manazco/domain/tarea.dart';
 
 class CommonWidgetsHelper {
   /// Construye un título en negrita con tamaño 20
   static Widget buildBoldTitle(String title) {
     return Text(
       title,
-      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
     );
   }
 
@@ -59,7 +58,7 @@ class CommonWidgetsHelper {
     return Icon(
       type == 'normal' ? Icons.task : Icons.warning,
       color: type == 'normal' ? Colors.blue : Colors.red,
-      size: 32,
+      size: 22,
     );
   }
 
@@ -77,7 +76,11 @@ class CommonWidgetsHelper {
   }
 }
 
-Widget construirTarjetaDeportiva(Task tarea, int indice, VoidCallback onEdit) {
+Widget construirTarjetaDeportiva(
+  Tarea tarea,
+  String tareaId,
+  VoidCallback onEdit,
+) {
   return Padding(
     padding: const EdgeInsets.symmetric(
       horizontal: 16.0,
@@ -90,26 +93,11 @@ Widget construirTarjetaDeportiva(Task tarea, int indice, VoidCallback onEdit) {
       tileColor: Colors.white, // Fondo blanco para el ListTile
       shape: CommonWidgetsHelper.buildRoundedBorder(),
       leading: CommonWidgetsHelper.buildLeadingIcon(
-        tarea.type,
+        tarea.tipo,
       ), // Ícono dinámico
       title: CommonWidgetsHelper.buildBoldTitle(
-        tarea.title,
+        tarea.titulo,
       ), // Título en negrita
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${TareasConstantes.tipoTarea} ${tarea.type}',
-          ), // Muestra el tipo de tarea
-          CommonWidgetsHelper.buildSpacing(),
-          if (tarea.pasos != null && tarea.pasos!.isNotEmpty)
-            CommonWidgetsHelper.buildInfoLines(
-              '${TareasConstantes.pasosTitulo} ${tarea.pasos![0]}',
-            ) // Muestra el primer paso
-          else
-            CommonWidgetsHelper.buildNoStepsText(), // Mensaje si no hay pasos
-        ],
-      ),
       trailing: IconButton(
         onPressed: onEdit, // Llama a la función de edición
         icon: const Icon(Icons.edit, size: 16),

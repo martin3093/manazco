@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/helpers/dialog_helper.dart';
 import 'package:manazco/views/welcome_screen.dart';
-import 'package:manazco/views/tareas_screen.dart';
+import 'package:manazco/views/tarea_screen.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
 
   const CustomBottomNavigationBar({super.key, required this.selectedIndex});
-
   void _onItemTapped(BuildContext context, int index) {
     switch (index) {
       case 0: // Inicio
@@ -23,9 +22,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         );
         break;
       case 2: // Salir
-        DialogHelper.mostrarDialogoCerrarSesion(
-          context,
-        ); // Llama al diálogo reutilizable
+        DialogHelper.mostrarDialogoCerrarSesion(context);
         break;
     }
   }

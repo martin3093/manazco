@@ -6,7 +6,7 @@ import 'package:manazco/views/noticia_screen.dart';
 import 'package:manazco/views/quote_screen.dart';
 import 'package:manazco/views/start_screen.dart';
 import 'package:manazco/views/welcome_screen.dart';
-import 'package:manazco/views/tareas_screen.dart';
+import 'package:manazco/views/tarea_screen.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});

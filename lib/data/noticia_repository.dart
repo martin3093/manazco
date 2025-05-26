@@ -1,12 +1,14 @@
 import 'package:manazco/api/service/noticia_service.dart';
 import 'package:manazco/constants/constantes.dart';
 import 'package:manazco/data/base_repository.dart';
+import 'package:manazco/data/reporte_repository.dart';
 import 'package:manazco/domain/noticia.dart';
 
 /// Repositorio para gestionar operaciones relacionadas con las noticias.
 /// Extiende BaseRepository para aprovechar la gestión de errores estandarizada.
 class NoticiaRepository extends BaseRepository<Noticia> {
   final NoticiaService _noticiaService = NoticiaService();
+  final reporteRepo = ReporteRepository();
 
   @override
   void validarEntidad(Noticia noticia) {
@@ -48,11 +50,23 @@ class NoticiaRepository extends BaseRepository<Noticia> {
     }, mensajeError: NoticiasConstantes.errorUpdated);
   }
 
-  /// Elimina una noticia
+  /// Elimina una noticia y sus reportes asociados
   Future<void> eliminarNoticia(String id) async {
-    return manejarExcepcion(() {
+    return manejarExcepcion(() async {
       validarId(id);
-      return _noticiaService.eliminarNoticia(id);
+      await reporteRepo.eliminarReportesPorNoticia(id);
+      await _noticiaService.eliminarNoticia(id);
     }, mensajeError: NoticiasConstantes.errorDelete);
+  }
+
+  /// Incrementa el contador de reportes de una noticia y devuelve solo los campos actualizados
+  Future<Map<String, dynamic>> incrementarContadorReportes(
+    String noticiaId,
+    int valor,
+  ) async {
+    return manejarExcepcion(() {
+      validarId(noticiaId);
+      return _noticiaService.incrementarContadorReportes(noticiaId, valor);
+    }, mensajeError: NoticiasConstantes.errorActualizarContadorReportes);
   }
 }
