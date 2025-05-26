@@ -1,32 +1,26 @@
-import 'dart:async';
+import 'package:manazco/api/service/base_service.dart';
+import 'package:manazco/domain/login_request.dart';
+import 'package:manazco/domain/login_response.dart';
+import 'package:manazco/exceptions/api_exception.dart';
 
-class MockAuthService {
-  Future<bool> login(String username, String password) async {
-    // Verifica que las credenciales no sean nulas ni vacías
-    if (username.isEmpty || password.isEmpty) {
-      // print('Error: Usuario o contraseña vacíos.');
-      return false;
+class AuthService extends BaseService {
+  AuthService() : super();
+
+  Future<LoginResponse> login(LoginRequest request) async {
+    try {
+      final data = await post('/login', data: request.toJson());
+
+      if (data != null) {
+        return LoginResponseMapper.fromMap(data);
+      } else {
+        throw ApiException('Error de autenticación: respuesta vacía');
+      }
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      } else {
+        throw ApiException('Error en login');
+      }
     }
-
-    // Simula un retraso para imitar una llamada a un servicio real
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Imprime las credenciales en la consola
-
-    // Retorna true para simular un login exitoso
-    return true;
-  }
-}
-
-void main() async {
-  final authService = MockAuthService();
-
-  // Simula un login
-  final success = await authService.login('usuario_prueba', 'contrasena123');
-
-  if (success) {
-    //print('Inicio de sesión exitoso.');
-  } else {
-    // print('Error en el inicio de sesión.');
   }
 }

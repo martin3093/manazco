@@ -2,11 +2,14 @@ import 'package:manazco/data/question_repository.dart';
 import 'package:manazco/domain/question.dart';
 
 class QuestionService {
-  final List<Question> questions = [];
+  final QuestionRepository _questionRepository = QuestionRepository();
 
+  // Método para obtener las preguntas desde el repositorio
   Future<List<Question>> getQuestions() async {
-    final QuestionRepository repository = QuestionRepository();
-    final questions = repository.getQuestions();
-    return questions;
+    // Simula un retraso para imitar una llamada a una API
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Obtiene las preguntas iniciales del repositorio
+    return _questionRepository.getInitialQuestions();
   }
 }

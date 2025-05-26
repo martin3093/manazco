@@ -1,94 +1,72 @@
 import 'package:manazco/api/service/noticia_service.dart';
+import 'package:manazco/constants/constantes.dart';
+import 'package:manazco/data/base_repository.dart';
+import 'package:manazco/data/reporte_repository.dart';
 import 'package:manazco/domain/noticia.dart';
-import 'package:manazco/constants.dart';
 
-class NoticiaRepository {
+/// Repositorio para gestionar operaciones relacionadas con las noticias.
+/// Extiende BaseRepository para aprovechar la gestión de errores estandarizada.
+class NoticiaRepository extends BaseRepository<Noticia> {
   final NoticiaService _noticiaService = NoticiaService();
+  final reporteRepo = ReporteRepository();
 
-  /// Obtiene cotizaciones paginadas con validaciones
-  Future<List<Noticia>> getPaginatedNoticia({
-    required int pageNumber,
-    int pageSize = Constantes.tamanoPaginaConst,
-  }) async {
-    if (pageNumber < 1) {
-      throw Exception(Constantes.mensajeError);
-    }
-    if (pageSize <= 0) {
-      throw Exception(Constantes.mensajeError);
-    }
-
-    final noticia = await _noticiaService.getNoticiasPaginadas(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
+  @override
+  void validarEntidad(Noticia noticia) {
+    validarNoVacio(noticia.titulo, ValidacionConstantes.tituloNoticia);
+    validarNoVacio(
+      noticia.descripcion,
+      ValidacionConstantes.descripcionNoticia,
     );
+    validarNoVacio(noticia.fuente, ValidacionConstantes.fuenteNoticia);
 
-    for (final noticia in noticia) {
-      // Formatear la fecha de publicación
-      if (noticia.titulo.isEmpty ||
-          noticia.descripcion.isEmpty ||
-          noticia.fuente.isEmpty) {
-        throw Exception(
-          '${Constantes.mensajeError} Los campos título, descripción y fuente no pueden estar vacíos.',
-        );
-      }
-    }
-    return noticia;
+    // Validación adicional para la fecha usando el método genérico
+    validarFechaNoFutura(
+      noticia.publicadaEl,
+      ValidacionConstantes.fechaNoticia,
+    );
   }
 
-  Future<void> crearNoticia({
-    required String titulo,
-    required String descripcion,
-    required String fuente,
-    required String publicadaEl,
-    required String urlImagen,
-  }) async {
-    final noticia = {
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'fuente': fuente,
-      'publicadaEl': publicadaEl,
-      'urlImagen': urlImagen,
-    };
-
-    await _noticiaService.crearNoticia(noticia);
+  /// Obtiene todas las noticias desde el repositorio
+  Future<List<Noticia>> obtenerNoticias() async {
+    return manejarExcepcion(
+      () => _noticiaService.obtenerNoticias(),
+      mensajeError: NoticiasConstantes.mensajeError,
+    );
   }
 
-  Future<void> editarNoticia({
-    required String id,
-    required String titulo,
-    required String descripcion,
-    required String fuente,
-    required String publicadaEl,
-    required String urlImagen,
-  }) async {
-    if (id.isEmpty) {
-      throw Exception('El ID de la noticia no puede estar vacío.');
-    }
-
-    if (titulo.isEmpty || descripcion.isEmpty || fuente.isEmpty) {
-      throw Exception(
-        'Los campos título, descripción y fuente no pueden estar vacíos.',
-      );
-    }
-
-    final noticia = {
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'fuente': fuente,
-      'publicadaEl': publicadaEl,
-      'urlImagen': urlImagen,
-    };
-
-    await _noticiaService.editarNoticia(id, noticia);
+  /// Crea una nueva noticia
+  Future<Noticia> crearNoticia(Noticia noticia) async {
+    return manejarExcepcion(() {
+      validarEntidad(noticia);
+      return _noticiaService.crearNoticia(noticia);
+    }, mensajeError: NoticiasConstantes.errorCreated);
   }
 
+  /// Edita una noticia existente
+  Future<Noticia> editarNoticia(Noticia noticia) async {
+    return manejarExcepcion(() {
+      validarEntidad(noticia);
+      return _noticiaService.editarNoticia(noticia);
+    }, mensajeError: NoticiasConstantes.errorUpdated);
+  }
+
+  /// Elimina una noticia y sus reportes asociados
   Future<void> eliminarNoticia(String id) async {
-    if (id.isEmpty) {
-      throw Exception(
-        '${Constantes.mensajeError} El ID de la noticia no puede estar vacío.',
-      );
-    }
+    return manejarExcepcion(() async {
+      validarId(id);
+      await reporteRepo.eliminarReportesPorNoticia(id);
+      await _noticiaService.eliminarNoticia(id);
+    }, mensajeError: NoticiasConstantes.errorDelete);
+  }
 
-    await _noticiaService.eliminarNoticia(id);
+  /// Incrementa el contador de reportes de una noticia y devuelve solo los campos actualizados
+  Future<Map<String, dynamic>> incrementarContadorReportes(
+    String noticiaId,
+    int valor,
+  ) async {
+    return manejarExcepcion(() {
+      validarId(noticiaId);
+      return _noticiaService.incrementarContadorReportes(noticiaId, valor);
+    }, mensajeError: NoticiasConstantes.errorActualizarContadorReportes);
   }
 }

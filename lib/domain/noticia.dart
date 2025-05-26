@@ -1,48 +1,27 @@
-import 'package:manazco/constants.dart';
+import 'package:dart_mappable/dart_mappable.dart';
+part 'noticia.mapper.dart';
 
-class Noticia {
-  final String id;
+@MappableClass()
+class Noticia with NoticiaMappable{
+  final String? id; 
   final String titulo;
   final String descripcion;
   final String fuente;
   final DateTime publicadaEl;
-  final String imageUrl;
-  final String categoriaId;
+  final String urlImagen; 
+  final String? categoriaId; 
+  final int? contadorReportes;
+  final int? contadorComentarios;
 
   Noticia({
-    required this.id,
+    this.id, 
     required this.titulo,
     required this.descripcion,
     required this.fuente,
     required this.publicadaEl,
-    required this.imageUrl,
-    required this.categoriaId,
+    required this.urlImagen,
+    this.categoriaId, 
+    this.contadorReportes,
+    this.contadorComentarios,
   });
-
-  // Método para convertir la instancia en un mapa
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'fuente': fuente,
-      'publicadaEl': publicadaEl.toIso8601String(),
-      'urlImagen': imageUrl,
-      'categoriaId': categoriaId,
-    };
-  }
-
-  // Método para crear una instancia desde un mapa (opcional)
-  factory Noticia.fromJson(Map<String, dynamic> json) {
-    return Noticia(
-      id: json['_id'] ?? '',
-      titulo: json['titulo'] ?? 'Sin título',
-      descripcion: json['descripcion'] ?? 'Sin descripción',
-      fuente: json['fuente'] ?? 'Fuente desconocida',
-      publicadaEl:
-          DateTime.tryParse(json['publicadaEl'] ?? '') ?? DateTime.now(),
-      imageUrl: json['urlImagen'] ?? '',
-      categoriaId: json['categoriaId'] ?? Constantes.defaultCategoriaId,
-    );
-  }
 }
