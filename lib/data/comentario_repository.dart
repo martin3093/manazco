@@ -72,17 +72,14 @@ class ComentarioRepository extends CacheableRepository<Comentario> {
     return manejarExcepcion(() async {
       validarNoVacio(noticiaId, 'ID de la noticia');
 
-      // Si ya tenemos la caché para esta noticia, la usamos
       if (_comentariosPorNoticia.containsKey(noticiaId)) {
         return _comentariosPorNoticia[noticiaId]!;
       }
 
-      // Si es la noticia actual, usamos la funcionalidad del CacheableRepository
       if (noticiaId == _noticiaSeleccionadaId) {
         return await obtenerDatos(forzarRecarga: true);
       }
 
-      // Si es otra noticia, la obtenemos y cacheamos
       final comentarios = await _comentarioService.obtenerComentariosPorNoticia(
         noticiaId,
       );
@@ -103,7 +100,6 @@ class ComentarioRepository extends CacheableRepository<Comentario> {
     }, mensajeError: 'Error al agregar comentario');
   }
 
-  /// Obtiene el número de comentarios para una noticia específica
   Future<int> obtenerNumeroComentarios(String noticiaId) async {
     return manejarExcepcion(() {
       validarNoVacio(noticiaId, 'ID de la noticia');
@@ -112,7 +108,7 @@ class ComentarioRepository extends CacheableRepository<Comentario> {
   }
 
   /// Registra una reacción (like o dislike) a un comentario
-  Future<void> reaccionarComentario(
+  Future<Comentario> reaccionarComentario(
     String comentarioId,
     String tipo,
     bool incrementar,
@@ -121,7 +117,6 @@ class ComentarioRepository extends CacheableRepository<Comentario> {
     return manejarExcepcion(() async {
       validarNoVacio(comentarioId, 'ID del comentario');
 
-      // Validar el tipo de reacción
       if (tipo != 'like' && tipo != 'dislike') {
         throw ApiException(
           'El tipo de reacción debe ser "like" o "dislike".',
@@ -130,16 +125,13 @@ class ComentarioRepository extends CacheableRepository<Comentario> {
       }
 
       try {
-        // Realizar la llamada a la API para registrar la reacción
-        await _comentarioService.reaccionarComentario(
+        final response = await _comentarioService.reaccionarComentario(
           comentarioId: comentarioId,
           tipoReaccion: tipo,
         );
-
-        // Invalidar TODA la caché para asegurar que se recarguen los datos frescos
         invalidarCache();
+        return response;
       } catch (e) {
-        // Si hay un error, asegurarse de que se propague
         rethrow;
       }
     }, mensajeError: 'Error al registrar reacción');
