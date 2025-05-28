@@ -37,7 +37,7 @@ class ContadorTareaBloc extends Bloc<ContadorTareaEvent, ContadorTareaState> {
     Emitter<ContadorTareaState> emit,
   ) {
     final total = event.tareas.length;
-    final completadas = event.tareas.where((t) => t.completada).length;
+    final completadas = event.tareas.where((t) => t.completado).length;
 
     emit(ContadorTareaState.fromTareas(total, completadas));
   }

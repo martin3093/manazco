@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manazco/bloc/tarea/tarea_event.dart';
 import 'package:manazco/bloc/tarea/tarea_state.dart';
 import 'package:manazco/data/tarea_repository.dart';
-import 'package:manazco/domain/tarea.dart';
 import 'package:manazco/exceptions/api_exception.dart';
 import 'package:watch_it/watch_it.dart';
 
@@ -16,7 +15,7 @@ class TareaBloc extends Bloc<TareaEvent, TareaState> {
     on<CreateTareaEvent>(_onCreateTarea);
     on<UpdateTareaEvent>(_onUpdateTarea);
     on<DeleteTareaEvent>(_onDeleteTarea);
-    on<CompletarTareaEvent>(_onCompletarTarea); // Añadir esta línea
+    on<CompletarTareaEvent>(_onCompletarTarea);
   }
 
   Future<void> _onLoadTareas(
@@ -25,6 +24,7 @@ class TareaBloc extends Bloc<TareaEvent, TareaState> {
   ) async {
     emit(TareaLoading());
     try {
+      await Future.delayed(const Duration(seconds: 2));
       final tareas = await _tareaRepository.obtenerTareas(
         forzarRecarga: event.forzarRecarga,
       );
@@ -175,71 +175,46 @@ class TareaBloc extends Bloc<TareaEvent, TareaState> {
     }
   }
 
-  //
   Future<void> _onCompletarTarea(
     CompletarTareaEvent event,
     Emitter<TareaState> emit,
   ) async {
     try {
+      final tareaActualizada = event.tarea.copyWith(
+        completado: event.completada,
+      );
+
       if (state is TareaLoaded) {
         final currentState = state as TareaLoaded;
+        final tareas =
+            currentState.tareas.map((tarea) {
+              return tarea.id == event.tarea.id ? tareaActualizada : tarea;
+            }).toList();
 
-        // Encontrar la tarea por ID
-        final index = currentState.tareas.indexWhere(
-          (t) => t.id == event.tareaId,
+        // Emitimos solo el estado de completado una vez
+        emit(
+          TareaCompletada(
+            tarea: tareaActualizada,
+            completada: event.completada,
+            tareas: tareas,
+            mensaje: event.completada ? 'Tarea completada' : 'Tarea pendiente',
+          ),
         );
 
-        if (index != -1) {
-          // Obtener la tarea actual
-          final tarea = currentState.tareas[index];
-
-          // Crear una nueva tarea con el estado completado actualizado
-          final tareaActualizada = Tarea(
-            id: tarea.id,
-            usuario: tarea.usuario,
-            titulo: tarea.titulo,
-            tipo: tarea.tipo,
-            descripcion: tarea.descripcion,
-            fecha: tarea.fecha,
-            fechaLimite: tarea.fechaLimite,
-            completada: event.completada,
-          );
-
-          // Actualizar la tarea en el repositorio
-          await _tareaRepository.actualizarTarea(tareaActualizada);
-
-          // Actualizar la lista de tareas
-          final tareas = List<Tarea>.from(currentState.tareas);
-          tareas[index] = tareaActualizada;
-
-          // Emitir el estado de tarea completada
-          emit(
-            TareaCompletada(
-              tareas,
-              TipoOperacionTarea.editar,
-              event.completada
-                  ? 'Tarea completada'
-                  : 'Tarea marcada como pendiente',
-              tareaId: event.tareaId,
-              completada: event.completada,
-            ),
-          );
-
-          // Emitir el estado actualizado de tareas cargadas
-          emit(
-            TareaLoaded(
-              tareas: tareas,
-              lastUpdated: DateTime.now(),
-              hayMasTareas: currentState.hayMasTareas,
-              paginaActual: currentState.paginaActual,
-            ),
-          );
-        }
+        // Actualizamos el estado de la lista
+        emit(
+          TareaLoaded(
+            tareas: tareas,
+            lastUpdated: DateTime.now(),
+            hayMasTareas: currentState.hayMasTareas,
+            paginaActual: currentState.paginaActual,
+          ),
+        );
       }
     } catch (e) {
-      emit(
-        TareaError(ApiException('Error al completar tarea: ${e.toString()}')),
-      );
+      if (e is ApiException) {
+        emit(TareaError(e));
+      }
     }
   }
 }

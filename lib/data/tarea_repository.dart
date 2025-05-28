@@ -153,8 +153,6 @@ class TareasRepository extends BaseRepository<Tarea> {
   }
 
   /// Actualiza una tarea existente y la caché
-  ///
-
   Future<Tarea> actualizarTarea(Tarea tarea) async {
     return manejarExcepcion(() async {
       validarId(tarea.id);

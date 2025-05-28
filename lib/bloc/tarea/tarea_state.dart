@@ -62,21 +62,21 @@ class TareaDeleted extends TareaOperationSuccess {
   TareaDeleted(super.tareas, super.tipoOperacion, super.mensaje);
 }
 
-// Añadir en tarea_state.dart
-// En lib/bloc/tarea/tarea_state.dart
-// Cámbialo a:
-class TareaCompletada extends TareaOperationSuccess {
-  final String? tareaId;
-  final bool? completada;
+class TareaCompletada extends TareaState {
+  final Tarea tarea;
+  final bool completada;
+  final String mensaje;
+  final List<Tarea> tareas; // Agregamos la lista completa de tareas
 
-  TareaCompletada(
-    List<Tarea> tareas,
-    TipoOperacionTarea operacion,
-    String mensaje, {
-    this.tareaId,
-    this.completada,
-  }) : super(tareas, operacion, mensaje);
+  TareaCompletada({
+    required this.tarea,
+    required this.completada,
+    required this.tareas,
+    this.mensaje = '',
+  });
 
-  @override
-  List<Object?> get props => [...super.props, tareaId, completada];
+  int get totalTareas => tareas.length;
+  int get tareasCompletadas => tareas.where((t) => t.completado).length;
+  double get progreso =>
+      totalTareas > 0 ? tareasCompletadas / totalTareas : 0.0;
 }

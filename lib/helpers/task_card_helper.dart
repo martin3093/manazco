@@ -80,6 +80,7 @@ Widget construirTarjetaDeportiva(
   Tarea tarea,
   String tareaId,
   VoidCallback onEdit,
+  ValueChanged<bool> onCompletadoChanged,
 ) {
   return Padding(
     padding: const EdgeInsets.symmetric(
@@ -92,8 +93,19 @@ Widget construirTarjetaDeportiva(
       ), // Padding interno del ListTile
       tileColor: Colors.white, // Fondo blanco para el ListTile
       shape: CommonWidgetsHelper.buildRoundedBorder(),
-      leading: CommonWidgetsHelper.buildLeadingIcon(
-        tarea.tipo,
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Checkbox(
+            value: tarea.completado,
+            onChanged: (bool? value) {
+              if (value != null) {
+                onCompletadoChanged(value);
+              }
+            },
+          ),
+          CommonWidgetsHelper.buildLeadingIcon(tarea.tipo),
+        ],
       ), // Ícono dinámico
       title: CommonWidgetsHelper.buildBoldTitle(
         tarea.titulo,

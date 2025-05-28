@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/helpers/dialog_helper.dart';
+import 'package:manazco/views/acerca_de_screen.dart';
 import 'package:manazco/views/contador_screen.dart';
 import 'package:manazco/views/mi_app_screen.dart';
 import 'package:manazco/views/noticia_screen.dart';
@@ -109,6 +110,16 @@ class SideMenu extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const StartScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text('Acerca de'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AcercaDeScreen()),
               );
             },
           ),
