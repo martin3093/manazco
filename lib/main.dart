@@ -11,6 +11,7 @@ import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
 import 'package:manazco/components/connectivity_wrapper.dart';
 import 'package:manazco/helpers/secure_storage_service.dart';
 import 'package:manazco/helpers/shared_preferences_service.dart';
+import 'package:manazco/theme/theme.dart';
 import 'package:manazco/views/login_screen.dart';
 import 'package:watch_it/watch_it.dart';
 import 'package:manazco/bloc/noticia/noticia_bloc.dart';
@@ -64,9 +65,8 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
-        ),
+        theme: AppTheme.bootcampTheme,
+
         debugShowCheckedModeBanner: false,
         builder: (context, child) {
           // Envolvemos con nuestro ConnectivityWrapper

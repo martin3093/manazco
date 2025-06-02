@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:manazco/components/custom_bottom_navigation_bar.dart';
 import 'package:manazco/components/side_menu.dart';
 import 'package:manazco/constants/constantes.dart';
 import 'package:manazco/views/game_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
-
-  final int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +38,6 @@ class StartScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        selectedIndex: _selectedIndex,
       ),
     );
   }
