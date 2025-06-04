@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:manazco/helpers/dialog_helper.dart';
 import 'package:manazco/views/acerca_screen.dart';
 import 'package:manazco/views/contador_screen.dart';
+import 'package:manazco/views/home_screen.dart';
 import 'package:manazco/views/mi_app_screen.dart';
 import 'package:manazco/views/noticia_screen.dart';
+import 'package:manazco/views/profile_screen.dart';
 import 'package:manazco/views/quote_screen.dart';
 import 'package:manazco/views/start_screen.dart';
 import 'package:manazco/views/welcome_screen.dart';
@@ -101,6 +103,20 @@ class SideMenu extends StatelessWidget {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(
+                    Icons.person,
+                  ), // Ícono para la nueva opción
+                  title: const Text('Mi Perfil'),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ), // Navega a MiAppScreen
+                    );
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.apps), // Ícono para la nueva opción
                   title: const Text('Mi App'),
                   onTap: () {
@@ -146,6 +162,20 @@ class SideMenu extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AcercaScreen(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text('Mi Perfil'),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                                const ProfileScreen(), // Cambiar de HomeScreen a ProfileScreen
                       ),
                     );
                   },

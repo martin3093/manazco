@@ -5,13 +5,17 @@ import 'package:manazco/bloc/auth/auth_bloc.dart';
 import 'package:manazco/bloc/comentario/comentario_bloc.dart';
 import 'package:manazco/bloc/reporte/reporte_bloc.dart';
 import 'package:manazco/bloc/tarea/tarea_bloc.dart';
+import 'package:manazco/bloc/theme/theme_cubit.dart';
+import 'package:manazco/bloc/theme/theme_state.dart';
 import 'package:manazco/di/locator.dart';
 import 'package:manazco/bloc/contador/contador_bloc.dart';
 import 'package:manazco/bloc/connectivity/connectivity_bloc.dart';
 import 'package:manazco/components/connectivity_wrapper.dart';
 import 'package:manazco/helpers/secure_storage_service.dart';
 import 'package:manazco/helpers/shared_preferences_service.dart';
+import 'package:manazco/theme/app_themes.dart';
 import 'package:manazco/theme/theme.dart';
+import 'package:manazco/views/home_screen.dart';
 import 'package:manazco/views/login_screen.dart';
 import 'package:watch_it/watch_it.dart';
 import 'package:manazco/bloc/noticia/noticia_bloc.dart';
@@ -62,17 +66,27 @@ class MyApp extends StatelessWidget {
           create: (context) => TareaBloc(),
           lazy: false, // Esto asegura que el bloc se cree inmediatamente
         ),
+        BlocProvider(create: (context) => ThemeCubit()),
       ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: AppTheme.bootcampTheme,
-
-        debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          // Envolvemos con nuestro ConnectivityWrapper
-          return ConnectivityWrapper(child: child ?? const SizedBox.shrink());
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            // theme: AppTheme.bootcampTheme,
+            theme: AppThemes.lightTheme,
+            darkTheme: AppThemes.darkTheme,
+            themeMode: themeState.themeMode,
+            debugShowCheckedModeBanner: false,
+            builder: (context, child) {
+              // Envolvemos con nuestro ConnectivityWrapper
+              return ConnectivityWrapper(
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
+            home: LoginScreen(), // Pantalla inicial
+            // home: const HomeScreen(),
+          );
         },
-        home: LoginScreen(), // Pantalla inicial
       ),
     );
   }
