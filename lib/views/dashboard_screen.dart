@@ -176,59 +176,149 @@ class DashboardScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Métricas principales con datos reales
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildSummaryCard(
-                            title: 'Total Noticias',
-                            value: totalNoticias.toString(),
-                            icon: Icons.article,
-                            color: Colors.blue,
-                            trend: _calculateTrend(totalNoticias, 'noticias'),
-                            isPositive: totalNoticias > 0,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildSummaryCard(
-                            title: 'Progreso Tareas',
-                            value: '$progresoTareas%',
-                            icon: Icons.task_alt,
-                            color: Colors.green,
-                            trend: _calculateTrend(progresoTareas, 'progreso'),
-                            isPositive: progresoTareas >= 50,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildSummaryCard(
-                            title: 'Total Reportes',
-                            value: totalReportes.toString(),
-                            icon: Icons.flag,
-                            color: Colors.orange,
-                            trend: _calculateTrend(totalReportes, 'reportes'),
-                            isPositive:
-                                totalReportes == 0, // Menos reportes es mejor
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildSummaryCard(
-                            title: 'Tareas Activas',
-                            value: (totalTareas - tareasCompletadas).toString(),
-                            icon: Icons.pending_actions,
-                            color: Colors.purple,
-                            trend: _calculateTrend(
-                              totalTareas - tareasCompletadas,
-                              'pendientes',
-                            ),
-                            isPositive:
-                                totalTareas - tareasCompletadas <=
-                                totalTareas / 2,
-                          ),
-                        ),
-                      ],
+                    // 🔧 SOLUCIÓN 1: Layout responsive con Wrap
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Si la pantalla es muy pequeña, usar Column
+                        if (constraints.maxWidth < 600) {
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildSummaryCard(
+                                      title: 'Total Noticias',
+                                      value: totalNoticias.toString(),
+                                      icon: Icons.article,
+                                      color: Colors.blue,
+                                      trend: _calculateTrend(
+                                        totalNoticias,
+                                        'noticias',
+                                      ),
+                                      isPositive: totalNoticias > 0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8), // ✅ Reducido de 12
+                                  Expanded(
+                                    child: _buildSummaryCard(
+                                      title: 'Progreso Tareas',
+                                      value: '$progresoTareas%',
+                                      icon: Icons.task_alt,
+                                      color: Colors.green,
+                                      trend: _calculateTrend(
+                                        progresoTareas,
+                                        'progreso',
+                                      ),
+                                      isPositive: progresoTareas >= 50,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildSummaryCard(
+                                      title: 'Total Reportes',
+                                      value: totalReportes.toString(),
+                                      icon: Icons.flag,
+                                      color: Colors.orange,
+                                      trend: _calculateTrend(
+                                        totalReportes,
+                                        'reportes',
+                                      ),
+                                      isPositive: totalReportes == 0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: _buildSummaryCard(
+                                      title: 'Tareas Activas',
+                                      value:
+                                          (totalTareas - tareasCompletadas)
+                                              .toString(),
+                                      icon: Icons.pending_actions,
+                                      color: Colors.purple,
+                                      trend: _calculateTrend(
+                                        totalTareas - tareasCompletadas,
+                                        'pendientes',
+                                      ),
+                                      isPositive:
+                                          totalTareas - tareasCompletadas <=
+                                          totalTareas / 2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        } else {
+                          // Pantalla grande: usar Row original pero con menos espaciado
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: _buildSummaryCard(
+                                  title: 'Total Noticias',
+                                  value: totalNoticias.toString(),
+                                  icon: Icons.article,
+                                  color: Colors.blue,
+                                  trend: _calculateTrend(
+                                    totalNoticias,
+                                    'noticias',
+                                  ),
+                                  isPositive: totalNoticias > 0,
+                                ),
+                              ),
+                              const SizedBox(width: 8), // ✅ Reducido
+                              Expanded(
+                                child: _buildSummaryCard(
+                                  title: 'Progreso Tareas',
+                                  value: '$progresoTareas%',
+                                  icon: Icons.task_alt,
+                                  color: Colors.green,
+                                  trend: _calculateTrend(
+                                    progresoTareas,
+                                    'progreso',
+                                  ),
+                                  isPositive: progresoTareas >= 50,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildSummaryCard(
+                                  title: 'Total Reportes',
+                                  value: totalReportes.toString(),
+                                  icon: Icons.flag,
+                                  color: Colors.orange,
+                                  trend: _calculateTrend(
+                                    totalReportes,
+                                    'reportes',
+                                  ),
+                                  isPositive: totalReportes == 0,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildSummaryCard(
+                                  title: 'Tareas Activas',
+                                  value:
+                                      (totalTareas - tareasCompletadas)
+                                          .toString(),
+                                  icon: Icons.pending_actions,
+                                  color: Colors.purple,
+                                  trend: _calculateTrend(
+                                    totalTareas - tareasCompletadas,
+                                    'pendientes',
+                                  ),
+                                  isPositive:
+                                      totalTareas - tareasCompletadas <=
+                                      totalTareas / 2,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
