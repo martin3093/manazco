@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manazco/domain/categoria.dart';
+import 'package:manazco/theme/theme.dart';
 
 class FormularioCategoria extends StatefulWidget {
   final Categoria?
@@ -56,32 +57,21 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16.0,
-        right: 16.0,
-        top: 16.0,
+    return AlertDialog(
+      title: Text(
+        widget.categoria == null ? 'Agregar Categoría' : 'Editar Categoría',
       ),
-      child: SingleChildScrollView(
+      content: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Text(
-              //   widget.categoria == null ? 'Crear nueva categoría' : 'Editar categoría',
-              //   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              //   textAlign: TextAlign.center,
-              // ),
-              // const SizedBox(height: 16),
+              // Volver a usar TextFormField para mantener las validaciones
               TextFormField(
                 controller: _nombreController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Nombre'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'El nombre no puede estar vacío';
@@ -89,13 +79,11 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                   return null;
                 },
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+
               TextFormField(
                 controller: _descripcionController,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Descripción'),
                 maxLines: 3,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -104,13 +92,13 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                   return null;
                 },
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
+
               TextFormField(
                 controller: _imagenUrlController,
                 decoration: const InputDecoration(
                   labelText: 'URL de la imagen',
-                  hintText: 'https://ejemplo.com/imagen.jpg',
-                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.image),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -119,60 +107,22 @@ class _FormularioCategoriaState extends State<FormularioCategoria> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              // Vista previa de la imagen
-              if (_imagenUrlController.text.isNotEmpty)
-                Container(
-                  height: 120,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      _imagenUrlController.text,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Center(
-                          child: Text(
-                            'Error al cargar la imagen',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const Center(child: CircularProgressIndicator());
-                      },
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _guardarCategoria,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    widget.categoria == null
-                        ? 'CREAR CATEGORÍA'
-                        : 'GUARDAR CAMBIOS',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
             ],
           ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          style: AppTheme.modalSecondaryButtonStyle(),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          onPressed: _guardarCategoria,
+          style: AppTheme.modalActionButtonStyle(),
+          child: const Text('Guardar'),
+        ),
+      ],
     );
   }
 }

@@ -16,22 +16,29 @@ class SnackBarHelper {
     _mostrarSnackBar(
       context,
       mensaje: mensaje,
-      color: Colors.green,
+      color: Theme.of(context).colorScheme.onSecondary,
       duracion: const Duration(seconds: 3),
     );
     return Future.delayed(const Duration(milliseconds: 1500));
   }
 
   /// Muestra un mensaje informativo
-  static void mostrarInfo(BuildContext context, {required String mensaje}) {
+  static void mostrarInfo(
+    BuildContext context, {
+    required String mensaje,
+    Duration? duracion,
+  }) {
     // Verificar si se puede mostrar el SnackBar (no hay mensajes de conectividad)
     if (!SnackBarManager().canShowSnackBar()) return;
 
     _mostrarSnackBar(
       context,
       mensaje: mensaje,
-      color: Colors.blue,
-      duracion: const Duration(seconds: 3),
+      color:
+          Theme.of(context)
+              .colorScheme
+              .primary, // Usar el color primario del tema si no se especifica
+      duracion: duracion ?? const Duration(seconds: 3),
     );
   }
 
@@ -46,7 +53,7 @@ class SnackBarHelper {
     _mostrarSnackBar(
       context,
       mensaje: mensaje,
-      color: Colors.orange,
+      color: Theme.of(context).colorScheme.onError,
       duracion: const Duration(seconds: 4),
     );
   }
@@ -59,7 +66,7 @@ class SnackBarHelper {
     _mostrarSnackBar(
       context,
       mensaje: mensaje,
-      color: Colors.red,
+      color: Theme.of(context).colorScheme.error,
       duracion: const Duration(seconds: 4),
     );
   }
@@ -113,6 +120,7 @@ class SnackBarHelper {
     // Muestra el nuevo SnackBar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBarComponent.crear(
+        context: context,
         mensaje: mensaje,
         color: color,
         duracion: duracion,

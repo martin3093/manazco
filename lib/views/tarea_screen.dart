@@ -5,8 +5,7 @@ import 'package:manazco/bloc/tarea/tarea_event.dart';
 import 'package:manazco/bloc/tarea/tarea_state.dart';
 import 'package:manazco/bloc/tarea_contador/tarea_contador_bloc.dart';
 import 'package:manazco/bloc/tarea_contador/tarea_contador_event.dart';
-import 'package:manazco/components/add_task_modal.dart';
-import 'package:manazco/components/custom_bottom_navigation_bar.dart';
+import 'package:manazco/components/tarea_modal.dart';
 import 'package:manazco/components/last_updated_header.dart';
 import 'package:manazco/components/side_menu.dart';
 import 'package:manazco/components/tarea_progreso_indicator.dart';
@@ -75,35 +74,32 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocConsumer<TareaBloc, TareaState>(
       listener: (context, state) {
+        // Listener sin cambios
         if (state is TareaError) {
           SnackBarHelper.manejarError(context, state.error);
         } else if (state is TareaCompletada) {
-          // Actualizamos el contador solo una vez aquí
           if (state.completada) {
             context.read<TareaContadorBloc>().add(IncrementarContador());
+            SnackBarHelper.mostrarExito(
+              context,
+              mensaje: 'Tarea completada exitosamente',
+            );
           } else {
             context.read<TareaContadorBloc>().add(DecrementarContador());
+            SnackBarHelper.mostrarAdvertencia(
+              context,
+              mensaje: 'Tarea marcada como pendiente',
+            );
           }
-          // Mostramos el snackbar
-          SnackBarHelper.mostrarExito(
-            context,
-            mensaje:
-                state.completada
-                    ? 'Tarea completada exitosamente'
-                    : 'Tarea marcada como pendiente',
-          );
         } else if (state is TareaLoaded) {
-          // Actualizamos primero el total y luego las completadas
           final totalCompletadas =
               state.tareas.where((t) => t.completado).length;
           final tareaContadorBloc = context.read<TareaContadorBloc>();
-
-          // Establecemos el total de tareas
           tareaContadorBloc.add(SetTotalTareas(state.tareas.length));
-
-          // Establecemos las completadas usando un nuevo evento
           tareaContadorBloc.add(SetCompletadas(totalCompletadas));
         }
       },
@@ -126,24 +122,22 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
                 icon: const Icon(Icons.refresh),
                 tooltip: 'Recargar tareas',
                 onPressed: () {
-                  // Forzamos la recarga desde la API
                   context.read<TareaBloc>().add(
                     LoadTareasEvent(forzarRecarga: true),
                   );
 
-                  // Opcional: Mostrar un SnackBar para indicar la recarga
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Recargando tareas...'),
-                      duration: Duration(seconds: 1),
-                    ),
+                  // Usar SnackBarHelper consistente con el tema
+                  SnackBarHelper.mostrarInfo(
+                    context,
+                    mensaje: 'Recargando tareas...',
                   );
                 },
               ),
             ],
           ),
           drawer: const SideMenu(),
-          backgroundColor: Colors.grey[200],
+          // Usar el color de fondo definido en el tema
+          backgroundColor: theme.scaffoldBackgroundColor,
           body: Column(
             children: [
               LastUpdatedHeader(lastUpdated: lastUpdated),
@@ -154,10 +148,9 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
           floatingActionButton: FloatingActionButton(
             onPressed: () => _mostrarModalAgregarTarea(context),
             tooltip: 'Agregar Tarea',
+            backgroundColor: theme.colorScheme.primary,
+            foregroundColor: theme.colorScheme.onPrimary,
             child: const Icon(Icons.add),
-          ),
-          bottomNavigationBar: const CustomBottomNavigationBar(
-            selectedIndex: 0,
           ),
         );
       },
@@ -165,26 +158,35 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
   }
 
   Widget _construirCuerpoTareas(BuildContext context, TareaState state) {
-    // Envolvemos todo el contenido en un RefreshIndicator
     return RefreshIndicator(
+      color:
+          Theme.of(
+            context,
+          ).colorScheme.primary, // Color primario para el indicador
       onRefresh: () async {
-        // Forzamos la recarga desde la API
         context.read<TareaBloc>().add(LoadTareasEvent(forzarRecarga: true));
       },
       child: _construirContenidoTareas(context, state),
     );
   }
 
-  // Nuevo método para el contenido
   Widget _construirContenidoTareas(BuildContext context, TareaState state) {
+    final theme = Theme.of(context);
+
     if (state is TareaInitial || state is TareaLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Cargando tareas...'),
+            CircularProgressIndicator(
+              color: theme.colorScheme.primary, // Usar color primario
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Cargando tareas...',
+              style:
+                  theme.textTheme.bodyMedium, // Usar estilo de texto del tema
+            ),
           ],
         ),
       );
@@ -200,11 +202,14 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
               children: [
                 Text(
                   state.error.message,
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(
+                    color: theme.colorScheme.error,
+                  ), // Usar color de error del tema
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
+                FilledButton(
+                  // Usar FilledButton para consistencia
                   onPressed:
                       () => context.read<TareaBloc>().add(LoadTareasEvent()),
                   child: const Text('Reintentar'),
@@ -223,7 +228,15 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
             children: [
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.6,
-                child: const Center(child: Text(TareasConstantes.listaVacia)),
+                child: Center(
+                  child: Text(
+                    TareasConstantes.listaVacia,
+                    style:
+                        theme
+                            .textTheme
+                            .bodyMedium, // Usar estilo de texto del tema
+                  ),
+                ),
               ),
             ],
           )
@@ -233,10 +246,12 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
             itemCount: state.tareas.length + (state.hayMasTareas ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == state.tareas.length) {
-                return const Center(
+                return Center(
                   child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
+                    padding: const EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(
+                      color: theme.colorScheme.primary, // Usar color primario
+                    ),
                   ),
                 );
               }
@@ -245,10 +260,14 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
               return Dismissible(
                 key: Key(tarea.id.toString()),
                 background: Container(
-                  color: Colors.red,
+                  color:
+                      theme.colorScheme.error, // Usar color de error del tema
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: const Icon(Icons.delete, color: Colors.white),
+                  child: Icon(
+                    Icons.delete,
+                    color: theme.colorScheme.onError,
+                  ), // Usar color de texto sobre error
                 ),
                 direction: DismissDirection.startToEnd,
                 confirmDismiss: (direction) async {
@@ -266,18 +285,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
                 child: GestureDetector(
                   onTap:
                       () => _mostrarDetallesTarea(context, index, state.tareas),
-                  child: construirTarjetaDeportiva(
-                    tarea,
-                    tarea.id!,
-                    () => _mostrarModalEditarTarea(context, tarea),
-                    (completado) {
-                      context.read<TareaBloc>().add(
-                        UpdateTareaEvent(
-                          tarea.copyWith(completado: completado),
-                        ),
-                      );
-                    },
-                  ),
+                  child: construirTarjetaDeportiva(tarea),
                 ),
               );
             },
@@ -305,7 +313,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
       context: context,
       barrierDismissible: false,
       builder:
-          (dialogContext) => AddTaskModal(
+          (dialogContext) => TareaModal(
             taskToEdit: tarea,
             onTaskAdded: (Tarea tareaEditada) {
               context.read<TareaBloc>().add(UpdateTareaEvent(tareaEditada));
@@ -319,7 +327,7 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
       context: context,
       barrierDismissible: false,
       builder:
-          (dialogContext) => AddTaskModal(
+          (dialogContext) => TareaModal(
             onTaskAdded: (Tarea nuevaTarea) {
               context.read<TareaBloc>().add(CreateTareaEvent(nuevaTarea));
             },
@@ -327,35 +335,91 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
     );
   }
 
-  // Actualizar el método construirTarjetaDeportiva
-  Widget construirTarjetaDeportiva(
-    Tarea tarea,
-    String s,
-    void Function() param2,
-    Null Function(dynamic completado) param3,
-  ) {
+  // Método simplificado para construir la tarjeta
+  Widget construirTarjetaDeportiva(Tarea tarea) {
+    final theme = Theme.of(context);
+    final bool esUrgente = tarea.tipo != 'normal';
+
+    // Usar card de tema con modificadores
     return Card(
-      child: ListTile(
-        leading: Checkbox(
-          value: tarea.completado,
-          onChanged: (bool? value) {
-            if (value != null) {
-              context.read<TareaBloc>().add(
-                CompletarTareaEvent(tarea: tarea, completada: value),
-              );
-            }
-          },
-        ),
-        title: Text(
-          tarea.titulo,
-          style: TextStyle(
-            decoration: tarea.completado ? TextDecoration.lineThrough : null,
+      // Mantener margin consistente
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+
+      // No establecer color aquí para usar el del tema
+
+      // Usar el shape del tema pero con un borde más destacado para urgentes
+      shape: esUrgente ? theme.cardTheme.shape : null,
+
+      child: Container(
+        // Para tareas urgentes, agregar gradiente
+        decoration:
+            esUrgente
+                ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                    10,
+                  ), // Consistente con tema
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.error.withAlpha(25),
+                      theme.colorScheme.error.withAlpha(77),
+                    ],
+                  ),
+                )
+                : null,
+        child: ListTile(
+          // Usar contentPadding definido en ListTileTheme
+          contentPadding:
+              theme.listTileTheme.contentPadding ??
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+
+          // Checkbox con tema aplicado automáticamente
+          leading: Checkbox(
+            value: tarea.completado,
+            onChanged: (bool? value) {
+              if (value != null) {
+                context.read<TareaBloc>().add(
+                  CompletarTareaEvent(tarea: tarea, completada: value),
+                );
+              }
+            },
           ),
-        ),
-        subtitle: Text(tarea.descripcion ?? ''),
-        trailing: IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () => _mostrarModalEditarTarea(context, tarea),
+
+          // Texto con estilo del tema
+          title: Text(
+            tarea.titulo,
+            style: theme.textTheme.titleMedium?.copyWith(
+              decoration: tarea.completado ? TextDecoration.lineThrough : null,
+              color:
+                  tarea.completado
+                      ? theme.disabledColor
+                      : esUrgente
+                      ? theme.colorScheme.error
+                      : null, // null usa el color del tema
+              fontWeight: esUrgente ? FontWeight.bold : null,
+            ),
+          ),
+
+          // Descripción con estilo del tema
+          subtitle:
+              tarea.descripcion != null && tarea.descripcion!.isNotEmpty
+                  ? Text(
+                    tarea.descripcion!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color:
+                          tarea.completado
+                              ? theme.disabledColor
+                              : null, // null usa el color del tema
+                    ),
+                  )
+                  : null,
+
+          // Icono de edición usando colores del tema
+          trailing: IconButton(
+            icon: Icon(Icons.edit, color: theme.colorScheme.primary, size: 20),
+            onPressed: () => _mostrarModalEditarTarea(context, tarea),
+          ),
         ),
       ),
     );

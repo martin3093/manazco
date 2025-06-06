@@ -68,4 +68,21 @@ class NoticiaService extends BaseService {
 
     return response as Map<String, dynamic>;
   }
+
+  /// Incrementa el contador de reportes de una noticia
+  Future<Map<String, dynamic>> incrementarContadorComentarios(
+    String noticiaId,
+    int valor,
+  ) async {
+    final url = '${ApiConstantes.noticiasEndpoint}/$noticiaId';
+
+    // Usamos PATCH para actualizar parcialmente solo el contador de reportes
+    final response = await patch(
+      url,
+      data: {'contadorComentarios': valor},
+      errorMessage: NoticiasConstantes.errorActualizarContadorComentarios,
+    );
+
+    return response as Map<String, dynamic>;
+  }
 }

@@ -44,14 +44,12 @@ enum TipoOperacionComentario {
 }
 
 class ComentarioError extends ComentarioState {
-  final String message;
   final ApiException error;
-  final TipoOperacionComentario tipoOperacion;
 
-  ComentarioError(this.message, this.error, this.tipoOperacion);
+  ComentarioError(this.error);
 
   @override
-  List<Object> get props => [message, error, tipoOperacion];
+  List<Object> get props => [error];
 }
 
 class ComentariosFiltrados extends ComentarioLoaded {
@@ -78,4 +76,17 @@ class ComentariosOrdenados extends ComentarioLoaded {
 
   @override
   List<Object?> get props => [...super.props, criterioOrden];
+}
+
+class ContadorComentariosActualizado extends ComentarioState {
+  final String noticiaId;
+  final int contadorComentarios;
+
+  ContadorComentariosActualizado({
+    required this.noticiaId,
+    required this.contadorComentarios,
+  });
+
+  @override
+  List<Object?> get props => [noticiaId, contadorComentarios];
 }

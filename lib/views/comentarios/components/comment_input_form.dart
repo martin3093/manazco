@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manazco/bloc/comentario/comentario_bloc.dart';
 import 'package:manazco/bloc/comentario/comentario_event.dart';
+import 'package:manazco/bloc/comentario/comentario_state.dart';
 import 'package:manazco/domain/comentario.dart';
 import 'package:manazco/helpers/snackbar_helper.dart';
 
@@ -135,7 +136,26 @@ class CommentInputForm extends StatelessWidget {
       bloc.add(AddSubcomentario(nuevoSubComentario));
     }
 
-    bloc.add(GetNumeroComentarios(noticiaId));
+    // Actualizar el contador de comentarios
+    int totalComentariosActuales = 0;
+    if (bloc.state is ComentarioLoaded) {
+      final comentariosActuales = (bloc.state as ComentarioLoaded).comentarios;
+
+      // Contar comentarios principales
+      totalComentariosActuales = comentariosActuales.length;
+
+      // Contar subcomentarios
+      for (var comentario in comentariosActuales) {
+        if (comentario.subcomentarios != null) {
+          totalComentariosActuales += comentario.subcomentarios!.length;
+        }
+      }
+    }
+
+    // Sumamos 1 por el nuevo comentario
+    final nuevoTotal = totalComentariosActuales + 1;
+    bloc.add(ActualizarContadorComentarios(noticiaId, nuevoTotal));
+
     comentarioController.clear();
     onCancelarRespuesta();
 

@@ -8,7 +8,23 @@ class AuthService extends BaseService {
 
   Future<LoginResponse> login(LoginRequest request) async {
     try {
-      final data = await postUnauthorized('/login', data: request.toJson());
+      dynamic data;
+      final List<LoginRequest> usuariosTest = [
+        const LoginRequest(username: 'profeltes', password: 'sodep'),
+        const LoginRequest(username: 'monimoney', password: 'sodep'),
+        const LoginRequest(username: 'sodep', password: 'sodep'),
+        const LoginRequest(username: 'gricequeen', password: 'sodep'),
+      ];
+
+      // Verificar si las credenciales coinciden con algún usuario de prueba
+      bool credencialesValidas = usuariosTest.any(
+        (usuario) =>
+            usuario.username == request.username &&
+            usuario.password == request.password,
+      );
+      if (credencialesValidas) {
+        data = await postUnauthorized('/login', data: request.toJson());
+      }
 
       if (data != null) {
         return LoginResponseMapper.fromMap(data);

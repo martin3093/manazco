@@ -5,6 +5,7 @@ import 'package:manazco/bloc/auth/auth_event.dart';
 import 'package:manazco/bloc/noticia/noticia_bloc.dart';
 import 'package:manazco/bloc/noticia/noticia_event.dart';
 import 'package:manazco/data/preferencia_repository.dart';
+import 'package:manazco/theme/theme.dart';
 import 'package:manazco/views/login_screen.dart';
 import 'package:get_it/get_it.dart';
 
@@ -27,10 +28,12 @@ class DialogHelper {
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
+              style: AppTheme.modalSecondaryButtonStyle(),
               child: Text(textoCancelar),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
+              style: AppTheme.modalActionButtonStyle(),
               child: Text(textoConfirmar),
             ),
           ],
@@ -52,6 +55,8 @@ class DialogHelper {
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el diálogo
               },
+              style:
+                  AppTheme.modalSecondaryButtonStyle(), // Usar estilo del tema
               child: const Text('Cancelar'),
             ),
             ElevatedButton(
@@ -92,6 +97,7 @@ class DialogHelper {
                   );
                 }
               },
+              style: AppTheme.modalActionButtonStyle(), // Usar estilo del tema
               child: const Text('Cerrar Sesión'),
             ),
           ],

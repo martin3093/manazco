@@ -1,3 +1,5 @@
+import 'package:manazco/api/service/comentario_service.dart';
+import 'package:manazco/api/service/noticia_service.dart';
 import 'package:manazco/api/service/tarea_service.dart';
 import 'package:manazco/bloc/reporte/reporte_bloc.dart';
 import 'package:manazco/data/auth_repository.dart';
@@ -25,6 +27,8 @@ Future<void> initLocator() async {
 
   // Servicios de API
   di.registerLazySingleton<TareaService>(() => TareaService());
+  di.registerLazySingleton<ComentarioService>(() => ComentarioService());
+  di.registerLazySingleton<NoticiaService>(() => NoticiaService());
 
   // Repositorios
   di.registerSingleton<CategoriaRepository>(CategoriaRepository());

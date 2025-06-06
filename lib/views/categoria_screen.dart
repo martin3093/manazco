@@ -8,10 +8,8 @@ import 'package:manazco/components/last_updated_header.dart';
 import 'package:manazco/constants/constantes.dart';
 import 'package:manazco/components/categoria_card.dart';
 import 'package:manazco/components/side_menu.dart';
-import 'package:manazco/components/custom_bottom_navigation_bar.dart';
 import 'package:manazco/components/formulario_categoria.dart';
 import 'package:manazco/domain/categoria.dart';
-import 'package:manazco/helpers/dialog_helper.dart';
 import 'package:manazco/helpers/modal_helper.dart';
 import 'package:manazco/helpers/snackbar_helper.dart';
 import 'package:manazco/helpers/snackbar_manager.dart';
@@ -101,7 +99,6 @@ class _CategoriaScreenContent extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Categorías de Noticias'),
-            centerTitle: true,
             actions: [
               IconButton(
                 icon: const Icon(Icons.refresh),
@@ -141,9 +138,6 @@ class _CategoriaScreenContent extends StatelessWidget {
             tooltip: 'Agregar Categoría',
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-          bottomNavigationBar: const CustomBottomNavigationBar(
-            selectedIndex: 0,
-          ),
         );
       },
     );
@@ -215,7 +209,6 @@ class _CategoriaScreenContent extends StatelessWidget {
               return CategoriaCard(
                 categoria: categoria,
                 onEdit: () => _editarCategoria(context, categoria),
-                onDelete: () => _eliminarCategoria(context, categoria),
               );
             },
           ),
@@ -252,25 +245,6 @@ class _CategoriaScreenContent extends StatelessWidget {
       context.read<CategoriaBloc>().add(
         CategoriaUpdateEvent(categoriaActualizada),
       );
-    }
-  }
-
-  // Extraer la lógica de eliminación a un método separado para mejorar la legibilidad
-  Future<void> _eliminarCategoria(
-    BuildContext context,
-    Categoria categoria,
-  ) async {
-    // Mostrar diálogo de confirmación
-    final confirmar = await DialogHelper.mostrarConfirmacion(
-      context: context,
-      titulo: 'Confirmar eliminación',
-      mensaje: '¿Estás seguro de eliminar la categoría "${categoria.nombre}"?',
-      textoCancelar: 'Cancelar',
-      textoConfirmar: 'Eliminar',
-    );
-
-    if (confirmar == true && context.mounted) {
-      context.read<CategoriaBloc>().add(CategoriaDeleteEvent(categoria.id!));
     }
   }
 }

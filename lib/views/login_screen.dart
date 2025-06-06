@@ -5,7 +5,10 @@ import 'package:manazco/bloc/auth/auth_event.dart';
 import 'package:manazco/bloc/auth/auth_state.dart';
 import 'package:manazco/bloc/noticia/noticia_bloc.dart';
 import 'package:manazco/bloc/noticia/noticia_event.dart';
-import 'package:manazco/components/snackbar_component.dart';
+import 'package:manazco/components/login_animation.dart';
+import 'package:manazco/components/responsive_container.dart';
+import 'package:manazco/helpers/common_widgets_helper.dart';
+import 'package:manazco/helpers/snackbar_helper.dart';
 import 'package:manazco/views/welcome_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -17,118 +20,118 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController usernameController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
+    final theme = Theme.of(context);
 
-    return BlocProvider(
-      create: (context) => AuthBloc(),
-      child: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthLoading) {
-            // Mostrar indicador de carga
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (BuildContext context) {
-                return const Center(child: CircularProgressIndicator());
-              },
-            );
-          } else if (state is AuthAuthenticated) {
-            // Cerrar diálogo de carga si está abierto
-            Navigator.of(
-              context,
-              rootNavigator: true,
-            ).popUntil((route) => route.isFirst);
-
-            // Cargar noticias para el nuevo usuario
-            context.read<NoticiaBloc>().add(FetchNoticiasEvent());
-
-            // Navegar a la pantalla principal
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-            );
-          } else if (state is AuthFailure) {
-            // Cerrar diálogo de carga si está abierto
-            Navigator.of(
-              context,
-              rootNavigator: true,
-            ).popUntil((route) => route.isFirst);
-
-            // Mostrar error
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBarComponent.crear(
-                mensaje: state.error.message,
-                color: Colors.red,
-                duracion: const Duration(seconds: 4),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Inicio de Sesión',
-                      style: TextStyle(color: Colors.black, fontSize: 22),
-                    ),
-                    TextFormField(
-                      controller: usernameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Usuario *',
-                        border: OutlineInputBorder(),
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const Center(child: CircularProgressIndicator());
+            },
+          );
+        } else if (state is AuthAuthenticated) {
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).popUntil((route) => route.isFirst);
+          context.read<NoticiaBloc>().add(FetchNoticiasEvent());
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+          );
+        } else if (state is AuthFailure) {
+          Navigator.of(
+            context,
+            rootNavigator: true,
+          ).popUntil((route) => route.isFirst);
+          SnackBarHelper.mostrarError(context, mensaje: state.error.message);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          body: ResponsiveContainer(
+            child: SingleChildScrollView(
+              // Añadimos ScrollView para evitar overflow en pantallas pequeñas
+              child: CommonWidgetsHelper.paddingContainer32(
+                color: theme.colorScheme.surface,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize:
+                        MainAxisSize
+                            .min, // Para que ocupe solo el espacio necesario
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // CommonWidgetsHelper.iconoTitulo(icon: Icons.login),
+                      CommonWidgetsHelper.buildSpacing16(),
+                      CommonWidgetsHelper.seccionSubTitulo(
+                        title: 'Inicio de Sesión',
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'El correo es obligatorio';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: passwordController,
-                      decoration: const InputDecoration(
-                        labelText: 'Contraseña *',
-                        border: OutlineInputBorder(),
+                      CommonWidgetsHelper.buildSpacing32(),
+                      TextFormField(
+                        controller: usernameController,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'El usuario es obligatorio';
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Usuario *',
+                          prefixIcon: Icon(Icons.person),
+                        ),
                       ),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'La contraseña es obligatoria';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          final username = usernameController.text.trim();
-                          final password = passwordController.text.trim();
+                      CommonWidgetsHelper.buildSpacing16(),
+                      TextFormField(
+                        controller: passwordController,
+                        keyboardType: TextInputType.visiblePassword,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'La contraseña es obligatoria';
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Contraseña *',
+                          prefixIcon: Icon(Icons.key_outlined),
+                        ),
+                        obscureText: true,
+                      ),
+                      CommonWidgetsHelper.buildSpacing16(),
+                      SizedBox(
+                        width:
+                            double
+                                .infinity, // Para que el botón ocupe todo el ancho disponible
+                        child: FilledButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              final username = usernameController.text.trim();
+                              final password = passwordController.text.trim();
 
-                          // Usar el BLoC para manejar la autenticación
-                          context.read<AuthBloc>().add(
-                            AuthLoginRequested(
-                              email: username,
-                              password: password,
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text('Iniciar Sesión'),
-                    ),
-                  ],
+                              // Usar el BLoC para manejar la autenticación
+                              context.read<AuthBloc>().add(
+                                AuthLoginRequested(
+                                  email: username,
+                                  password: password,
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text('Iniciar Sesión'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
