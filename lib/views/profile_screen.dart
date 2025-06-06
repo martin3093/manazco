@@ -1,10 +1,55 @@
 // lib/views/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:manazco/components/side_menu.dart';
 import 'package:manazco/widgets/theme_switcher.dart';
+import 'package:manazco/bloc/auth/auth_bloc.dart';
+import 'package:manazco/bloc/auth/auth_state.dart';
+import 'package:manazco/bloc/auth/auth_event.dart';
+import 'package:manazco/bloc/tarea/tarea_bloc.dart';
+import 'package:manazco/bloc/tarea/tarea_state.dart';
+import 'package:manazco/bloc/tarea/tarea_event.dart';
+import 'package:manazco/helpers/secure_storage_service.dart';
+import 'package:manazco/helpers/dialog_helper.dart';
+import 'package:watch_it/watch_it.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final SecureStorageService _secureStorage = di<SecureStorageService>();
+  String? _userEmail;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    // Cargar estadísticas de tareas reales
+    context.read<TareaBloc>().add(LoadTareasEvent());
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final email = await _secureStorage.getUserEmail();
+      if (mounted) {
+        setState(() {
+          _userEmail = email;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,95 +60,144 @@ class ProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
-              // Navegar a editar perfil
+              _showEditProfileDialog();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _refreshUserData();
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Avatar y nombre
-            _buildProfileHeader(),
+      drawer: const SideMenu(),
+      body: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          if (authState is! AuthAuthenticated) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Usuario no autenticado...'),
+                ],
+              ),
+            );
+          }
 
-            const SizedBox(height: 24),
+          if (_isLoading) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Cargando datos del usuario...'),
+                ],
+              ),
+            );
+          }
 
-            // Información personal
-            _buildPersonalInfo(),
+          return RefreshIndicator(
+            onRefresh: _refreshUserData,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  // Avatar y nombre - CON DATOS REALES
+                  _buildProfileHeaderReal(),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 24),
 
-            // Configuraciones
-            _buildSettings(),
+                  // Información personal - CON DATOS REALES
+                  _buildPersonalInfoReal(),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Estadísticas
-            _buildStatistics(),
+                  // Configuraciones
+                  _buildSettings(),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Configuración de temas
-            _buildThemeSettings(),
+                  // Estadísticas REALES de tareas
+                  _buildStatisticsReal(),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Notificaciones
-            _buildNotificationSettings(),
+                  // Configuración de temas
+                  _buildThemeSettings(),
 
-            // AGREGAR AQUÍ LAS NUEVAS SECCIONES:
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Logros/Insignias
-            _buildAchievements(),
+                  // Notificaciones
+                  _buildNotificationSettings(),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Historial de actividad
-            _buildActivityHistory(),
+                  // Logros basados en estadísticas reales
+                  _buildAchievementsReal(),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Configuración de cuenta
-            _buildAccountSettings(context),
+                  // Historial de actividad real
+                  _buildActivityHistoryReal(),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Soporte y ayuda
-            _buildSupportSection(),
+                  // Configuración de cuenta
+                  _buildAccountSettings(context),
 
-            const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-            // Información de la app
-            _buildAppInfo(),
+                  // Soporte y ayuda
+                  _buildSupportSection(),
 
-            const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-            // Botón de cerrar sesión
-            _buildLogoutButton(context),
+                  // Información de la app
+                  _buildAppInfo(),
 
-            // Espacio adicional al final
-            const SizedBox(height: 32),
-          ],
-        ),
+                  const SizedBox(height: 24),
+
+                  // Botón de cerrar sesión REAL
+                  _buildLogoutButtonReal(context),
+
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeaderReal() {
+    final userEmail = _userEmail ?? 'Usuario';
+    final username = _extractUsernameFromEmail(userEmail);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Avatar circular con opción de cambiar
+            // Avatar circular con iniciales reales
             Stack(
               children: [
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.blue[100],
-                  child: const Icon(Icons.person, size: 50, color: Colors.blue),
+                  child: Text(
+                    _getInitials(username),
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
                 ),
                 Positioned(
                   bottom: 0,
@@ -120,7 +214,13 @@ class ProfileScreen extends StatelessWidget {
                         size: 20,
                       ),
                       onPressed: () {
-                        // Cambiar foto de perfil
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Función de cambiar foto en desarrollo',
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -130,33 +230,53 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Nombre y email
-            const Text(
-              'Juan Pérez',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            // Nombre y email - DATOS REALES
+            Text(
+              username,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
-              'juan.perez@email.com',
+              userEmail,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
 
             const SizedBox(height: 16),
 
-            // Estado o insignia
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.green[100],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'Usuario Activo',
-                style: TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+            // Estado basado en JWT
+            FutureBuilder<String?>(
+              future: _secureStorage.getJwt(),
+              builder: (context, snapshot) {
+                final hasToken = snapshot.hasData && snapshot.data!.isNotEmpty;
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: hasToken ? Colors.green[100] : Colors.red[100],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        hasToken ? Icons.verified_user : Icons.warning,
+                        size: 16,
+                        color: hasToken ? Colors.green : Colors.red,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        hasToken ? 'Usuario Autenticado' : 'Sesión Expirada',
+                        style: TextStyle(
+                          color: hasToken ? Colors.green : Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -164,7 +284,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPersonalInfo() {
+  Widget _buildPersonalInfoReal() {
+    final userEmail = _userEmail ?? 'No disponible';
+    final username = _extractUsernameFromEmail(userEmail);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -177,163 +300,390 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            _buildInfoRow(Icons.phone, 'Teléfono', '+1 (555) 123-4567'),
-            _buildInfoRow(Icons.location_on, 'Ubicación', 'Ciudad, País'),
-            _buildInfoRow(Icons.work, 'Ocupación', 'Desarrollador'),
-            _buildInfoRow(
-              Icons.cake,
-              'Fecha de Nacimiento',
-              '15 de Marzo, 1990',
+            _buildInfoRow(Icons.person, 'Usuario', username),
+            _buildInfoRow(Icons.email, 'Email', userEmail),
+            _buildInfoRow(Icons.phone, 'Teléfono', 'No configurado'),
+            _buildInfoRow(Icons.location_on, 'Ubicación', 'No especificada'),
+            _buildInfoRow(Icons.work, 'Rol', 'Usuario Estándar'),
+
+            // Tiempo como miembro basado en datos reales
+            FutureBuilder<String?>(
+              future: _secureStorage.getJwt(),
+              builder: (context, snapshot) {
+                return _buildInfoRow(
+                  Icons.calendar_today,
+                  'Estado de sesión',
+                  snapshot.hasData && snapshot.data!.isNotEmpty
+                      ? 'Sesión activa'
+                      : 'Sin sesión',
+                );
+              },
             ),
-            _buildInfoRow(Icons.calendar_today, 'Miembro desde', 'Enero 2024'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
+  Widget _buildStatisticsReal() {
+    return BlocBuilder<TareaBloc, TareaState>(
+      builder: (context, tareaState) {
+        // Datos reales de las tareas
+        int totalTareas = 0;
+        int tareasCompletadas = 0;
+        int diasActivo = 0;
+        String rachaActual = '0 días';
+
+        if (tareaState is TareaLoaded) {
+          totalTareas = tareaState.tareas.length;
+          tareasCompletadas =
+              tareaState.tareas.where((t) => t.completado).length;
+
+          // Calcular días activo basado en tareas
+          if (tareaState.tareas.isNotEmpty) {
+            final fechas =
+                tareaState.tareas
+                    .map((t) => DateTime.tryParse((t.fecha ?? '').toString()))
+                    .where((f) => f != null)
+                    .map((f) => f!)
+                    .toList();
+
+            if (fechas.isNotEmpty) {
+              fechas.sort();
+              diasActivo = DateTime.now().difference(fechas.first).inDays;
+            }
+          }
+
+          // Calcular racha actual (simplificada)
+          rachaActual =
+              tareasCompletadas > 0
+                  ? '${(tareasCompletadas / 7).ceil()} días'
+                  : '0 días';
+        }
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Estadísticas Reales',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (tareaState is TareaLoading)
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                if (tareaState is TareaLoading) ...[
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ] else if (tareaState is TareaError) ...[
+                  Center(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(height: 8),
+                        Text('Error: ${tareaState.error.message}'),
+                        const SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<TareaBloc>().add(LoadTareasEvent());
+                          },
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          'Tareas Completadas',
+                          tareasCompletadas.toString(),
+                          Icons.task_alt,
+                          Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Total Tareas',
+                          totalTareas.toString(),
+                          Icons.list,
+                          Colors.blue,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          'Días Activo',
+                          diasActivo.toString(),
+                          Icons.calendar_today,
+                          Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildStatCard(
+                          'Progreso',
+                          totalTareas > 0
+                              ? '${((tareasCompletadas / totalTareas) * 100).toInt()}%'
+                              : '0%',
+                          Icons.trending_up,
+                          Colors.purple,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
-          Expanded(flex: 3, child: Text(value)),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildSettings() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Configuraciones',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+  Widget _buildAchievementsReal() {
+    return BlocBuilder<TareaBloc, TareaState>(
+      builder: (context, tareaState) {
+        int tareasCompletadas = 0;
+        bool primeraTarea = false;
+        bool racha7Dias = false;
+        bool tareas50 = false;
 
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Editar Perfil'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // Navegar a editar perfil
-              },
-            ),
+        if (tareaState is TareaLoaded) {
+          tareasCompletadas =
+              tareaState.tareas.where((t) => t.completado).length;
+          primeraTarea = tareasCompletadas >= 1;
+          racha7Dias = tareasCompletadas >= 7;
+          tareas50 = tareasCompletadas >= 50;
+        }
 
-            ListTile(
-              leading: const Icon(Icons.security),
-              title: const Text('Cambiar Contraseña'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // Navegar a cambiar contraseña
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.privacy_tip),
-              title: const Text('Privacidad'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // Navegar a configuración de privacidad
-              },
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.language),
-              title: const Text('Idioma'),
-              subtitle: const Text('Español'),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // Navegar a selección de idioma
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatistics() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Estadísticas',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            Row(
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _buildStatCard(
-                    'Tareas Completadas',
-                    '45',
-                    Icons.task_alt,
-                    Colors.green,
-                  ),
+                const Text(
+                  'Logros Reales',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildStatCard(
-                    'Días Activo',
-                    '128',
-                    Icons.calendar_today,
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    _buildAchievementBadge(
+                      'Primera Tarea',
+                      Icons.star,
+                      Colors.amber,
+                      primeraTarea,
+                    ),
+                    _buildAchievementBadge(
+                      '7+ Tareas',
+                      Icons.local_fire_department,
+                      Colors.orange,
+                      racha7Dias,
+                    ),
+                    _buildAchievementBadge(
+                      '50 Tareas',
+                      Icons.task_alt,
+                      Colors.green,
+                      tareas50,
+                    ),
+                    _buildAchievementBadge(
+                      'Usuario Activo',
+                      Icons.emoji_events,
+                      Colors.purple,
+                      tareasCompletadas > 0,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Has completado $tareasCompletadas tareas',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActivityHistoryReal() {
+    return BlocBuilder<TareaBloc, TareaState>(
+      builder: (context, tareaState) {
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Actividad Reciente',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Navegar a historial completo
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Navegación a historial completo en desarrollo',
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('Ver todo'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                if (tareaState is TareaLoaded &&
+                    tareaState.tareas.isNotEmpty) ...[
+                  // Mostrar últimas tareas completadas
+                  ...tareaState.tareas
+                      .where((t) => t.completado)
+                      .take(3)
+                      .map(
+                        (tarea) => _buildActivityItem(
+                          Icons.task_alt,
+                          'Completaste la tarea "${tarea.titulo}"',
+                          'Recientemente',
+                          Colors.green,
+                        ),
+                      ),
+
+                  // Actividad de login
+                  _buildActivityItem(
+                    Icons.login,
+                    'Iniciaste sesión como ${_extractUsernameFromEmail(_userEmail ?? 'Usuario')}',
+                    'Hoy',
                     Colors.blue,
                   ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    'Racha Actual',
-                    '7 días',
-                    Icons.local_fire_department,
-                    Colors.orange,
+                ] else ...[
+                  _buildActivityItem(
+                    Icons.login,
+                    'Iniciaste sesión',
+                    'Hoy',
+                    Colors.blue,
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildStatCard(
-                    'Puntos',
-                    '1,250',
-                    Icons.stars,
+                  _buildActivityItem(
+                    Icons.person_add,
+                    'Te uniste a la aplicación',
+                    'Recientemente',
                     Colors.purple,
                   ),
-                ),
+                ],
               ],
             ),
-          ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLogoutButtonReal(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          DialogHelper.mostrarDialogoCerrarSesion(context);
+        },
+        icon: const Icon(Icons.logout),
+        label: const Text('Cerrar Sesión'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
         ),
       ),
     );
   }
 
+  // Métodos auxiliares
+  String _extractUsernameFromEmail(String email) {
+    if (email.contains('@')) {
+      return email.split('@').first;
+    }
+    return email;
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return 'U';
+    final words = name.split(' ');
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  }
+
+  Future<void> _refreshUserData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await _loadUserData();
+    if (mounted) {
+      context.read<TareaBloc>().add(LoadTareasEvent());
+    }
+  }
+
+  void _showEditProfileDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Editar Perfil'),
+            content: const Text(
+              'La función de editar perfil estará disponible en una próxima actualización.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Entendido'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  // Métodos que se mantienen igual
   Widget _buildStatCard(
     String title,
     String value,
@@ -370,122 +720,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildThemeSettings() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Apariencia',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-
-            // Aquí puedes incluir el ThemeSettings que ya tienes
-            const ThemeSettings(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNotificationSettings() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Notificaciones',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-
-            SwitchListTile(
-              title: const Text('Notificaciones Push'),
-              subtitle: const Text('Recibir notificaciones en el dispositivo'),
-              value: true,
-              onChanged: (bool value) {
-                // Manejar cambio de notificaciones push
-              },
-            ),
-
-            SwitchListTile(
-              title: const Text('Recordatorios de Tareas'),
-              subtitle: const Text('Recordar tareas pendientes'),
-              value: true,
-              onChanged: (bool value) {
-                // Manejar cambio de recordatorios
-              },
-            ),
-
-            SwitchListTile(
-              title: const Text('Notificaciones por Email'),
-              subtitle: const Text('Recibir actualizaciones por correo'),
-              value: false,
-              onChanged: (bool value) {
-                // Manejar cambio de email
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // AGREGAR TODOS LOS NUEVOS MÉTODOS DESPUÉS DEL ÚLTIMO MÉTODO EXISTENTE:
-
-  Widget _buildAchievements() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Logros',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _buildAchievementBadge(
-                  'Primera Tarea',
-                  Icons.star,
-                  Colors.amber,
-                  true, // conseguido
-                ),
-                _buildAchievementBadge(
-                  'Racha de 7 días',
-                  Icons.local_fire_department,
-                  Colors.orange,
-                  true,
-                ),
-                _buildAchievementBadge(
-                  '50 Tareas',
-                  Icons.task_alt,
-                  Colors.green,
-                  false, // no conseguido
-                ),
-                _buildAchievementBadge(
-                  'Usuario Mes',
-                  Icons.emoji_events,
-                  Colors.purple,
-                  false,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildAchievementBadge(
     String title,
     IconData icon,
@@ -516,53 +750,6 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildActivityHistory() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Actividad Reciente',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Ver todo el historial
-                  },
-                  child: const Text('Ver todo'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildActivityItem(
-              Icons.task_alt,
-              'Completaste la tarea "Estudiar Flutter"',
-              '2 horas atrás',
-              Colors.green,
-            ),
-            _buildActivityItem(
-              Icons.dark_mode,
-              'Cambiaste el tema a modo oscuro',
-              '1 día atrás',
-              Colors.blue,
-            ),
-            _buildActivityItem(
-              Icons.person_add,
-              'Te registraste en la aplicación',
-              '5 días atrás',
-              Colors.purple,
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -606,6 +793,158 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.blueGrey),
+          const SizedBox(width: 12),
+          Text('$label:', style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors.black87),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettings() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Configuraciones',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Editar Perfil'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                _showEditProfileDialog();
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.security),
+              title: const Text('Cambiar Contraseña'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text('Privacidad'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text('Idioma'),
+              subtitle: const Text('Español'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeSettings() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Apariencia',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const ThemeSettings(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationSettings() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Notificaciones',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+
+            SwitchListTile(
+              title: const Text('Notificaciones Push'),
+              subtitle: const Text('Recibir notificaciones en el dispositivo'),
+              value: true,
+              onChanged: (bool value) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
+              },
+            ),
+
+            SwitchListTile(
+              title: const Text('Recordatorios de Tareas'),
+              subtitle: const Text('Recordar tareas pendientes'),
+              value: true,
+              onChanged: (bool value) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
+              },
+            ),
+
+            SwitchListTile(
+              title: const Text('Notificaciones por Email'),
+              subtitle: const Text('Recibir actualizaciones por correo'),
+              value: false,
+              onChanged: (bool value) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildAccountSettings(BuildContext context) {
     return Card(
       child: Padding(
@@ -622,10 +961,12 @@ class ProfileScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.backup),
               title: const Text('Copia de Seguridad'),
-              subtitle: const Text('Última copia: Hace 2 días'),
+              subtitle: const Text('Última copia: No disponible'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Configurar backup
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
               },
             ),
 
@@ -635,7 +976,9 @@ class ProfileScreen extends StatelessWidget {
               subtitle: const Text('Descargar información personal'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Exportar datos
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
               },
             ),
 
@@ -672,7 +1015,9 @@ class ProfileScreen extends StatelessWidget {
               title: const Text('Centro de Ayuda'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Navegar a centro de ayuda
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
               },
             ),
 
@@ -681,7 +1026,9 @@ class ProfileScreen extends StatelessWidget {
               title: const Text('Enviar Comentarios'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Enviar feedback
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
               },
             ),
 
@@ -690,7 +1037,9 @@ class ProfileScreen extends StatelessWidget {
               title: const Text('Reportar Problema'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Reportar bug
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
               },
             ),
 
@@ -699,7 +1048,9 @@ class ProfileScreen extends StatelessWidget {
               title: const Text('Contactar Soporte'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Contactar soporte
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Función en desarrollo')),
+                );
               },
             ),
           ],
@@ -732,43 +1083,31 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    // Mostrar términos y condiciones
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Función en desarrollo')),
+                    );
                   },
                   child: const Text('Términos'),
                 ),
                 TextButton(
                   onPressed: () {
-                    // Mostrar política de privacidad
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Función en desarrollo')),
+                    );
                   },
                   child: const Text('Privacidad'),
                 ),
                 TextButton(
                   onPressed: () {
-                    // Mostrar licencias
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Función en desarrollo')),
+                    );
                   },
                   child: const Text('Licencias'),
                 ),
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          _showLogoutDialog(context);
-        },
-        icon: const Icon(Icons.logout),
-        label: const Text('Cerrar Sesión'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
         ),
       ),
     );
@@ -792,41 +1131,16 @@ class ProfileScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Eliminar cuenta
                 Navigator.of(context).pop();
-                // Lógica para eliminar cuenta
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Función de eliminar cuenta en desarrollo'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Cerrar Sesión'),
-          content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Cerrar sesión
-                Navigator.of(context).pop();
-                // Navegar a pantalla de login
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Cerrar Sesión'),
             ),
           ],
         );
