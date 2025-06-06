@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manazco/components/side_menu.dart';
-import '../bloc/theme/theme_cubit.dart';
-import '../bloc/theme/theme_state.dart';
-import '../widgets/theme_switcher.dart';
+import 'package:manazco/bloc/theme/theme_cubit.dart';
+import 'package:manazco/bloc/theme/theme_state.dart';
+import 'package:manazco/widgets/theme_switcher.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

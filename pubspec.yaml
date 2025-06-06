@@ -47,6 +47,20 @@ dependencies:
   dart_mappable: ^4.5.0
   flutter_secure_storage: ^9.2.4
   connectivity_plus: ^6.1.4
+  fl_chart: ^0.66.0 # Para los gráficos
+
+  # Para PDF - usar solo printing que incluye path internamente
+  printing: ^5.12.0
+  pdf: ^3.10.8
+  
+  # Para Excel
+  excel: ^4.0.2
+  
+  # Para compartir - versión estable
+  share_plus: ^7.2.2
+  
+  # OPCIONAL: Si sigues teniendo problemas, usar esta versión específica
+  # path_provider: ^2.0.15
 
 dev_dependencies:
   flutter_test:

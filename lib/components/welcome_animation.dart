@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:manazco/theme/colors.dart';
 
 /// Widget de animación mejorado para la pantalla de bienvenida
 class WelcomeAnimation extends StatefulWidget {

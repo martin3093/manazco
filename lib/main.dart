@@ -14,8 +14,7 @@ import 'package:manazco/components/connectivity_wrapper.dart';
 import 'package:manazco/helpers/secure_storage_service.dart';
 import 'package:manazco/helpers/shared_preferences_service.dart';
 import 'package:manazco/theme/app_themes.dart';
-import 'package:manazco/theme/theme.dart';
-import 'package:manazco/views/home_screen.dart';
+
 import 'package:manazco/views/login_screen.dart';
 import 'package:watch_it/watch_it.dart';
 import 'package:manazco/bloc/noticia/noticia_bloc.dart';

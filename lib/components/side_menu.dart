@@ -10,6 +10,7 @@ import 'package:manazco/views/quote_screen.dart';
 import 'package:manazco/views/start_screen.dart';
 import 'package:manazco/views/welcome_screen.dart';
 import 'package:manazco/views/tarea_screen.dart';
+import 'package:manazco/views/dashboard_screen.dart'; // Asegúrate de importar la pantalla del Dashboard
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
@@ -60,6 +61,18 @@ class SideMenu extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const WelcomeScreen(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.dashboard),
+                  title: const Text('Dashboard'),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const DashboardScreen(),
                       ),
                     );
                   },
@@ -187,6 +200,8 @@ class SideMenu extends StatelessWidget {
                     DialogHelper.mostrarDialogoCerrarSesion(context);
                   },
                 ),
+
+                // Agregar este ListTile al drawer
               ],
             ),
           ),
