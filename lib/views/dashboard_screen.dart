@@ -1086,11 +1086,11 @@ class DashboardScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         Icon(Icons.timeline, color: Colors.purple, size: 24),
-                        const SizedBox(width: 8),
-                        const Text(
+                        SizedBox(width: 8),
+                        Text(
                           'Actividad Reciente',
                           style: TextStyle(
                             fontSize: 18,

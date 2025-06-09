@@ -5,7 +5,6 @@ import 'package:manazco/bloc/auth/auth_event.dart';
 import 'package:manazco/bloc/auth/auth_state.dart';
 import 'package:manazco/bloc/noticia/noticia_bloc.dart';
 import 'package:manazco/bloc/noticia/noticia_event.dart';
-import 'package:manazco/components/login_animation.dart';
 import 'package:manazco/components/responsive_container.dart';
 import 'package:manazco/helpers/common_widgets_helper.dart';
 import 'package:manazco/helpers/snackbar_helper.dart';
@@ -69,7 +68,12 @@ class LoginScreen extends StatelessWidget {
                             .min, // Para que ocupe solo el espacio necesario
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // CommonWidgetsHelper.iconoTitulo(icon: Icons.login),
+                      // Logo de Sodep
+                      Image.asset(
+                        'assets/images/sodep_logo.png',
+                        height: 80,
+                        fit: BoxFit.contain,
+                      ),
                       CommonWidgetsHelper.buildSpacing16(),
                       CommonWidgetsHelper.seccionSubTitulo(
                         title: 'Inicio de Sesión',

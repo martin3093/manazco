@@ -192,7 +192,7 @@ class CommonWidgetsHelper {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Center(child: Image.asset('assets/images/logo_sodep.png', height: 120)),
+        Center(child: Image.asset('assets/images/sodep_logo.png', height: 120)),
       ],
     );
   }

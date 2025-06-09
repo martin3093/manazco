@@ -304,10 +304,10 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // Logo y título
-                        Icon(
-                          Icons.lock_outline,
-                          size: 64,
-                          color: Theme.of(context).primaryColor,
+                        Image.asset(
+                          'assets/images/sodep_logo.png',
+                          height: 80,
+                          fit: BoxFit.contain,
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -369,7 +369,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                                   ),
                                   helperText:
                                       'Usuarios: profeltes, monimoney, sodep, gricequeen',
-                                  helperStyle: TextStyle(fontSize: 10),
+                                  helperStyle: const TextStyle(fontSize: 10),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
@@ -404,7 +404,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   helperText: 'Contraseña: sodep',
-                                  helperStyle: TextStyle(fontSize: 10),
+                                  helperStyle: const TextStyle(fontSize: 10),
                                 ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
