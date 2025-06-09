@@ -21,6 +21,8 @@ class AuthRepository {
       final LoginResponse response = await _authService.login(loginRequest);
       await _secureStorage.saveJwt(response.sessionToken);
       await _secureStorage.saveUserEmail(email);
+      // Reset biometric verification on new login
+      await _secureStorage.setBiometricVerified(false);
       await preferenciaRepository.cargarDatos();
       return true;
     } catch (e) {
@@ -31,8 +33,8 @@ class AuthRepository {
   Future<void> logout() async {
     preferenciaRepository.invalidarCache();
     _tareaRepository.limpiarCache();
-    await _secureStorage.clearJwt();
-    await _secureStorage.clearUserEmail();
+    await _secureStorage
+        .clearAllSessionData(); // This will clear JWT, user email, and biometric verification
   }
 
   Future<String?> getAuthToken() async {

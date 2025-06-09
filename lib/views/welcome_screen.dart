@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:manazco/components/side_menu.dart';
 import 'package:manazco/components/welcome_animation.dart';
 import 'package:manazco/helpers/secure_storage_service.dart';
+import 'package:manazco/views/biometric_auth_screen.dart';
 import 'package:manazco/views/login_screen.dart';
 import 'package:manazco/views/dashboard_screen.dart';
 import 'package:manazco/views/tarea_screen.dart';
@@ -65,6 +66,8 @@ class WelcomeScreenState extends State<WelcomeScreen>
   Future<void> _verificarAutenticacionYCargarEmail() async {
     final SecureStorageService secureStorage = di<SecureStorageService>();
     final token = await secureStorage.getJwt();
+
+    // Check if user is logged in
     if (token == null || token.isEmpty) {
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -74,6 +77,19 @@ class WelcomeScreenState extends State<WelcomeScreen>
       }
       return;
     }
+
+    // Check if biometric verification is complete
+    final biometricVerified = await secureStorage.getBiometricVerified();
+    if (!biometricVerified) {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const BiometricAuthScreen()),
+        );
+      }
+      return;
+    }
+
+    // Load user email if everything is verified
     final email = await secureStorage.getUserEmail() ?? 'Usuario';
     if (mounted) {
       setState(() {

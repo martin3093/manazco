@@ -58,12 +58,23 @@ class CategoriaCard extends StatelessWidget {
               },
             ),
           ),
-          title: Text(categoria.nombre, style: theme.textTheme.titleMedium),
+          title: Text(
+            categoria.nombre,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           subtitle: Text(
             categoria.descripcion,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withAlpha(179),
+            ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,

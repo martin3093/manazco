@@ -5,6 +5,7 @@ import 'package:manazco/bloc/auth/auth_event.dart';
 import 'package:manazco/bloc/auth/auth_state.dart';
 import 'package:manazco/domain/login_request.dart';
 import 'package:manazco/api/service/biometric_service.dart';
+import 'package:manazco/views/biometric_auth_screen.dart';
 
 class EnhancedLoginScreen extends StatefulWidget {
   const EnhancedLoginScreen({super.key});
@@ -254,12 +255,13 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            // Regresar a la pantalla anterior (welcome) o ir a welcome si no hay anterior
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            } else {
-              Navigator.pushReplacementNamed(context, '/welcome');
-            }
+            // Navigate to BiometricAuthScreen after successful login
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BiometricAuthScreen(),
+              ),
+            );
 
             // Login exitoso - ofrecer configurar huella si no está configurada (de forma asíncrona)
             if (_isBiometricAvailable) {
