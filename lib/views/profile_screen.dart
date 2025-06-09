@@ -868,18 +868,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildThemeSettings() {
-    return Card(
+    return const Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Apariencia',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            const ThemeSettings(),
+            SizedBox(height: 8),
+            ThemeSettings(),
           ],
         ),
       ),

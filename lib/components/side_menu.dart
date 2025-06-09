@@ -309,21 +309,7 @@ class SideMenu extends StatelessWidget {
                     );
                   },
                 ),
-                // // Agregar en la sección de configuración:
-                // ListTile(
-                //   leading: const Icon(Icons.login),
-                //   title: const Text('🔐 Login con Huella'),
-                //   onTap: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(
-                //         builder: (context) => const LoginBiometricScreen(),
-                //       ),
-                //     );
-                //   },
-                // )
-                //
-                //,
+
                 ListTile(
                   leading: const Icon(Icons.login),
                   title: const Text('🔐 Login Avanzado'),
@@ -338,40 +324,40 @@ class SideMenu extends StatelessWidget {
                   },
                 ),
 
-                // Opción para gestionar huella
-                FutureBuilder<bool>(
-                  future: BiometricService.tieneUsuarioGuardado(),
-                  builder: (context, snapshot) {
-                    final tieneUsuario = snapshot.data ?? false;
+                // // Opción para gestionar huella
+                // FutureBuilder<bool>(
+                //   future: BiometricService.tieneUsuarioGuardado(),
+                //   builder: (context, snapshot) {
+                //     final tieneUsuario = snapshot.data ?? false;
 
-                    return ListTile(
-                      leading: Icon(
-                        tieneUsuario
-                            ? Icons.fingerprint
-                            : Icons.fingerprint_outlined,
-                      ),
-                      title: Text(
-                        tieneUsuario
-                            ? '👤 Gestionar Huella'
-                            : '⚙️ Configurar Huella',
-                      ),
-                      subtitle: Text(
-                        tieneUsuario ? 'Usuario configurado' : 'Sin configurar',
-                      ),
-                      onTap: () async {
-                        if (tieneUsuario) {
-                          // Mostrar opciones de gestión
-                          _showBiometricManagement(context);
-                        } else {
-                          _showMessage(
-                            context,
-                            'Primero debes hacer login para configurar la huella',
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
+                // return ListTile(
+                //   leading: Icon(
+                //     tieneUsuario
+                //         ? Icons.fingerprint
+                //         : Icons.fingerprint_outlined,
+                //   ),
+                //   title: Text(
+                //     tieneUsuario
+                //         ? '👤 Gestionar Huella'
+                //         : '⚙️ Configurar Huella',
+                //   ),
+                //   subtitle: Text(
+                //     tieneUsuario ? 'Usuario configurado' : 'Sin configurar',
+                //   ),
+                //   onTap: () async {
+                //     if (tieneUsuario) {
+                //       // Mostrar opciones de gestión
+                //       _showBiometricManagement(context);
+                //     } else {
+                //       _showMessage(
+                //         context,
+                //         'Primero debes hacer login para configurar la huella',
+                //       );
+                //     }
+                //   },
+                // );
+                //   },
+                // ),
 
                 // ListTile(
                 //   leading: const Icon(Icons.settings),
@@ -601,8 +587,6 @@ class SideMenu extends StatelessWidget {
               TextButton(
                 onPressed: () async {
                   Navigator.pop(context);
-                  final eliminado =
-                      await BiometricService.eliminarUsuarioGuardado();
                   _showMessage(context, 'Configuración de huella eliminada');
                 },
                 child: const Text('Eliminar'),

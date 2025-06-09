@@ -132,7 +132,9 @@ class WelcomeScreenState extends State<WelcomeScreen>
                     gradient: LinearGradient(
                       colors: [
                         Theme.of(context).primaryColor,
-                        Theme.of(context).primaryColor.withOpacity(0.8),
+                        Theme.of(
+                          context,
+                        ).primaryColor.withAlpha((0.8 * 255).round()),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -154,7 +156,7 @@ class WelcomeScreenState extends State<WelcomeScreen>
                       Text(
                         'Bienvenido a ManAzco',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withAlpha((0.9 * 255).round()),
                           fontSize: 12,
                         ),
                       ),
@@ -348,7 +350,10 @@ class WelcomeScreenState extends State<WelcomeScreen>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             gradient: LinearGradient(
-              colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+              colors: [
+                color.withAlpha((0.1 * 255).round()),
+                color.withAlpha((0.05 * 255).round()),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -359,7 +364,7 @@ class WelcomeScreenState extends State<WelcomeScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withAlpha((0.2 * 255).round()),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 24, color: color),
@@ -371,7 +376,8 @@ class WelcomeScreenState extends State<WelcomeScreen>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: color.withOpacity(0.8),
+                  // color: color.withAlpha((0.8 * 255).round()),
+                  color: color.withAlpha((0.8 * 255).round()),
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -404,7 +410,8 @@ class WelcomeScreenState extends State<WelcomeScreen>
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  // color: color.withAlpha((0.1 * 255).round()),
+                  color: color.withAlpha((0.1 * 255).round()),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 20, color: color),

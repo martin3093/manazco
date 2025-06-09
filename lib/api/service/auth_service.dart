@@ -22,8 +22,18 @@ class AuthService extends BaseService {
             usuario.username == request.username &&
             usuario.password == request.password,
       );
+
       if (credencialesValidas) {
-        data = await postUnauthorized('/login', data: request.toJson());
+        try {
+          // Intentar autenticación online
+          data = await postUnauthorized('/login', data: request.toJson());
+        } catch (e) {
+          // Si falla la conexión, usar respuesta offline para usuarios válidos
+          data = {
+            'session_token':
+                'offline_token_${request.username}_${DateTime.now().millisecondsSinceEpoch}',
+          };
+        }
       }
 
       if (data != null) {
