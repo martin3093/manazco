@@ -151,9 +151,12 @@ class PreferenciaScreen extends StatelessWidget {
                     (_) => _toggleCategoria(context, categoria.id!, isSelected),
                 title: Text(
                   categoria.nombre,
+
                   style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: isSelected ? FontWeight.bold : null,
-                    color: isSelected ? theme.colorScheme.primary : null,
+                    color:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : theme.colorScheme.onSurface,
                   ),
                 ),
                 activeColor: theme.colorScheme.primary,
