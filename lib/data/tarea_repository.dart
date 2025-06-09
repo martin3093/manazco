@@ -138,17 +138,40 @@ class TareasRepository extends BaseRepository<Tarea> {
   Future<void> eliminarTarea(String tareaId) async {
     return manejarExcepcion(() async {
       validarId(tareaId);
-      await _tareaService.eliminarTarea(
-        tareaId,
-      ); // Actualizamos la caché en un solo paso usando el método auxiliar
-      await _actualizarCache((cache) {
-        // Filtramos la tarea eliminada
-        final tareasFiltradas =
-            cache.misTareas.where((t) => t.id != tareaId).toList();
 
-        // Creamos una nueva instancia con la lista filtrada
-        return cache.copyWith(misTareas: tareasFiltradas);
-      });
+      // Primero obtenemos el cache actual para poder hacer rollback si falla
+      final cacheActual = await _obtenerCache();
+      if (cacheActual == null) {
+        throw Exception('No se pudo obtener el cache actual');
+      }
+
+      // Guardamos la tarea que vamos a eliminar por si necesitamos rollback
+      final tareaAEliminar = cacheActual.misTareas.firstWhere(
+        (t) => t.id == tareaId,
+        orElse: () => throw Exception('Tarea no encontrada en cache'),
+      );
+
+      try {
+        // Primero eliminamos del cache (optimistic update)
+        await _actualizarCache((cache) {
+          final tareasFiltradas =
+              cache.misTareas.where((t) => t.id != tareaId).toList();
+          return cache.copyWith(misTareas: tareasFiltradas);
+        });
+
+        // Luego eliminamos de la API
+        await _tareaService.eliminarTarea(tareaId);
+      } catch (e) {
+        // Si falla la eliminación en la API, restauramos el cache
+        await _actualizarCache((cache) {
+          return cache.copyWith(
+            misTareas: [...cache.misTareas, tareaAEliminar],
+          );
+        });
+
+        // Re-lanzamos la excepción para que el BLoC la maneje
+        rethrow;
+      }
     }, mensajeError: TareasConstantes.errorEliminar);
   }
 

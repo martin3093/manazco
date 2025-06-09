@@ -27,10 +27,10 @@ class ResultScreen extends StatelessWidget {
             : '¡Sigue practicando!';
 
     // Estilo del texto del puntaje
-    const TextStyle scoreTextStyle = TextStyle(
+    TextStyle scoreTextStyle = TextStyle(
       fontSize: 24,
       fontWeight: FontWeight.bold,
-      color: Colors.black,
+      color: Theme.of(context).textTheme.bodyLarge?.color,
     );
 
     // Estilo del mensaje de retroalimentación
@@ -52,7 +52,7 @@ class ResultScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -61,11 +61,7 @@ class ResultScreen extends StatelessWidget {
             children: [
               const Text(
                 '¡Juego Terminado!',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),

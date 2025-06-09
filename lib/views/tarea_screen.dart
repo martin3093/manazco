@@ -78,7 +78,6 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
 
     return BlocConsumer<TareaBloc, TareaState>(
       listener: (context, state) {
-        // Listener sin cambios
         if (state is TareaError) {
           SnackBarHelper.manejarError(context, state.error);
         } else if (state is TareaCompletada) {
@@ -95,6 +94,9 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
               mensaje: 'Tarea marcada como pendiente',
             );
           }
+        } else if (state is TareaOperationSuccess) {
+          // Manejar los estados de operaciones exitosas (crear, editar, eliminar)
+          SnackBarHelper.mostrarExito(context, mensaje: state.mensaje);
         } else if (state is TareaLoaded) {
           final totalCompletadas =
               state.tareas.where((t) => t.completado).length;
@@ -190,6 +192,61 @@ class _TareaScreenContentState extends State<_TareaScreenContent> {
           ],
         ),
       );
+    }
+
+    // Manejar estados de operaciones (TareaCreated, TareaUpdated, TareaDeleted)
+    // Mostramos la lista de tareas actualizada de estos estados
+    if (state is TareaOperationSuccess) {
+      final tareas = state.tareas;
+      return tareas.isEmpty
+          ? ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: Center(
+                  child: Text(
+                    TareasConstantes.listaVacia,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+            ],
+          )
+          : ListView.builder(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: tareas.length,
+            itemBuilder: (context, index) {
+              final tarea = tareas[index];
+              return Dismissible(
+                key: Key(tarea.id.toString()),
+                background: Container(
+                  color: theme.colorScheme.error,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Icon(Icons.delete, color: theme.colorScheme.onError),
+                ),
+                direction: DismissDirection.startToEnd,
+                confirmDismiss: (direction) async {
+                  return await DialogHelper.mostrarConfirmacion(
+                    context: context,
+                    titulo: 'Confirmar eliminación',
+                    mensaje: '¿Estás seguro de que deseas eliminar esta tarea?',
+                    textoCancelar: 'Cancelar',
+                    textoConfirmar: 'Eliminar',
+                  );
+                },
+                onDismissed: (_) {
+                  context.read<TareaBloc>().add(DeleteTareaEvent(tarea.id!));
+                },
+                child: GestureDetector(
+                  onTap: () => _mostrarDetallesTarea(context, index, tareas),
+                  child: construirTarjetaDeportiva(tarea),
+                ),
+              );
+            },
+          );
     }
 
     if (state is TareaError && state is! TareaLoaded) {

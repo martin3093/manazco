@@ -6,9 +6,7 @@ import 'package:manazco/bloc/noticia/noticia_event.dart';
 // Asegúrate de que el archivo noticia_event.dart exporta la clase FetchNoticias
 import 'package:manazco/bloc/tarea/tarea_bloc.dart';
 import 'package:manazco/bloc/tarea/tarea_state.dart';
-import 'package:manazco/bloc/tarea/tarea_event.dart'
-    show LoadTareasEvent, LoadTareasEvent;
-import 'package:manazco/bloc/theme/theme_cubit.dart';
+import 'package:manazco/bloc/tarea/tarea_event.dart';
 import 'package:manazco/components/side_menu.dart';
 import 'package:manazco/widgets/theme_switcher.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -132,7 +130,7 @@ class DashboardScreen extends StatelessWidget {
                 noticiaState is NoticiaLoaded
                     ? noticiaState.noticias.fold<int>(
                       0,
-                      (sum, n) => sum + ((n.contadorReportes ?? 0) as int),
+                      (sum, n) => sum + (n.contadorReportes ?? 0),
                     )
                     : 0;
 
@@ -155,7 +153,11 @@ class DashboardScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.dashboard, color: Colors.blue, size: 24),
+                        const Icon(
+                          Icons.dashboard,
+                          color: Colors.blue,
+                          size: 24,
+                        ),
                         const SizedBox(width: 8),
                         const Text(
                           'Resumen Ejecutivo',
@@ -399,8 +401,7 @@ class DashboardScreen extends StatelessWidget {
                           state.noticias
                               .fold<int>(
                                 0,
-                                (sum, n) =>
-                                    sum + ((n.contadorReportes ?? 0) as int),
+                                (sum, n) => sum + (n.contadorReportes ?? 0),
                               )
                               .toString(),
                           Icons.flag,
@@ -418,8 +419,7 @@ class DashboardScreen extends StatelessWidget {
                           state.noticias
                               .fold<int>(
                                 0,
-                                (sum, n) =>
-                                    sum + ((n.contadorComentarios ?? 0) as int),
+                                (sum, n) => sum + (n.contadorComentarios ?? 0),
                               )
                               .toString(),
                           Icons.comment,
@@ -478,7 +478,7 @@ class DashboardScreen extends StatelessWidget {
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.1),
+                                      color: Colors.red.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
@@ -872,9 +872,15 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
           ),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         barGroups:
@@ -993,9 +999,15 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
           ),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: true),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: true),
         minX: 0,

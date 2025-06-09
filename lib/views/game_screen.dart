@@ -106,7 +106,7 @@ class GameScreenState extends State<GameScreen> {
         backgroundColor: Colors.blue,
       ),
       drawer: const SideMenu(),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Center(
@@ -125,7 +125,6 @@ class GameScreenState extends State<GameScreen> {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -140,7 +139,6 @@ class GameScreenState extends State<GameScreen> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),

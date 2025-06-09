@@ -31,7 +31,12 @@ class TareaService extends BaseService {
   /// Elimina una tarea existente
   Future<void> eliminarTarea(String tareaId) async {
     final url = '$_endpoint/$tareaId';
-    await delete(url, errorMessage: 'Error al eliminar la tarea');
+
+    try {
+      await delete(url, errorMessage: 'Error al eliminar la tarea');
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// Actualiza una tarea existente
