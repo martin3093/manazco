@@ -6,7 +6,6 @@ import 'package:manazco/bloc/theme/theme_state.dart';
 
 class ThemeCubit extends Cubit<ThemeState> {
   static const String _themeKey = 'selected_theme';
-  static const String _customColorKey = 'custom_primary_color';
 
   ThemeCubit() : super(ThemeState.initial()) {
     _loadSavedTheme();

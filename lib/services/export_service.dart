@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Agregar este import
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -140,7 +139,7 @@ class ExportService {
           pw.SizedBox(height: 8),
           pw.Text(
             'Reporte generado el ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-            style: pw.TextStyle(fontSize: 12, color: PdfColors.white),
+            style: const pw.TextStyle(fontSize: 12, color: PdfColors.white),
           ),
         ],
       ),

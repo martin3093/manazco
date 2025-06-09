@@ -9,7 +9,7 @@ import 'package:manazco/components/login_animation.dart';
 import 'package:manazco/components/responsive_container.dart';
 import 'package:manazco/helpers/common_widgets_helper.dart';
 import 'package:manazco/helpers/snackbar_helper.dart';
-import 'package:manazco/views/welcome_screen.dart';
+import 'package:manazco/views/biometric_auth_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -38,9 +38,13 @@ class LoginScreen extends StatelessWidget {
             rootNavigator: true,
           ).popUntil((route) => route.isFirst);
           context.read<NoticiaBloc>().add(FetchNoticiasEvent());
+
+          // Navigate to BiometricAuthScreen instead of WelcomeScreen
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+            MaterialPageRoute(
+              builder: (context) => const BiometricAuthScreen(),
+            ),
           );
         } else if (state is AuthFailure) {
           Navigator.of(

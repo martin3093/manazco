@@ -240,6 +240,7 @@ class BaseService {
     final options = await _getRequestOptions(
       requireAuthToken: requireAuthToken,
     );
+
     return _executeRequest<dynamic>(
       () => _dio.delete(
         endpoint,

@@ -3,7 +3,6 @@ import 'package:manazco/bloc/theme/theme_state.dart';
 import 'package:manazco/helpers/dialog_helper.dart';
 import 'package:manazco/views/acerca_screen.dart';
 import 'package:manazco/views/contador_screen.dart';
-import 'package:manazco/views/home_screen.dart';
 import 'package:manazco/views/mi_app_screen.dart';
 import 'package:manazco/views/noticia_screen.dart';
 import 'package:manazco/views/profile_screen.dart';
@@ -12,9 +11,13 @@ import 'package:manazco/views/start_screen.dart';
 import 'package:manazco/views/welcome_screen.dart';
 import 'package:manazco/views/tarea_screen.dart';
 import 'package:manazco/views/dashboard_screen.dart';
-import 'package:manazco/widgets/theme_switcher.dart'; // 🎨 Importar ThemeSwitcher
+// 🎨 Importar ThemeSwitcher
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manazco/bloc/theme/theme_cubit.dart';
+import 'package:manazco/views/test_biometric_screen.dart';
+// Agregar imports
+import 'package:manazco/views/enhanced_login_screen.dart';
+import 'package:manazco/api/service/biometric_service.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
@@ -294,6 +297,98 @@ class SideMenu extends StatelessWidget {
                     );
                   },
                 ),
+                ListTile(
+                  leading: const Icon(Icons.fingerprint),
+                  title: const Text('🧪 Probar Huella'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TestBiometricScreen(),
+                      ),
+                    );
+                  },
+                ),
+                // // Agregar en la sección de configuración:
+                // ListTile(
+                //   leading: const Icon(Icons.login),
+                //   title: const Text('🔐 Login con Huella'),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => const LoginBiometricScreen(),
+                //       ),
+                //     );
+                //   },
+                // )
+                //
+                //,
+                ListTile(
+                  leading: const Icon(Icons.login),
+                  title: const Text('🔐 Login Avanzado'),
+                  subtitle: const Text('Con autenticación biométrica'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EnhancedLoginScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                // Opción para gestionar huella
+                FutureBuilder<bool>(
+                  future: BiometricService.tieneUsuarioGuardado(),
+                  builder: (context, snapshot) {
+                    final tieneUsuario = snapshot.data ?? false;
+
+                    return ListTile(
+                      leading: Icon(
+                        tieneUsuario
+                            ? Icons.fingerprint
+                            : Icons.fingerprint_outlined,
+                      ),
+                      title: Text(
+                        tieneUsuario
+                            ? '👤 Gestionar Huella'
+                            : '⚙️ Configurar Huella',
+                      ),
+                      subtitle: Text(
+                        tieneUsuario ? 'Usuario configurado' : 'Sin configurar',
+                      ),
+                      onTap: () async {
+                        if (tieneUsuario) {
+                          // Mostrar opciones de gestión
+                          _showBiometricManagement(context);
+                        } else {
+                          _showMessage(
+                            context,
+                            'Primero debes hacer login para configurar la huella',
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+
+                // ListTile(
+                //   leading: const Icon(Icons.settings),
+                //   title: const Text('⚙️ Configurar Huella'),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder:
+                //             (context) => const SetupBiometricScreen(
+                //               userEmail: 'demo@ejemplo.com',
+                //               userName: 'Usuario Demo',
+                //             ),
+                //       ),
+                //     );
+                //   },
+                // ),
 
                 // === SESIÓN ===
                 const Divider(color: Colors.white24, thickness: 1, height: 20),
@@ -487,5 +582,51 @@ class SideMenu extends StatelessWidget {
       case ThemeMode.system:
         return 'Automático';
     }
+  }
+
+  void _showBiometricManagement(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Gestionar Huella'),
+            content: const Text(
+              '¿Qué quieres hacer con la configuración de huella?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  final eliminado =
+                      await BiometricService.eliminarUsuarioGuardado();
+                  _showMessage(context, 'Configuración de huella eliminada');
+                },
+                child: const Text('Eliminar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EnhancedLoginScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Probar Login'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

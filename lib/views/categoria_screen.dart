@@ -112,7 +112,7 @@ class _CategoriaScreenContent extends StatelessWidget {
             ],
           ),
           drawer: const SideMenu(),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Column(
             children: [
               LastUpdatedHeader(lastUpdated: lastUpdated),

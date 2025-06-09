@@ -5,7 +5,6 @@ import 'package:manazco/components/side_menu.dart';
 import 'package:manazco/widgets/theme_switcher.dart';
 import 'package:manazco/bloc/auth/auth_bloc.dart';
 import 'package:manazco/bloc/auth/auth_state.dart';
-import 'package:manazco/bloc/auth/auth_event.dart';
 import 'package:manazco/bloc/tarea/tarea_bloc.dart';
 import 'package:manazco/bloc/tarea/tarea_state.dart';
 import 'package:manazco/bloc/tarea/tarea_event.dart';
@@ -332,7 +331,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         int totalTareas = 0;
         int tareasCompletadas = 0;
         int diasActivo = 0;
-        String rachaActual = '0 días';
 
         if (tareaState is TareaLoaded) {
           totalTareas = tareaState.tareas.length;
@@ -353,12 +351,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               diasActivo = DateTime.now().difference(fechas.first).inDays;
             }
           }
-
-          // Calcular racha actual (simplificada)
-          rachaActual =
-              tareasCompletadas > 0
-                  ? '${(tareasCompletadas / 7).ceil()} días'
-                  : '0 días';
         }
 
         return Card(
@@ -805,7 +797,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(color: Colors.black87),
+              style: const TextStyle(),
               overflow: TextOverflow.ellipsis,
             ),
           ),
